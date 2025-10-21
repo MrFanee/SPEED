@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
 
 class AuthController extends Controller
 {
@@ -21,19 +22,30 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        $user = User::where('username', $credentials['username'])->first();
+        $user = User::where('username', $request->username)->first();
 
-        if ($user && Hash::check($credentials['password'], $user->password)) {
-            Auth::login($user);
-            return redirect()->route('dashboard');
+        if ($user && Hash::check($request->password, $user->password)) {
+            Auth::login($user, false);
+            
+            $request->session()->regenerate();
+            
+            session(['user_id' => $user->id_user]);
+            session(['username' => $user->username]);
+                        
+            return redirect('/dashboard');
         }
 
-        return back()->withErrors(['username' => 'Username atau password salah.']);
+        return back()->withErrors(['username' => 'Login failed']);
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
         Auth::logout();
+        
+        $request->session()->invalidate();
+        
+        $request->session()->regenerateToken();
+
         return redirect('/login');
     }
 }
