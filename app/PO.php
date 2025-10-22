@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PO extends Model
 {
-    protected $primaryKey = 'id_po';
+    protected $primaryKey = 'id';
     protected $fillable = ['po_number', 'qty_po', 'qty_outstanding', 'status', 'id_vendor', 'id_part'];
 
     public function vendor()

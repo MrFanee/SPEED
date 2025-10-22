@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class DI extends Model
 {
-    protected $primaryKey = 'id_di';
-    protected $fillable = ['qty_plan', 'qty_delivery', 'balance', 'id_po'];
+    protected $primaryKey = 'id';
+    protected $fillable = ['qty_plan', 'qty_delivery', 'balance', 'po_id'];
 
     public function poTables()
     {
-        return $this->belongsTo(PO::class, 'id_po');
+        return $this->belongsTo(PO::class, 'po_id');
     }
 }

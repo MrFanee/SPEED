@@ -20,7 +20,13 @@ class VendorController extends Controller
 
     public function store(Request $request)
     {
-        Vendor::create($request->all());
+        $request->validate([
+            'nickname' => 'required',
+            'vendor_name' => 'required',
+            'alamat' => 'required',
+        ]);
+
+        Vendor::create($request->only(['nickname', 'vendor_name', 'alamat']));
         return redirect()->route('vendors.index')->with('success', 'Vendor berhasil ditambahkan!');
     }
 
@@ -31,7 +37,13 @@ class VendorController extends Controller
 
     public function update(Request $request, Vendor $vendor)
     {
-        $vendor->update($request->all());
+        $request->validate([
+            'nickname' => 'required',
+            'vendor_name' => 'required',
+            'alamat' => 'required',
+        ]);
+
+        $vendor->update($request->only(['nickname', 'vendor_name', 'alamat']));
         return redirect()->route('vendors.index')->with('success', 'Vendor berhasil diupdate!');
     }
 

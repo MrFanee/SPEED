@@ -6,17 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Stock extends Model
 {
-    protected $primaryKey = 'id_stock';
+    protected $primaryKey = 'id';
     protected $fillable = ['rm', 'wip', 'fg', 'judgement', 'kategori_problem', 'detail_problem', 
-    'id_vendor', 'id_part'];
+    'vendor_id', 'part_id'];
 
     public function vendor()
     {
-        return $this->belongsTo(Vendor::class, 'id_vendor');
+        return $this->belongsTo(Vendor::class, 'vendor_id');
     }
 
     public function part()
     {
-        return $this->belongsTo(Part::class, 'id_part');
+        return $this->belongsTo(Part::class, 'part_id');
     }
 }

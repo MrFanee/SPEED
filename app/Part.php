@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Part extends Model
 {
-    protected $primaryKey = 'id_part';
+    protected $primaryKey = 'id';
     protected $fillable = ['part_name', 'part_number', 'item_code'];
     
     public function poTables()  {

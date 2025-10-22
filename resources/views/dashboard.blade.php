@@ -9,7 +9,7 @@
 
   <section class="section dashboard">
     <div class="row">
-      <!-- konten dashboardmu di sini -->
+      <!-- konten -->
     </div>
   </section>
 @endsection

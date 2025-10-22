@@ -15,7 +15,7 @@
             </a>
             <ul id="master-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
                 <li>
-                    <a href="components-alerts.html">
+                    <a class="nav-link " href="{{ route('vendors.index')}}">
                         <i class="bi bi-circle"></i><span>Vendor</span>
                     </a>
                 </li>
@@ -34,7 +34,7 @@
 
         <li class="nav-item">
             <a class="nav-link collapsed" href="{{('stock')}}">
-                <i class="bi bi-card-checklist"></i> 
+                <i class="bi bi-card-checklist"></i>
                 <span>2 Days Stock</span>
             </a>
         </li>
