@@ -15,12 +15,12 @@
             </a>
             <ul id="master-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
                 <li>
-                    <a class="nav-link " href="{{ route('vendors.index')}}">
+                    <a class="nav-link " href="{{ route('vendor.index')}}">
                         <i class="bi bi-circle"></i><span>Vendor</span>
                     </a>
                 </li>
                 <li>
-                    <a href="components-accordion.html">
+                    <a class="nav-link " href="{{ route('part.index')}}">
                         <i class="bi bi-circle"></i><span>Part</span>
                     </a>
                 </li>

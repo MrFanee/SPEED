@@ -8,7 +8,7 @@
   <nav>
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
-      <li class="breadcrumb-item"><a href="{{ route('vendors.index') }}">Vendor</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('vendor.index') }}">Vendor</a></li>
       <li class="breadcrumb-item active">Tambah</li>
     </ol>
   </nav>
@@ -18,9 +18,15 @@
   <div class="card">
     <div class="card-body">
       <h5 class="card-title">Form Tambah Vendor</h5>
-
-      <form action="{{ route('vendors.store') }}" method="POST">
+A
+      <form action="{{ route('vendor.store') }}" method="POST">
         @csrf
+
+        <div class="mb-3">
+          <label for="id" class="form-label">ID Vendor</label>
+          <input type="text" name="id" class="form-control" id="id" value="{{ old('id') }}">
+          @error('id') <small class="text-danger">{{ $message }}</small> @enderror
+        </div>
 
         <div class="mb-3">
           <label for="nickname" class="form-label">Nickname</label>
@@ -41,7 +47,7 @@
         </div>
 
         <button type="submit" class="btn btn-primary">Simpan</button>
-        <a href="{{ route('vendors.index') }}" class="btn btn-secondary">Batal</a>
+        <a href="{{ route('vendor.index') }}" class="btn btn-secondary">Batal</a>
       </form>
 
     </div>

@@ -10,12 +10,12 @@ class VendorController extends Controller
     public function index()
     {
         $vendors = Vendor::all();
-        return view('vendors.index', compact('vendors'));
+        return view('vendor.index', compact('vendor'));
     }
 
     public function create()
     {
-        return view('vendors.create');
+        return view('vendor.create');
     }
 
     public function store(Request $request)
@@ -27,12 +27,12 @@ class VendorController extends Controller
         ]);
 
         Vendor::create($request->only(['nickname', 'vendor_name', 'alamat']));
-        return redirect()->route('vendors.index')->with('success', 'Vendor berhasil ditambahkan!');
+        return redirect()->route('vendor.index')->with('success', 'Vendor berhasil ditambahkan!');
     }
 
     public function edit(Vendor $vendor)
     {
-        return view('vendors.edit', compact('vendor'));
+        return view('vendor.edit', compact('vendor'));
     }
 
     public function update(Request $request, Vendor $vendor)
@@ -44,12 +44,12 @@ class VendorController extends Controller
         ]);
 
         $vendor->update($request->only(['nickname', 'vendor_name', 'alamat']));
-        return redirect()->route('vendors.index')->with('success', 'Vendor berhasil diupdate!');
+        return redirect()->route('vendor.index')->with('success', 'Vendor berhasil diupdate!');
     }
 
     public function destroy(Vendor $vendor)
     {
         $vendor->delete();
-        return redirect()->route('vendors.index')->with('success', 'Vendor berhasil dihapus!');
+        return redirect()->route('vendor.index')->with('success', 'Vendor berhasil dihapus!');
     }
 }
