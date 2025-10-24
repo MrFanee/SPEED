@@ -25,8 +25,18 @@
                     </a>
                 </li>
                 <li>
-                    <a href="components-badges.html">
-                        <i class="bi bi-circle"></i><span>Data</span>
+                    <a class="nav-link " href="{{route('twodays.index')}}">
+                        <i class="bi bi-circle"></i><span>Master 2HK</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link " href="">
+                        <i class="bi bi-circle"></i><span>Master PO</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link " href="">
+                        <i class="bi bi-circle"></i><span>Master DI</span>
                     </a>
                 </li>
             </ul>

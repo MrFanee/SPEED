@@ -4,7 +4,6 @@ namespace App\Http\Controllers\part;
 
 use App\Http\Controllers\Controller;
 use App\Part;
-use Illuminate\Http\Request;
 
 class PartDestroyController extends Controller
 {

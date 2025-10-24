@@ -2,13 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\POController;
-use App\Http\Controllers\StockController;
-use App\Http\Controllers\TwodaysController;
-use App\Http\Controllers\DIController;
-use App\Http\Controllers\DashboardController;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\vendor\VendorIndexController;
 use App\Http\Controllers\vendor\VendorCreateController;
 use App\Http\Controllers\vendor\VendorStoreController;
@@ -21,6 +14,12 @@ use App\Http\Controllers\part\PartStoreController;
 use App\Http\Controllers\part\PartEditController;
 use App\Http\Controllers\part\PartUpdateController;
 use App\Http\Controllers\part\PartDestroyController;
+use App\Http\Controllers\twodays\TwodaysIndexController;
+use App\Http\Controllers\twodays\TwodaysCreateController;
+use App\Http\Controllers\twodays\TwodaysStoreController;
+use App\Http\Controllers\twodays\TwodaysEditController;
+use App\Http\Controllers\twodays\TwodaysUpdateController;
+use App\Http\Controllers\twodays\TwodaysDestroyController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -51,10 +50,17 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/part/update/{id}', [PartUpdateController::class, 'update'])->name('part.update');
     Route::delete('/part/delete/{id}', [PartDestroyController::class, 'destroy'])->name('part.delete');
 
+    // Twodays routes
+    Route::get('/twodays/view', [TwodaysIndexController::class, 'index'])->name('twodays.index');
+    Route::get('/twodays/create', [TwodaysCreateController::class, 'create'])->name('twodays.create');
+    Route::post('/twodays/store', [TwodaysStoreController::class, 'store'])->name('twodays.store');
+    Route::get('/twodays/edit/{id}', [TwodaysEditController::class, 'edit'])->name('twodays.edit');
+    Route::put('/twodays/update/{id}', [TwodaysUpdateController::class, 'update'])->name('twodays.update');
+    Route::delete('/twodays/delete/{id}', [TwodaysDestroyController::class, 'destroy'])->name('twodays.delete');
+
     // Resource routes
     Route::resource('users', 'UserController');
     Route::resource('po', 'POControllers');
     Route::resource('stocks', 'StockController');
-    Route::resource('twohk', 'TwodaysController');
     Route::resource('di', 'DIController');
 });

@@ -7,15 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class PO extends Model
 {
     protected $primaryKey = 'id';
-    protected $fillable = ['po_number', 'qty_po', 'qty_outstanding', 'status', 'id_vendor', 'id_part'];
+    protected $fillable = ['po_number', 'qty_po', 'qty_outstanding', 'status', 'vendor_id', 'part_id'];
 
     public function vendor()
     {
-        return $this->belongsTo(Vendor::class, 'id_vendor');
+        return $this->belongsTo(Vendor::class, 'vendor_id');
     }
 
     public function part()
     {
-        return $this->belongsTo(Part::class, 'id_part');
+        return $this->belongsTo(Part::class, 'part_id');
     }
 }

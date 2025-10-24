@@ -18,7 +18,7 @@
   <div class="card">
     <div class="card-body">
       <h5 class="card-title">Form Tambah Vendor</h5>
-A
+
       <form action="{{ route('vendor.store') }}" method="POST">
         @csrf
 
