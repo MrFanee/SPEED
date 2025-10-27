@@ -16,10 +16,18 @@ use App\Http\Controllers\part\PartUpdateController;
 use App\Http\Controllers\part\PartDestroyController;
 use App\Http\Controllers\twodays\TwodaysIndexController;
 use App\Http\Controllers\twodays\TwodaysCreateController;
+use App\Http\Controllers\twodays\TwodaysUploadController;
 use App\Http\Controllers\twodays\TwodaysStoreController;
 use App\Http\Controllers\twodays\TwodaysEditController;
 use App\Http\Controllers\twodays\TwodaysUpdateController;
 use App\Http\Controllers\twodays\TwodaysDestroyController;
+use App\Http\Controllers\di\DIIndexController;
+use App\Http\Controllers\di\DICreateController; 
+use App\Http\Controllers\di\DIUploadController;
+use App\Http\Controllers\di\DIStoreController;
+use App\Http\Controllers\di\DIEditController;
+use App\Http\Controllers\di\DIUpdateController;
+use App\Http\Controllers\di\DIDestroyController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -53,14 +61,25 @@ Route::middleware(['auth'])->group(function () {
     // Twodays routes
     Route::get('/twodays/view', [TwodaysIndexController::class, 'index'])->name('twodays.index');
     Route::get('/twodays/create', [TwodaysCreateController::class, 'create'])->name('twodays.create');
+    Route::get('/twodays/upload', [TwodaysUploadController::class, 'form'])->name('twodays.upload.form');
+    Route::post('/twodays/upload', [TwodaysUploadController::class, 'upload'])->name('twodays.upload');
     Route::post('/twodays/store', [TwodaysStoreController::class, 'store'])->name('twodays.store');
     Route::get('/twodays/edit/{id}', [TwodaysEditController::class, 'edit'])->name('twodays.edit');
     Route::put('/twodays/update/{id}', [TwodaysUpdateController::class, 'update'])->name('twodays.update');
     Route::delete('/twodays/delete/{id}', [TwodaysDestroyController::class, 'destroy'])->name('twodays.delete');
 
+    // DI routes
+    Route::get('/di/view', [DIIndexController::class, 'index'])->name('di.index');
+    Route::get('/di/create', [DICreateController::class, 'create'])->name('di.create');
+    Route::get('/di/upload', [DIUploadController::class, 'form'])->name('di.upload.form');
+    Route::post('/di/upload', [DIUploadController::class, 'upload'])->name('di.upload');
+    Route::post('/di/store', [DIStoreController::class, 'store'])->name('di.store');
+    Route::get('/di/edit/{id}', [DIEditController::class, 'edit'])->name('di.edit');
+    Route::put('/di/update/{id}', [DIUpdateController::class, 'update'])->name('di.update');
+    Route::delete('/di/delete/{id}', [DIDestroyController::class, 'destroy'])->name('di.delete');
+
     // Resource routes
     Route::resource('users', 'UserController');
     Route::resource('po', 'POControllers');
     Route::resource('stocks', 'StockController');
-    Route::resource('di', 'DIController');
 });

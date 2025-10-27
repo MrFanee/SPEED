@@ -26,6 +26,7 @@
 
     <!-- Vendor JS -->
     <script src="{{ asset('NiceAdmin/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('NiceAdmin/vendor/simple-datatables/simple-datatables.js') }}"></script>
     <script src="{{ asset('NiceAdmin/js/main.js') }}"></script>
 </body>
 

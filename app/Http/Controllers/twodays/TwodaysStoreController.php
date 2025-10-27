@@ -11,7 +11,7 @@ class TwodaysStoreController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'part_id' => 'required|exists:part,id',
+            'part_id' => 'required|exists:parts,id',
             'std_stock' => 'required',
         ]);
 

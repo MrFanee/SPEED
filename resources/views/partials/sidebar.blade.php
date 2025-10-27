@@ -35,7 +35,7 @@
                     </a>
                 </li>
                 <li>
-                    <a class="nav-link " href="">
+                    <a class="nav-link " href="{{route('di.index')}}">
                         <i class="bi bi-circle"></i><span>Master DI</span>
                     </a>
                 </li>

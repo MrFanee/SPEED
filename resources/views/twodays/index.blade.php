@@ -18,7 +18,11 @@
       <div class="card-body">
         <h5 class="card-title">Daftar Standar Stok</h5>
 
-        <a href="{{ route('twodays.create') }}" class="btn btn-primary mb-3">+ Tambah Standar Stok</a>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <a href="{{ route('twodays.create') }}" class="btn btn-primary">+ Tambah</a>
+
+          <a href="{{ route('twodays.upload') }}" class="btn btn-success">Upload CSV</a>
+        </div>
 
         @if(session('success'))
           <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -43,7 +47,7 @@
               <tr>
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $t->part->part_name }}</td>
-                <td>{{ $t->item_code }}</td>
+                <td>{{ $t->part->item_code }}</td>
                 <td>{{ $t->std_stock }}</td>
                 <td>
                   <div class="d-flex gap-2">

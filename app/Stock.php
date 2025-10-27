@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Stock extends Model
 {
+    protected $table = 'master_stock';
     protected $primaryKey = 'id';
     protected $fillable = ['rm', 'wip', 'fg', 'judgement', 'kategori_problem', 'detail_problem', 
     'vendor_id', 'part_id'];
