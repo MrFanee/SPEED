@@ -15,12 +15,12 @@ class Vendor extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function poTables()
+    public function po()
     {
         return $this->hasMany(PO::class, 'vendor_id');
     }
 
-    public function masterStocks()
+    public function stock()
     {
         return $this->hasMany(Stock::class, 'vendor_id');
     }

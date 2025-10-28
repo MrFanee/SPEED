@@ -1,14 +1,14 @@
 @extends('layouts.main')
 
-@section('title', 'Upload CSV DI')
+@section('title', 'Upload CSV PO')
 
 @section('content')
   <div class="pagetitle">
-    <h1>Upload CSV DI</h1>
+    <h1>Upload CSV PO</h1>
     <nav>
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('di.index') }}">DI</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('po.index') }}">PO</a></li>
         <li class="breadcrumb-item active">Upload CSV</li>
       </ol>
     </nav>
@@ -26,7 +26,7 @@
           </div>
         @endif
 
-        <form action="{{ route('di.upload') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('po.upload') }}" method="POST" enctype="multipart/form-data">
           @csrf
           <div class="mb-3">
             <label for="file" class="form-label">Pilih file CSV</label>
@@ -37,7 +37,7 @@
           <button type="submit" class="btn btn-success">
             <i class="bi bi-upload"></i> Upload
           </button>
-          <a href="{{ route('di.index') }}" class="btn btn-secondary">Kembali</a>
+          <a href="{{ route('po.index') }}" class="btn btn-secondary">Kembali</a>
         </form>
       </div>
     </div>

@@ -23,20 +23,27 @@
                     @csrf
 
                     <div class="mb-3">
-                        <label for="part_id">Nama Part</label>
-                        <select name="part_id" id="part_id" class="form-select" required>
-                            <option value="">-- Pilih Part --</option>
-                            @foreach ($parts as $part)
-                                <option value="{{ $part->id }}">{{ $part->part_name }} ({{ $part->item_code }})</option>
+                        <label for="po_id">No. PO</label>
+                        <select name="po_id" id="po_id" class="form-select" required>
+                            <option value="">-- Pilih PO --</option>
+                            @foreach ($po as $po)
+                                <option value="{{ $po->id }}">{{ $po->po_number }}</option>
                             @endforeach
                         </select>
                     </div>
 
                     <div class="mb-3">
-                        <label for="std_stock" class="form-label">Standar Stok</label>
-                        <input type="text" name="std_stock" class="form-control" id="std_stock"
-                            value="{{ old('std_stock') }}">
-                        @error('std_stock') <small class="text-danger">{{ $message }}</small> @enderror
+                        <label for="qty_plan" class="form-label">∑ Plan</label>
+                        <input type="text" name="qty_plan" class="form-control" id="qty_plan"
+                            value="{{ old('qty_plan') }}">
+                        @error('qty_plan') <small class="text-danger">{{ $message }}</small> @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="qty_delivery" class="form-label">∑ Delivery</label>
+                        <input type="text" name="qty_delivery" class="form-control" id="qty_delivery"
+                            value="{{ old('qty_delivery') }}">
+                        @error('qty_delivery') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
 
                     <button type="submit" class="btn btn-primary">Simpan</button>

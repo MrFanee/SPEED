@@ -11,16 +11,14 @@ class DIUpdateController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
+            'po_id' => 'nullable|exists:po_table,id',
             'qty_plan' => 'required',
             'qty_delivery' => 'required',
-            'balance' => 'required',
         ]);
 
         $di = DI::findOrFail($id);
-        $di->update($request->only(['qty_plan']));
-        $di->update($request->only(['qty_delivery']));
-        $di->update($request->only(['balance']));
 
+        $di->update($request->only(['po_id' ,'qty_plan', 'qty_delivery']));
 
         return redirect()->route('di.index')->with('success', 'DI berhasil diupdate!');
     }

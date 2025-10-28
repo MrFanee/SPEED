@@ -28,6 +28,13 @@ use App\Http\Controllers\di\DIStoreController;
 use App\Http\Controllers\di\DIEditController;
 use App\Http\Controllers\di\DIUpdateController;
 use App\Http\Controllers\di\DIDestroyController;
+use App\Http\Controllers\po\POIndexController;
+use App\Http\Controllers\po\POCreateController; 
+use App\Http\Controllers\po\POUploadController;
+use App\Http\Controllers\po\POStoreController;
+use App\Http\Controllers\po\POEditController;
+use App\Http\Controllers\po\POUpdateController;
+use App\Http\Controllers\po\PODestroyController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -69,7 +76,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/twodays/delete/{id}', [TwodaysDestroyController::class, 'destroy'])->name('twodays.delete');
 
     // DI routes
-    Route::get('/di/view', [DIIndexController::class, 'index'])->name('di.index');
+    Route::get('/di/view', [POIndexController::class, 'index'])->name('di.index');
     Route::get('/di/create', [DICreateController::class, 'create'])->name('di.create');
     Route::get('/di/upload', [DIUploadController::class, 'form'])->name('di.upload.form');
     Route::post('/di/upload', [DIUploadController::class, 'upload'])->name('di.upload');
@@ -78,8 +85,17 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/di/update/{id}', [DIUpdateController::class, 'update'])->name('di.update');
     Route::delete('/di/delete/{id}', [DIDestroyController::class, 'destroy'])->name('di.delete');
 
+    // PO routes
+    Route::get('/po/view', [POIndexController::class, 'index'])->name('po.index');
+    Route::get('/po/create', [POCreateController::class, 'create'])->name('po.create');
+    Route::get('/po/upload', [POUploadController::class, 'form'])->name('po.upload.form');
+    Route::post('/po/upload', [POUploadController::class, 'upload'])->name('po.upload');
+    Route::post('/po/store', [POStoreController::class, 'store'])->name('po.store');
+    Route::get('/po/edit/{id}', [POEditController::class, 'edit'])->name('po.edit');
+    Route::put('/po/update/{id}', [POUpdateController::class, 'update'])->name('po.update');
+    Route::delete('/po/delete/{id}', [PODestroyController::class, 'destroy'])->name('po.delete');
+
     // Resource routes
     Route::resource('users', 'UserController');
-    Route::resource('po', 'POControllers');
     Route::resource('stocks', 'StockController');
 });

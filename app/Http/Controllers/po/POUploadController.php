@@ -1,17 +1,18 @@
 <?php
 
-namespace App\Http\Controllers\di;
+namespace App\Http\Controllers\po;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\DI;
 use App\PO;
+use App\Part;
+use App\Vendor;
 
-class DIUploadController extends Controller
+class POUploadController extends Controller
 {
     public function form()
     {
-        return view('di.upload');
+        return view('po.upload');
     }
 
     public function upload(Request $request)
@@ -42,16 +43,27 @@ class DIUploadController extends Controller
             if (count($row) < 2) continue;
 
             $po_number = trim($row[0]);
-            $qty_plan = trim($row[1]);
-            $qty_delivery = trim($row[2]);
+            $qty_po = trim($row[1]);
+            $qty_outstanding = trim($row[2]);
+            $status = trim($row[3]);
+            $item_code = trim($row[4]);
+            $vendor_name = trim($row[5]);
 
-            $po = PO::where('po_number', $po_number)->first();
+            $part = Part::where('item_code', $item_code)->first();
+            $vendor = Vendor::where('vendor_name', $vendor_name)->first();
 
-            if ($po) {
-                DI::updateOrCreate(
-                    ['po_id' => $po->id],
-                    ['qty_plan' => $qty_plan, 
-                    'qty_delivery' => $qty_delivery]
+            if ($part && $vendor) {
+                PO::updateOrCreate(
+                    [
+                        'part_id' => $part->id,
+                        'vendor_id' => $vendor->id
+                    ],
+                    [
+                        'po_number' => $po_number,
+                        'qty_po' => $qty_po,
+                        'qty_outstanding' => $qty_outstanding,
+                        'status' => $status
+                    ]
                 );
                 $imported++;
             } else {
@@ -60,7 +72,7 @@ class DIUploadController extends Controller
         }
 
         return redirect()
-            ->route('di.index')
+            ->route('po.index')
             ->with('success', "Upload selesai. $imported data berhasil diimpor, $skipped dilewati.");
     }
 }

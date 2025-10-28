@@ -10,12 +10,12 @@ class Part extends Model
     protected $primaryKey = 'id';
     protected $fillable = ['part_name', 'part_number', 'item_code'];
 
-    public function poTables()
+    public function po()
     {
         return $this->hasMany(PO::class, 'part_id');
     }
 
-    public function masterStocks()
+    public function stock()
     {
         return $this->hasMany(Stock::class, 'part_id');
     }
