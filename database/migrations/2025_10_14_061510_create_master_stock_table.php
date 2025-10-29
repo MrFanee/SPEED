@@ -18,8 +18,8 @@ class CreateMasterStockTable extends Migration
             $table->integer('rm');
             $table->integer('wip');
             $table->integer('fg');
-            $table->string('jugdgement');
-            $table->string('kateori_problem');
+            $table->string('judgement');
+            $table->string('kategori_problem');
             $table->string('detail_problem');
             $table->foreignId('vendor_id')->constrained('vendors')->onDelete('restrict');
             $table->foreignId('part_id')->constrained('parts')->onDelete('restrict');

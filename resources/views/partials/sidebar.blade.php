@@ -54,10 +54,8 @@
             </ul>
         </li>
 
-
-
         <li class="nav-item">
-            <a class="nav-link collapsed" href="{{('stock')}}">
+            <a class="nav-link collapsed" href="{{route('stock.index')}}">
                 <i class="bi bi-card-checklist"></i>
                 <span>2 Days Stock</span>
             </a>

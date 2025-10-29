@@ -22,19 +22,23 @@ use App\Http\Controllers\twodays\TwodaysEditController;
 use App\Http\Controllers\twodays\TwodaysUpdateController;
 use App\Http\Controllers\twodays\TwodaysDestroyController;
 use App\Http\Controllers\di\DIIndexController;
-use App\Http\Controllers\di\DICreateController; 
+use App\Http\Controllers\di\DICreateController;
 use App\Http\Controllers\di\DIUploadController;
 use App\Http\Controllers\di\DIStoreController;
 use App\Http\Controllers\di\DIEditController;
 use App\Http\Controllers\di\DIUpdateController;
 use App\Http\Controllers\di\DIDestroyController;
 use App\Http\Controllers\po\POIndexController;
-use App\Http\Controllers\po\POCreateController; 
+use App\Http\Controllers\po\POCreateController;
 use App\Http\Controllers\po\POUploadController;
 use App\Http\Controllers\po\POStoreController;
 use App\Http\Controllers\po\POEditController;
 use App\Http\Controllers\po\POUpdateController;
 use App\Http\Controllers\po\PODestroyController;
+use App\Http\Controllers\stock\StockIndexController;
+use App\Http\Controllers\stock\StockDataController;
+use App\Http\Controllers\stock\StockUploadController;
+use App\Http\Controllers\stock\StockUpdateController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -45,9 +49,7 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', function () {return view('dashboard');})->name('dashboard');
 
     // Vendor routes
     Route::get('/vendor/view', [VendorIndexController::class, 'index'])->name('vendor.index');
@@ -95,7 +97,13 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/po/update/{id}', [POUpdateController::class, 'update'])->name('po.update');
     Route::delete('/po/delete/{id}', [PODestroyController::class, 'destroy'])->name('po.delete');
 
+    // Stock routes
+    Route::get('/stock/view', [StockIndexController::class, 'index'])->name('stock.index');
+    Route::get('/stock/data', [StockDataController::class, 'index'])->name('stock.data');
+    Route::get('/stock/upload', [StockUploadController::class, 'form'])->name('stock.upload.form');
+    Route::post('/stock/upload', [StockUploadController::class, 'upload'])->name('stock.upload');
+    Route::put('/stock/update/{id}', [StockUpdateController::class, 'update'])->name('stock.update');
+
     // Resource routes
     Route::resource('users', 'UserController');
-    Route::resource('stocks', 'StockController');
 });
