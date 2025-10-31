@@ -16,9 +16,7 @@
     <section class="section">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Daftar PO</h5>
-
-                <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
                     {{-- <a href="{{ route('po.create') }}" class="btn btn-primary">+ Tambah</a> --}}
 
                     <a href="{{ route('po.upload') }}" class="btn btn-success">Upload CSV</a>
@@ -30,7 +28,6 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 @endif
-
 
                 <table class="table table-bordered">
                     <thead>

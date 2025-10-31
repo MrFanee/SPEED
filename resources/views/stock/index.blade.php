@@ -16,9 +16,7 @@
     <section class="section">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">2 Days Stock</h5>
-
-                <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
                     {{-- <a href="{{ route('po.create') }}" class="btn btn-primary">+ Tambah</a> --}}
 
                     <a href="{{ route('stock.upload') }}" class="btn btn-success">Upload CSV</a>
@@ -44,17 +42,39 @@
                             <th>RM</th>
                             <th>WIP</th>
                             <th>FG</th>
-                            <th>Stok 2HK</th>
+                            <th>Std 2HK</th>
                             <th>Judgement</th>
                             <th>Kategori Problem</th>
                             <th>Detail Problem</th>
                         </tr>
                     </thead>
+                    <tbody>
+                        @foreach ($stock as $s)
+                            <tr>
+                                <td>{{ $s->vendor->nickname }}</td>
+                                <td>{{ $s->part->item_code }}</td>
+                                <td>{{ $s->part->part_name }}</td>
+                                <td>{{ $s->part->po->qty_po ?? '-'}}</td>
+                                <td>{{ $s->part->po->qty_outstanding ?? '-'}}</td>
+                                <td>{{ $s->part->di->qty_plan ?? '-'}}</td>
+                                <td>{{ $s->part->di->qty_delivery ?? '-'}}</td>
+                                <td>{{ $s->part->di->balance ?? '-'}}</td>
+                                <td>{{ $s->rm }}</td>
+                                <td>{{ $s->wip }}</td>
+                                <td>{{ $s->fg }}</td>
+                                <td>{{ $s->part->master_2hk->std_stock ?? '-'}}</td>
+                                <td>{{ $s->judgement }}</td>
+                                <td>{{ $s->kategori_problem }}</td>
+                                <td>{{ $s->detail_problem }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
                 </table>
             </div>
         </div>
     </section>
 
+    {{--
     <script>
         $(document).ready(function () {
             let table = $('#stockTable').DataTable({
@@ -68,8 +88,18 @@
                     { data: 'part.di[0].qty_plan', defaultContent: '-' },
                     { data: 'part.di[0].qty_delivery', defaultContent: '-' },
                     { data: 'part.di[0].balance', defaultContent: '-' },
-                    { data: 'rm' },
-                    { data: 'wip' },
+                    {
+                        data: 'rm',
+                        render: function (data, type, row) {
+                            return `<input type="number" class="form-control form-control-sm inline-edit" data-id="${row.id}" data-field="rm" value="${data}">`;
+                        }
+                    },
+                    {
+                        data: 'wip',
+                        render: function (data, type, row) {
+                            return `<input type="number" class="form-control form-control-sm inline-edit" data-id="${row.id}" data-field="wip" value="${data}">`;
+                        }
+                    },
                     {
                         data: 'fg',
                         render: function (data, type, row) {
@@ -81,7 +111,7 @@
                     {
                         data: 'kategori_problem',
                         render: function (data, type, row) {
-                            return `<input type="text" class="form-control form-control-sm inline-edit" data-id="${row.id}" data-field="kateori_problem" value="${data ?? ''}">`;
+                            return `<input type="text" class="form-control form-control-sm inline-edit" data-id="${row.id}" data-field="kategori_problem" value="${data ?? ''}">`;
                         }
                     },
                     {
@@ -116,5 +146,5 @@
                 });
             });
         });
-    </script>
+    </script> --}}
 @endsection
