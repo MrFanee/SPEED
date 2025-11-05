@@ -36,7 +36,6 @@ use App\Http\Controllers\po\POEditController;
 use App\Http\Controllers\po\POUpdateController;
 use App\Http\Controllers\po\PODestroyController;
 use App\Http\Controllers\stock\StockIndexController;
-use App\Http\Controllers\stock\StockDataController;
 use App\Http\Controllers\stock\StockUploadController;
 use App\Http\Controllers\stock\StockUpdateController;
 
@@ -78,7 +77,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/twodays/delete/{id}', [TwodaysDestroyController::class, 'destroy'])->name('twodays.delete');
 
     // DI routes
-    Route::get('/di/view', [POIndexController::class, 'index'])->name('di.index');
+    Route::get('/di/view', [DIIndexController::class, 'index'])->name('di.index');
     Route::get('/di/create', [DICreateController::class, 'create'])->name('di.create');
     Route::get('/di/upload', [DIUploadController::class, 'form'])->name('di.upload.form');
     Route::post('/di/upload', [DIUploadController::class, 'upload'])->name('di.upload');
@@ -99,10 +98,9 @@ Route::middleware(['auth'])->group(function () {
 
     // Stock routes
     Route::get('/stock/view', [StockIndexController::class, 'index'])->name('stock.index');
-    Route::get('/stock/data', [StockDataController::class, 'index'])->name('stock.data');
     Route::get('/stock/upload', [StockUploadController::class, 'form'])->name('stock.upload.form');
     Route::post('/stock/upload', [StockUploadController::class, 'upload'])->name('stock.upload');
-    Route::put('/stock/update/{id}', [StockUpdateController::class, 'update'])->name('stock.update');
+    Route::post('/stock/update/{id}', [StockUpdateController::class, 'update'])->name('stock.update');
 
     // Resource routes
     Route::resource('users', 'UserController');

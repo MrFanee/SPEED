@@ -10,26 +10,50 @@ class StockUpdateController extends Controller
 {
     public function update(Request $request, $id)
     {
-        $stock = Stock::with('part')->findOrFail($id);
+        $stock = Stock::findOrFail($id);
+        $field = $request->input('field');
+        $value = $request->input('value');
 
-        // logic judgement
-        $stdStock = $stock->part ? $stock->part->std_stock : 0;
-        $judgement = ($request->fg >= $stdStock) ? 'OK' : 'NG';
-
-        // kalau NG dan kategori_problem/detail_problem kosong → tidak boleh update
-        if ($judgement === 'NG' && (empty($request->kategori_problem) || empty($request->detail_problem))) {
-            return response()->json(['error' => 'Data tidak dapat diubah sebelum kategori & detail problem diisi.'], 422);
+        $allowed = ['rm', 'wip', 'fg', 'kategori_problem', 'detail_problem'];
+        if (!in_array($field, $allowed)) {
+            return response()->json(['success' => false, 'message' => 'Invalid field']);
         }
 
-        $stock->update([
-            'rm' => $request->rm,
-            'wip' => $request->wip,
-            'fg' => $request->fg,
-            'judgement' => $judgement,
-            'kategori_problem' => $request->kategori_problem,
-            'detail_problem' => $request->detail_problem,
-        ]);
+        // Update field yang diedit
+        $stock->$field = $value;
 
-        return response()->json(['success' => 'Data berhasil diperbarui', 'judgement' => $judgement]);
+        // Hitung ulang judgement kalau FG berubah
+        if ($field === 'fg') {
+            $qty_po = $stock->qty_po ?? 0;
+            $fg = (float)$stock->fg;
+            $std = (float)$stock->std_stock;
+
+            if ($qty_po > 0 && $fg >= $std) {
+                $stock->judgement = 'OK';
+            } elseif ($qty_po > 0 && $fg < $std) {
+                $stock->judgement = 'NG';
+            } elseif ($qty_po <= 0) {
+                $stock->judgement = 'NO PO';
+            } else {
+                $stock->judgement = '-';
+            }
+        }
+
+        // Validasi untuk NG
+        if ($stock->judgement === 'NG') {
+            if (empty($stock->kategori_problem) || empty($stock->detail_problem)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Wajib isi kategori dan detail problem untuk judgement NG'
+                ]);
+            }
+        }
+
+        $stock->save();
+
+        return response()->json([
+            'success' => true,
+            'judgement' => $stock->judgement
+        ]);
     }
 }

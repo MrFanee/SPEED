@@ -8,15 +8,19 @@ class DI extends Model
 {
     protected $table = 'master_di';
     protected $primaryKey = 'id';
-    protected $fillable = ['qty_plan', 'qty_delivery', 'po_id'];
+    protected $fillable = ['qty_plan', 'qty_delivery', 'po_id', 'balance'];
 
     public function po()
     {
         return $this->belongsTo(PO::class, 'po_id');
     }
 
-    public function getBalanceAttribute()
+    protected static function boot()
     {
-        return $this->qty_delivery - $this->qty_plan;
+        parent::boot();
+
+        static::saving(function ($di) {
+            $di->balance = $di->qty_delivery - $di->qty_plan;
+        });
     }
 }
