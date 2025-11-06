@@ -8,7 +8,7 @@ class Vendor extends Model
 {
     protected $table = 'vendors';
     protected $primaryKey = 'id';
-    protected $fillable = ['nickname', 'vendor_name', 'alamat', 'user_id'];
+    protected $fillable = ['kode_vendor', 'nickname', 'vendor_name', 'alamat', 'user_id'];
 
     public function user()
     {

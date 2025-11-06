@@ -32,6 +32,7 @@
           <thead>
             <tr>
               <th>#</th>
+              <th>Kode Vendor</th>
               <th>Nickname</th>
               <th>Vendor Name</th>
               <th>Alamat</th>
@@ -42,6 +43,7 @@
             @foreach ($vendors as $v)
               <tr>
                 <td>{{ $loop->iteration }}</td>
+                <td>{{ $v->kode_vendor }}</td>
                 <td>{{ $v->nickname }}</td>
                 <td>{{ $v->vendor_name }}</td>
                 <td>{{ $v->alamat }}</td>

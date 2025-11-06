@@ -37,13 +37,13 @@
                             <th>PO</th>
                             <th>OS PO</th>
                             <th>∑ Plan</th>
-                            <th>∑ Delivery</th>
+                            <th>∑ Delv.</th>
                             <th>Balance</th>
                             <th>RM</th>
                             <th>WIP</th>
                             <th>FG</th>
                             <th>Std 2HK</th>
-                            <th>Judgement</th>
+                            <th>Judge.</th>
                             <th>Kategori Problem</th>
                             <th>Detail Problem</th>
                         </tr>
@@ -130,19 +130,43 @@
                         },
                         body: JSON.stringify({ field, value: newValue })
                     })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
-                            this.style.backgroundColor = '#d4edda';
-                            setTimeout(() => this.style.backgroundColor = '', 800);
-                        } else {
-                            alert(data.message || 'Gagal update data');
-                        }
-                    })
-                    .catch(async (err) => {
-                        console.error(err);
-                        alert('Terjadi error: ' + err.message);
-                    });
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                // efek highlight
+                                this.style.backgroundColor = '#d4edda';
+                                setTimeout(() => this.style.backgroundColor = '', 800);
+
+                                // ✅ update badge judgement di kolom ke-13 (sesuaikan posisi kalau beda)
+                                if (data.judgement) {
+                                    const badgeCell = row.querySelector('td:nth-child(13)');
+                                    const oldBadge = badgeCell.querySelector('.badge');
+
+                                    let newBadge = document.createElement('span');
+                                    newBadge.classList.add('badge');
+
+                                    if (data.judgement === 'OK') newBadge.classList.add('bg-success');
+                                    else if (data.judgement === 'NG') newBadge.classList.add('bg-danger');
+                                    else if (data.judgement === 'NO PO') newBadge.classList.add('bg-warning', 'text-dark');
+                                    else newBadge.classList.add('bg-secondary');
+
+                                    newBadge.textContent = data.judgement;
+
+                                    // ganti badge lama
+                                    if (oldBadge) oldBadge.replaceWith(newBadge);
+                                    else badgeCell.appendChild(newBadge);
+
+                                    // update dataset di baris agar sinkron
+                                    row.dataset.judgement = data.judgement;
+                                }
+                            } else {
+                                alert(data.message || 'Gagal update data');
+                            }
+                        })
+                        .catch(async (err) => {
+                            console.error(err);
+                            alert('Terjadi error: ' + err.message);
+                        });
                 });
             });
         });

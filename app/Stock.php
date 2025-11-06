@@ -9,6 +9,7 @@ class Stock extends Model
     protected $table = 'master_stock';
     protected $primaryKey = 'id';
     protected $fillable = [
+        'tanggal',
         'rm',
         'wip',
         'fg',

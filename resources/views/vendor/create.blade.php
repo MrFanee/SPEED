@@ -23,9 +23,9 @@
         @csrf
 
         <div class="mb-3">
-          <label for="id" class="form-label">ID Vendor</label>
-          <input type="text" name="id" class="form-control" id="id" value="{{ old('id') }}">
-          @error('id') <small class="text-danger">{{ $message }}</small> @enderror
+          <label for="kode_vendor" class="form-label">Kode Vendor</label>
+          <input type="text" name="kode_vendor" class="form-control" id="kode_vendor" value="{{ old('kode_vendor') }}">
+          @error('kode_vendor') <small class="text-danger">{{ $message }}</small> @enderror
         </div>
 
         <div class="mb-3">
