@@ -29,7 +29,7 @@
                     </div>
                 @endif
                 <table class="table table-bordered">
-                    <thead>
+                    <thead class="text-center">
                         <tr>
                             <th>Vendor</th>
                             <th>Item Code</th>
@@ -74,8 +74,17 @@
                                         <span class="badge bg-secondary">{{ $s->judgement }}</span>
                                     @endif
                                 </td>
-                                <td contenteditable="true" class="editable" data-field="kategori_problem">
-                                    {{ $s->kategori_problem }}
+                                <td data-field="kategori_problem" class="editable">
+                                    <select class="kategori-problem" data-id="{{ $s->id }}">
+                                        <option value="">- Pilih -</option>
+                                        <option value="Man" {{ $s->kategori_problem == 'Man' ? 'selected' : '' }}>Man</option>
+                                        <option value="Material" {{ $s->kategori_problem == 'Material' ? 'selected' : '' }}>
+                                            Material</option>
+                                        <option value="Machine" {{ $s->kategori_problem == 'Machine' ? 'selected' : '' }}>Machine
+                                        </option>
+                                        <option value="Method" {{ $s->kategori_problem == 'Method' ? 'selected' : '' }}>Method
+                                        </option>
+                                    </select>
                                 </td>
                                 <td contenteditable="true" class="editable" data-field="detail_problem">{{ $s->detail_problem }}
                                 </td>
@@ -91,37 +100,135 @@
         document.addEventListener('DOMContentLoaded', function () {
             const editableCells = document.querySelectorAll('.editable');
 
+            // --- recalculate judgement ---
+            function recalcJudgement(row) {
+                const poCell = row.querySelector('[data-field="qty_po"]');
+                const fgCell = row.querySelector('[data-field="fg"]');
+                const stdCell = row.querySelector('[data-field="std_stock"]');
+
+                let jumlahPO = parseFloat(poCell?.textContent.trim()) || 0;
+                let fg = parseFloat(fgCell?.textContent.trim()) || 0;
+                let stdStock = parseFloat(stdCell?.textContent.trim()) || 0;
+
+                let judgement = "-";
+                if (jumlahPO === 0) {
+                    judgement = "NO PO";
+                } else if (jumlahPO > 0 && fg >= stdStock) {
+                    judgement = "OK";
+                } else if (jumlahPO > 0 && fg < stdStock) {
+                    judgement = "NG";
+                }
+
+                row.dataset.judgement = judgement;
+                return judgement;
+            }
+
+            // --- update badge ---
+            function updateJudgementBadge(row, judgement) {
+                const badgeCell = row.querySelector('td:nth-child(13)');
+                const oldBadge = badgeCell.querySelector('.badge');
+
+                let newBadge = document.createElement('span');
+                newBadge.classList.add('badge');
+
+                if (judgement === 'OK') newBadge.classList.add('bg-success');
+                else if (judgement === 'NG') newBadge.classList.add('bg-danger');
+                else if (judgement === 'NO PO') newBadge.classList.add('bg-warning', 'text-dark');
+                else newBadge.classList.add('bg-secondary');
+
+                newBadge.textContent = judgement;
+
+                if (oldBadge) oldBadge.replaceWith(newBadge);
+                else badgeCell.appendChild(newBadge);
+            }
+
+            // --- highlight problem fields ---
+            function highlightProblemFields(row) {
+                const kategoriCell = row.querySelector('[data-field="kategori_problem"]');
+                const detailCell = row.querySelector('[data-field="detail_problem"]');
+                const judgement = row.dataset.judgement;
+
+                if (kategoriCell) kategoriCell.style.border = '';
+                if (detailCell) detailCell.style.border = '';
+
+                if (judgement === 'NG') {
+                    const kategoriVal = kategoriCell?.textContent.trim();
+                    const detailVal = detailCell?.textContent.trim();
+
+                    if (!kategoriVal || !detailVal) {
+                        if (kategoriCell) kategoriCell.style.border = '1px solid #dc3545';
+                        if (detailCell) detailCell.style.border = '1px solid #dc3545';
+                    }
+                }
+            }
+
+            // --- Event listeners ---
             editableCells.forEach(cell => {
-                // Trigger save saat tekan ENTER
+                // Enter key
                 cell.addEventListener('keypress', function (e) {
                     if (e.key === 'Enter') {
                         e.preventDefault();
-                        this.blur(); // trigger blur (auto save)
+                        const row = this.closest('tr');
+                        const field = this.dataset.field;
+
+                        // recalculate field FG
+                        if (['fg'].includes(field)) {
+                            const newJudgement = recalcJudgement(row);
+                            updateJudgementBadge(row, newJudgement);
+                        }
+
+                        highlightProblemFields(row);
+                        this.blur();
                     }
                 });
 
-                // Trigger save saat keluar cell
+                // Arrow keys
+                cell.addEventListener('keydown', function (e) {
+                    if (['ArrowDown', 'ArrowUp', 'ArrowRight', 'ArrowLeft'].includes(e.key)) {
+                        const row = this.closest('tr');
+                        const judgement = row.dataset.judgement;
+
+                        // Block navigation jika NG dan problem belum lengkap
+                        if (judgement === 'NG') {
+                            const kategoriVal = row.querySelector('[data-field="kategori_problem"]')?.textContent.trim();
+                            const detailVal = row.querySelector('[data-field="detail_problem"]')?.textContent.trim();
+
+                            if (!kategoriVal || !detailVal) {
+                                e.preventDefault();
+                                return;
+                            }
+                        }
+
+                        // Lanjut navigasi
+                        let nextCell;
+                        if (e.key === 'ArrowDown') {
+                            nextCell = row.nextElementSibling?.cells[this.cellIndex];
+                        } else if (e.key === 'ArrowUp') {
+                            nextCell = row.previousElementSibling?.cells[this.cellIndex];
+                        } else if (e.key === 'ArrowRight') {
+                            nextCell = this.nextElementSibling;
+                        } else if (e.key === 'ArrowLeft') {
+                            nextCell = this.previousElementSibling;
+                        }
+
+                        if (nextCell && nextCell.classList.contains('editable')) {
+                            e.preventDefault();
+                            nextCell.focus();
+                        }
+                    }
+                });
+
+                // Blur event
                 cell.addEventListener('blur', function () {
                     const row = this.closest('tr');
                     const id = row.dataset.id;
                     const field = this.dataset.field;
                     const newValue = this.textContent.trim();
-                    const judgement = row.dataset.judgement;
 
-                    const kategoriCell = row.querySelector('[data-field="kategori_problem"]');
-                    const detailCell = row.querySelector('[data-field="detail_problem"]');
+                    // Highlight problem fields
+                    highlightProblemFields(row);
 
-                    if (judgement === 'NG') {
-                        const kategoriVal = kategoriCell.textContent.trim();
-                        const detailVal = detailCell.textContent.trim();
-
-                        if (!kategoriVal || !detailVal) {
-                            alert('Harap isi Kategori Problem dan Detail Problem sebelum lanjut.');
-                            this.focus();
-                            return;
-                        }
-                    }
-
+                    // Kirim ke server
                     fetch(`/stock/update/${id}`, {
                         method: 'POST',
                         headers: {
@@ -133,41 +240,38 @@
                         .then(res => res.json())
                         .then(data => {
                             if (data.success) {
-                                // efek highlight
                                 this.style.backgroundColor = '#d4edda';
                                 setTimeout(() => this.style.backgroundColor = '', 800);
 
-                                // ✅ update badge judgement di kolom ke-13 (sesuaikan posisi kalau beda)
+                                // Update badge dari response server
                                 if (data.judgement) {
-                                    const badgeCell = row.querySelector('td:nth-child(13)');
-                                    const oldBadge = badgeCell.querySelector('.badge');
-
-                                    let newBadge = document.createElement('span');
-                                    newBadge.classList.add('badge');
-
-                                    if (data.judgement === 'OK') newBadge.classList.add('bg-success');
-                                    else if (data.judgement === 'NG') newBadge.classList.add('bg-danger');
-                                    else if (data.judgement === 'NO PO') newBadge.classList.add('bg-warning', 'text-dark');
-                                    else newBadge.classList.add('bg-secondary');
-
-                                    newBadge.textContent = data.judgement;
-
-                                    // ganti badge lama
-                                    if (oldBadge) oldBadge.replaceWith(newBadge);
-                                    else badgeCell.appendChild(newBadge);
-
-                                    // update dataset di baris agar sinkron
+                                    updateJudgementBadge(row, data.judgement);
                                     row.dataset.judgement = data.judgement;
+                                    highlightProblemFields(row);
                                 }
-                            } else {
-                                alert(data.message || 'Gagal update data');
                             }
-                        })
-                        .catch(async (err) => {
-                            console.error(err);
-                            alert('Terjadi error: ' + err.message);
                         });
                 });
+            });
+
+            // Event untuk dropdown kategori
+            document.addEventListener('change', function (e) {
+                if (e.target.matches('select.kategori-problem')) {
+                    const row = e.target.closest('tr');
+                    const id = e.target.dataset.id;
+                    const value = e.target.value;
+
+                    highlightProblemFields(row);
+
+                    fetch(`/stock/update/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ field: 'kategori_problem', value })
+                    });
+                }
             });
         });
     </script>

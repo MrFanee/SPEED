@@ -32,24 +32,14 @@ class StockUpdateController extends Controller
             $field = $request->input('field');
             $value = $request->input('value');
 
-            // ✅ UPDATE FIELD - ini yang utama
+            //  UPDATE FIELD
             if ($field && in_array($field, ['rm', 'wip', 'fg', 'kategori_problem', 'detail_problem'])) {
                 DB::table('master_stock')
                     ->where('id', $id)
                     ->update([$field => $value]);
             }
 
-            // ✅ JIKA field yang diupdate adalah kategori_problem atau detail_problem
-            // DAN judgement saat ini adalah OK, maka langsung return success
-            if (in_array($field, ['kategori_problem', 'detail_problem']) && $stock->judgement === 'OK') {
-                return response()->json([
-                    'success' => true,
-                    'judgement' => 'OK', // Tetap OK
-                    'message' => 'Field updated successfully'
-                ]);
-            }
-
-            // ✅ HITUNG JUDGEMENT hanya jika field yang diupdate mempengaruhi perhitungan
+            // HITUNG JUDGEMENT 
             if (in_array($field, ['rm', 'wip', 'fg'])) {
                 $updatedStock = DB::table('master_stock')
                     ->leftJoin('parts', 'master_stock.part_id', '=', 'parts.id')
@@ -71,27 +61,6 @@ class StockUpdateController extends Controller
                     $judgement = 'OK';
                 } elseif ($qty_po > 0 && $fg < $std) {
                     $judgement = 'NG';
-
-                    // ✅ VALIDASI HANYA UNTUK NG: wajib isi kategori & detail problem
-                    $currentKategori = $updatedStock->kategori_problem ?? '';
-                    $currentDetail = $updatedStock->detail_problem ?? '';
-
-                    if (empty($currentKategori) || empty($currentDetail)) {
-                        // Kembalikan ke judgement sebelumnya
-                        $judgement = $stock->judgement ?? 'OK';
-
-                        // Update ke judgement sebelumnya
-                        DB::table('master_stock')
-                            ->where('id', $id)
-                            ->update(['judgement' => $judgement]);
-
-                        return response()->json([
-                            'success' => false,
-                            'message' => 'Harap isi Kategori Problem dan Detail Problem terlebih dahulu!',
-                            'judgement' => $judgement,
-                            'requires_problem_data' => true
-                        ]);
-                    }
                 } elseif ($qty_po <= 0) {
                     $judgement = 'NO PO';
                 } else {
@@ -103,7 +72,6 @@ class StockUpdateController extends Controller
                     ->where('id', $id)
                     ->update(['judgement' => $judgement]);
             } else {
-                // Jika field yang diupdate tidak mempengaruhi judgement, pertahankan nilai lama
                 $judgement = $stock->judgement;
             }
 
