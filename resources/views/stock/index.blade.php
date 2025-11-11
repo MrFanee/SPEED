@@ -4,22 +4,33 @@
 
 @section('content')
     <div class="pagetitle">
-        <h1>2 Days Stock</h1>
-        <nav>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
-                <li class="breadcrumb-item active">2 Days Stock</li>
-            </ol>
-        </nav>
+        <div class="d-flex justify-content-between align-items-center">
+            <h1>2 Days Stock</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
+                    <li class="breadcrumb-item active">2 Days Stock</li>
+                </ol>
+            </nav>
+
+            <h6 class="text-secondary">
+                {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}
+            </h6>
+        </div>
     </div>
 
     <section class="section">
         <div class="card">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
-                    {{-- <a href="{{ route('po.create') }}" class="btn btn-primary">+ Tambah</a> --}}
-
-                    <a href="{{ route('stock.upload') }}" class="btn btn-success">Upload CSV</a>
+                    <a href="{{ route('stock.upload') }}" class="btn btn-success btn-sm">Upload CSV</a>
+                    
+                    <form action="{{ route('stock.create') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            Add +
+                        </button>
+                    </form>
                 </div>
 
                 @if(session('success'))
@@ -28,6 +39,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 @endif
+                
                 <table class="table table-bordered">
                     <thead class="text-center">
                         <tr>
@@ -162,8 +174,73 @@
                 }
             }
 
+            // --- reset problem fields jika judgement bukan NG ---
+            function resetProblemFields(row) {
+                const kategoriCell = row.querySelector('[data-field="kategori_problem"]');
+                const detailCell = row.querySelector('[data-field="detail_problem"]');
+                const kategoriSelect = kategoriCell?.querySelector('select');
+                const id = row.dataset.id;
+
+                if (!id) return;
+
+                if (kategoriSelect) {
+                    kategoriSelect.value = '';
+                } else if (kategoriCell) {
+                    kategoriCell.textContent = '';
+                }
+
+                if (detailCell) detailCell.textContent = '';
+
+                const updates = [
+                    { field: 'kategori_problem', value: '' },
+                    { field: 'detail_problem', value: '' }
+                ];
+
+                updates.forEach(u => {
+                    fetch(`/stock/update/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify(u)
+                    });
+                });
+            }
+
+            // --- cek baris NG dengan problem ga lengkap ---
+            function isTableLocked() {
+                const rows = document.querySelectorAll('tr[data-judgement]');
+                for (const row of rows) {
+                    const j = row.dataset.judgement;
+                    if (j === 'NG') {
+                        const kategoriVal = row.querySelector('[data-field="kategori_problem"]')?.textContent.trim();
+                        const detailVal = row.querySelector('[data-field="detail_problem"]')?.textContent.trim();
+                        if (!kategoriVal || !detailVal) return row;
+                    }
+                }
+                return null;
+            }
+
             // --- Event listeners ---
             editableCells.forEach(cell => {
+
+                // focus ke cell lain saat tabel terkunci
+                cell.addEventListener('focus', function (e) {
+                    const lockedRow = isTableLocked();
+                    const field = this.dataset.field;
+                    const row = this.closest('tr');
+
+                    if (lockedRow && (row !== lockedRow || !['kategori_problem', 'detail_problem'].includes(field))) {
+                        e.preventDefault();
+                        this.blur();
+
+                        cell.style.backgroundColor = '#f8d7da';
+                        setTimeout(() => cell.style.backgroundColor = '', 400);
+                        return;
+                    }
+                });
+
                 // Enter key
                 cell.addEventListener('keypress', function (e) {
                     if (e.key === 'Enter') {
@@ -171,10 +248,11 @@
                         const row = this.closest('tr');
                         const field = this.dataset.field;
 
-                        // recalculate field FG
                         if (['fg'].includes(field)) {
                             const newJudgement = recalcJudgement(row);
                             updateJudgementBadge(row, newJudgement);
+
+                            if (newJudgement !== 'NG') resetProblemFields(row);
                         }
 
                         highlightProblemFields(row);
@@ -185,21 +263,16 @@
                 // Arrow keys
                 cell.addEventListener('keydown', function (e) {
                     if (['ArrowDown', 'ArrowUp', 'ArrowRight', 'ArrowLeft'].includes(e.key)) {
+                        const lockedRow = isTableLocked();
+                        const field = this.dataset.field;
                         const row = this.closest('tr');
-                        const judgement = row.dataset.judgement;
 
-                        // Block navigation jika NG dan problem belum lengkap
-                        if (judgement === 'NG') {
-                            const kategoriVal = row.querySelector('[data-field="kategori_problem"]')?.textContent.trim();
-                            const detailVal = row.querySelector('[data-field="detail_problem"]')?.textContent.trim();
-
-                            if (!kategoriVal || !detailVal) {
-                                e.preventDefault();
-                                return;
-                            }
+                        // kalau tabel terkunci dan bukan kolom problem di baris NG
+                        if (lockedRow && (row !== lockedRow || !['kategori_problem', 'detail_problem'].includes(field))) {
+                            e.preventDefault();
+                            return;
                         }
 
-                        // Lanjut navigasi
                         let nextCell;
                         if (e.key === 'ArrowDown') {
                             nextCell = row.nextElementSibling?.cells[this.cellIndex];
@@ -218,17 +291,15 @@
                     }
                 });
 
-                // Blur event
+                // Blur event (simpan)
                 cell.addEventListener('blur', function () {
                     const row = this.closest('tr');
                     const id = row.dataset.id;
                     const field = this.dataset.field;
                     const newValue = this.textContent.trim();
 
-                    // Highlight problem fields
                     highlightProblemFields(row);
 
-                    // Kirim ke server
                     fetch(`/stock/update/${id}`, {
                         method: 'POST',
                         headers: {
@@ -243,11 +314,12 @@
                                 this.style.backgroundColor = '#d4edda';
                                 setTimeout(() => this.style.backgroundColor = '', 800);
 
-                                // Update badge dari response server
                                 if (data.judgement) {
                                     updateJudgementBadge(row, data.judgement);
                                     row.dataset.judgement = data.judgement;
                                     highlightProblemFields(row);
+
+                                    if (data.judgement !== 'NG') resetProblemFields(row);
                                 }
                             }
                         });

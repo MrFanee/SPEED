@@ -38,6 +38,8 @@ use App\Http\Controllers\po\PODestroyController;
 use App\Http\Controllers\stock\StockIndexController;
 use App\Http\Controllers\stock\StockUploadController;
 use App\Http\Controllers\stock\StockUpdateController;
+use App\Http\Controllers\stock\StockCreateController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -101,6 +103,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/stock/upload', [StockUploadController::class, 'form'])->name('stock.upload.form');
     Route::post('/stock/upload', [StockUploadController::class, 'upload'])->name('stock.upload');
     Route::post('/stock/update/{id}', [StockUpdateController::class, 'update'])->name('stock.update');
+    Route::post('/stock/create', [StockCreateController::class, 'create'])->name('stock.create');
 
     // Resource routes
     Route::resource('users', 'UserController');
