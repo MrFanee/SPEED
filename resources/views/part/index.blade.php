@@ -16,9 +16,11 @@
   <section class="section">
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title">Daftar Part</h5>
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <a href="{{ route('part.create') }}" class="btn btn-sm btn-primary mb-3">+ Tambah</a>
 
-        <a href="{{ route('part.create') }}" class="btn btn-primary mb-3">+ Tambah Part</a>
+          {{-- <a href="{{ route('po.upload') }}" class="btn btn-sm btn-success">Upload CSV</a> --}}
+        </div>
 
         @if(session('success'))
           <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -28,8 +30,8 @@
         @endif
 
 
-        <table class="table table-bordered">
-          <thead>
+        <table class="table table-bordered small">
+          <thead class="text-center">
             <tr>
               <th>#</th>
               <th>Part Name</th>

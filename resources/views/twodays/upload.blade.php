@@ -34,10 +34,10 @@
             {{-- <div class="form-text">Format header wajib: <code>item_code,std_stock</code></div> --}}
           </div>
 
-          <button type="submit" class="btn btn-success">
+          <button type="submit" class="btn btn-sm btn-success">
             <i class="bi bi-upload"></i> Upload
           </button>
-          <a href="{{ route('twodays.index') }}" class="btn btn-secondary">Kembali</a>
+          <a href="{{ route('twodays.index') }}" class="btn btn-sm btn-secondary">Kembali</a>
         </form>
       </div>
     </div>

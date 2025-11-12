@@ -50,12 +50,12 @@ class StockUploadController extends Controller
             $detail_problem = trim($row[5]);
 
             $part = Part::where('item_code', $item_code)->first();
-            $part = Part::where('part_name', $part_name)->first();
 
             if ($part) {
                 Stock::updateOrCreate(
                     [
-                        'part_id' => $part->id
+                        'part_id' => $part->id,
+                        'tanggal' => now()->toDateString(), 
                     ],
                     [
                         'rm' => $rm,
@@ -72,7 +72,7 @@ class StockUploadController extends Controller
         }
 
         return redirect()
-            ->route('po.index')
+            ->route('stock.index')
             ->with('success', "Upload selesai. $imported data berhasil diimpor, $skipped dilewati.");
     }
 }

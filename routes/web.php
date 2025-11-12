@@ -39,6 +39,9 @@ use App\Http\Controllers\stock\StockIndexController;
 use App\Http\Controllers\stock\StockUploadController;
 use App\Http\Controllers\stock\StockUpdateController;
 use App\Http\Controllers\stock\StockCreateController;
+use App\Http\Controllers\report\ReportVendorController;
+use App\Http\Controllers\report\ReportMonthlyController;
+use App\Http\Controllers\report\ReportYearlyController;    
 
 
 Route::get('/', function () {
@@ -105,6 +108,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/stock/update/{id}', [StockUpdateController::class, 'update'])->name('stock.update');
     Route::post('/stock/create', [StockCreateController::class, 'create'])->name('stock.create');
 
+    // Report routes
+    Route::get('/daily', [ReportVendorController::class, 'index'])->name('report.vendor');
+    Route::get('/monthly', [ReportMonthlyController::class, 'index'])->name('report.monthly');
+    Route::get('/yearly', [ReportYearlyController::class, 'index'])->name('report.yearly');
+    
     // Resource routes
     Route::resource('users', 'UserController');
 });

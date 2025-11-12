@@ -5,15 +5,17 @@
 @section('content')
     <div class="pagetitle">
         <div class="d-flex justify-content-between align-items-center">
-            <h1>2 Days Stock</h1>
-            <nav>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
-                    <li class="breadcrumb-item active">2 Days Stock</li>
-                </ol>
-            </nav>
+            <div>
+                <h1>2 Days Stock</h1>
+                <nav>
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
+                        <li class="breadcrumb-item active">2 Days Stock</li>
+                    </ol>
+                </nav>
+            </div>
 
-            <h6 class="text-secondary">
+            <h6 class="text-secondary mb-0">
                 {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}
             </h6>
         </div>
@@ -23,14 +25,14 @@
         <div class="card">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
-                    <a href="{{ route('stock.upload') }}" class="btn btn-success btn-sm">Upload CSV</a>
-                    
                     <form action="{{ route('stock.create') }}" method="POST">
                         @csrf
                         <button type="submit" class="btn btn-primary btn-sm">
-                            Add +
+                            Tambah +
                         </button>
                     </form>
+
+                    <a href="{{ route('stock.upload') }}" class="btn btn-success btn-sm">Upload CSV</a>
                 </div>
 
                 @if(session('success'))
@@ -39,8 +41,8 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 @endif
-                
-                <table class="table table-bordered">
+
+                <table class="table table-bordered small">
                     <thead class="text-center">
                         <tr>
                             <th>Vendor</th>
@@ -54,7 +56,7 @@
                             <th>RM</th>
                             <th>WIP</th>
                             <th>FG</th>
-                            <th>Std 2HK</th>
+                            <th>Std. 2HK</th>
                             <th>Judge.</th>
                             <th>Kategori Problem</th>
                             <th>Detail Problem</th>

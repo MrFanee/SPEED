@@ -19,7 +19,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
                     {{-- <a href="{{ route('po.create') }}" class="btn btn-primary">+ Tambah</a> --}}
 
-                    <a href="{{ route('po.upload') }}" class="btn btn-success">Upload CSV</a>
+                    <a href="{{ route('po.upload') }}" class="btn btn-sm btn-success">Upload CSV</a>
                 </div>
 
                 @if(session('success'))
@@ -29,8 +29,8 @@
                     </div>
                 @endif
 
-                <table class="table table-bordered">
-                    <thead>
+                <table class="table table-bordered small">
+                    <thead class="text-center">
                         <tr>
                             <th>#</th>
                             <th>No. PO</th>

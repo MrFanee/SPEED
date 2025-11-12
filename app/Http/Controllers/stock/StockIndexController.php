@@ -10,7 +10,10 @@ class StockIndexController extends Controller
 {
     public function index()
     {
+        $today = now()->toDateString();
+
         $stock = DB::table('master_stock')
+            ->whereDate('tanggal', $today)
             ->leftJoin('parts', 'master_stock.part_id', '=', 'parts.id')
             ->leftJoin('vendors', 'master_stock.vendor_id', '=', 'vendors.id')
             ->leftJoin('master_2hk', 'parts.id', '=', 'master_2hk.part_id')

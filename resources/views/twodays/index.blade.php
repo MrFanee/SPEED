@@ -16,12 +16,10 @@
   <section class="section">
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title">Daftar Standar Stok</h5>
+        <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
+          <a href="{{ route('twodays.create') }}" class="btn btn-sm btn-primary">+ Tambah</a>
 
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <a href="{{ route('twodays.create') }}" class="btn btn-primary">+ Tambah</a>
-
-          <a href="{{ route('twodays.upload') }}" class="btn btn-success">Upload CSV</a>
+          <a href="{{ route('twodays.upload') }}" class="btn btn-sm btn-success">Upload CSV</a>
         </div>
 
         @if(session('success'))
@@ -32,8 +30,8 @@
         @endif
 
 
-        <table class="table table-bordered">
-          <thead>
+        <table class="table table-bordered small">
+          <thead class="text-center">
             <tr>
               <th>#</th>
               <th>Part Name</th>
