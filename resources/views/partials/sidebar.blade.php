@@ -73,19 +73,19 @@
                 data-bs-parent="#sidebar-nav">
 
                 <li>
-                    <a href="{{ route('report.vendor') }}" class="{{ request()->is('report*') ? 'active' : '' }}">
+                    <a href="{{ route('report.vendor') }}" class="{{ request()->is('report/vendor*') ? 'active' : '' }}">
                         <i class="bi bi-circle"></i><span>Daily</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="{{ route('report.monthly') }}" class="{{ request()->is('report*') ? 'active' : '' }}">
+                    <a href="{{ route('report.monthly') }}" class="{{ request()->is('report/monthly*') ? 'active' : '' }}">
                         <i class="bi bi-circle"></i><span>Monthly</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="{{ route('report.yearly') }}" class="{{ request()->is('report*') ? 'active' : '' }}">
+                    <a href="{{ route('report.yearly') }}" class="{{ request()->is('report/yearly*') ? 'active' : '' }}">
                         <i class="bi bi-circle"></i><span>Yearly</span>
                     </a>
                 </li>

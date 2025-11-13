@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\stock;
 
 use App\Http\Controllers\Controller;
-use App\Stock;
 use Illuminate\Support\Facades\DB;
 
 class StockIndexController extends Controller

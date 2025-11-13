@@ -109,9 +109,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/stock/create', [StockCreateController::class, 'create'])->name('stock.create');
 
     // Report routes
-    Route::get('/daily', [ReportVendorController::class, 'index'])->name('report.vendor');
-    Route::get('/monthly', [ReportMonthlyController::class, 'index'])->name('report.monthly');
-    Route::get('/yearly', [ReportYearlyController::class, 'index'])->name('report.yearly');
+    Route::get('/report/vendor', [ReportVendorController::class, 'index'])->name('report.vendor');
+    Route::get('/report/monthly', [ReportMonthlyController::class, 'index'])->name('report.monthly');
+    Route::get('/report/yearly', [ReportYearlyController::class, 'index'])->name('report.yearly');
     
     // Resource routes
     Route::resource('users', 'UserController');

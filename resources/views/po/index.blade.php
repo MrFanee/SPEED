@@ -29,7 +29,7 @@
                     </div>
                 @endif
 
-                <table class="table table-bordered small">
+                <table class="table table-bordered table-striped small">
                     <thead class="text-center">
                         <tr>
                             <th>#</th>
