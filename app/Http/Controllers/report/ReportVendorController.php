@@ -22,7 +22,7 @@ class ReportVendorController extends Controller
             ->select(DB::raw('MONTH(tanggal) as bulan'))
             ->whereYear('tanggal', $tahun)
             ->distinct()
-            ->orderBy('bulan', 'asc')
+            ->orderBy('bulan', 'desc')
             ->pluck('bulan');
 
         $bulan = $request->get('bulan', $bulanList->first());
@@ -32,7 +32,7 @@ class ReportVendorController extends Controller
             ->whereYear('tanggal', $tahun)
             ->whereMonth('tanggal', $bulan)
             ->distinct()
-            ->orderBy('tanggal', 'asc')
+            ->orderBy('tanggal', 'desc')
             ->pluck('tanggal');
 
         $tanggal = $request->get('tanggal', $tanggalList->first());
@@ -59,8 +59,29 @@ class ReportVendorController extends Controller
         if ($data->isEmpty()) {
             return view('report.vendor', [
                 'tanggal' => $tanggal,
+                'bulan' => $bulan,
+                'tahun' => $tahun,
                 'tanggalList' => $tanggalList,
-                'report' => []
+                'bulanList' => $bulanList,
+                'tahunList' => $tahunList,
+                'report' => [],
+                'summary' => [
+                    'total_item'     => 0,
+                    'stok_ng'        => 0,
+                    'stok_ok'        => 0,
+                    'on_schedule'    => 0,
+                    'material'       => 0,
+                    'man'            => 0,
+                    'machine'        => 0,
+                    'method'         => 0,
+                    'konsistensi'      => 0,
+                    'akurasi_stok'     => 0,
+                    'akurasi_schedule' => 0,
+                    'persen_material'  => 0, 
+                    'persen_man'       => 0,
+                    'persen_machine'   => 0,
+                    'persen_method'    => 0
+                ]
             ]);
         }
 
@@ -82,6 +103,7 @@ class ReportVendorController extends Controller
             $machine = $records->where('kategori_problem', 'Machine')->count();
             $method = $records->where('kategori_problem', 'Method')->count();
 
+            $konsistensi = $total_item > 0 ? 100 : 0;
             $akurasi_stok = $total_item > 0 ? round(($stok_ok / $total_item) * 100, 2) : 0;
             $akurasi_schedule = $total_item > 0 ? round(($on_schedule / $total_item) * 100, 2) : 0;
             $persen_material = $total_item > 0 ? round(($material / $total_item) * 100, 2) : 0;
@@ -100,6 +122,7 @@ class ReportVendorController extends Controller
                 'man' => $man,
                 'machine' => $machine,
                 'method' => $method,
+                'konsistensi' => $konsistensi,
                 'akurasi_stok' => $akurasi_stok,
                 'akurasi_schedule' => $akurasi_schedule,
                 'persen_material' => $persen_material,
@@ -109,6 +132,25 @@ class ReportVendorController extends Controller
             ];
         }
 
+        $summary = [
+            'total_item'     => collect($report)->sum('total_item'),
+            'stok_ng'        => collect($report)->sum('stok_ng'),
+            'stok_ok'        => collect($report)->sum('stok_ok'),
+            'on_schedule'    => collect($report)->sum('on_schedule'),
+            'material'       => collect($report)->sum('material'),
+            'man'            => collect($report)->sum('man'),
+            'machine'        => collect($report)->sum('machine'),
+            'method'         => collect($report)->sum('method'),
+
+            'konsistensi'      => round(collect($report)->avg('konsistensi'), 2),
+            'akurasi_stok'     => round(collect($report)->avg('akurasi_stok'), 2),
+            'akurasi_schedule' => round(collect($report)->avg('akurasi_schedule'), 2),
+            'persen_material'  => round(collect($report)->avg('persen_material'), 2),
+            'persen_man'       => round(collect($report)->avg('persen_man'), 2),
+            'persen_machine'   => round(collect($report)->avg('persen_machine'), 2),
+            'persen_method'    => round(collect($report)->avg('persen_method'), 2),
+        ];
+
         return view('report.vendor', compact(
             'tahun',
             'bulan',
@@ -116,7 +158,8 @@ class ReportVendorController extends Controller
             'tahunList',
             'bulanList',
             'tanggalList',
-            'report'
+            'report',
+            'summary'
         ));
     }
 }

@@ -23,7 +23,7 @@
 
     <section class="section">
         <div class="card">
-            <div class="card-body">
+            <div class="card-body table-responsive text-center">
                 <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
                     <form action="{{ route('stock.create') }}" method="POST">
                         @csrf
@@ -42,7 +42,7 @@
                     </div>
                 @endif
 
-                <table class="table table-bordered table-striped small">
+                <table class="table table-bordered table-striped small" style="font-size: 12px;">
                     <thead class="text-center">
                         <tr>
                             <th>Vendor</th>
@@ -67,7 +67,7 @@
                             <tr data-id="{{ $s->id }}" data-judgement="{{ $s->judgement }}">
                                 <td>{{ $s->nickname }}</td>
                                 <td>{{ $s->item_code }}</td>
-                                <td>{{ $s->part_name }}</td>
+                                <td class="text-start">{{ $s->part_name }}</td>
                                 <td>{{ $s->qty_po ?? '-'}}</td>
                                 <td>{{ $s->qty_outstanding ?? '-'}}</td>
                                 <td>{{ $s->qty_plan ?? '-'}}</td>
@@ -100,7 +100,7 @@
                                         </option>
                                     </select>
                                 </td>
-                                <td contenteditable="true" class="editable" data-field="detail_problem">{{ $s->detail_problem }}
+                                <td contenteditable="true" class="editable text-start" data-field="detail_problem">{{ $s->detail_problem }}
                                 </td>
                             </tr>
                         @endforeach

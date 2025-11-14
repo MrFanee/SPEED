@@ -34,9 +34,9 @@
 
     <section class="section">
         <div class="card">
-            <div class="card-body">
-                <table class="table table-bordered table-striped small mt-3">
-                    <thead>
+            <div class="card-body table-responsive text-center">
+                <table class="table table-bordered table-striped small mt-3 table" style="font-size: 12px;">
+                    <thead class="text-center">
                         <tr>
                             {{-- <th>Tanggal</th> --}}
                             <th>Vendor</th>
@@ -48,6 +48,7 @@
                             <th>Man</th>
                             <th>Machine</th>
                             <th>Method</th>
+                            <th>Konsistensi Report</th>
                             <th>Akurasi Stok</th>
                             <th>Akurasi Schedule</th>
                             <th>% Material</th>
@@ -60,7 +61,7 @@
                         @forelse ($report as $row)
                             <tr>
                                 {{-- <td>{{ $row['tanggal']}}</td> --}}
-                                <td>{{ $row['vendor'] }}</td>
+                                <td class="text-start">{{ $row['vendor'] }}</td>
                                 <td>{{ $row['total_item'] }}</td>
                                 <td>{{ $row['stok_ng'] }}</td>
                                 <td>{{ $row['stok_ok'] }}</td>
@@ -69,6 +70,7 @@
                                 <td>{{ $row['man'] }}</td>
                                 <td>{{ $row['machine'] }}</td>
                                 <td>{{ $row['method'] }}</td>
+                                <td>{{ $row['konsistensi'] }}%</td>
                                 <td>{{ $row['akurasi_stok'] }}%</td>
                                 <td>{{ $row['akurasi_schedule'] }}%</td>
                                 <td>{{ $row['persen_material'] }}%</td>
@@ -78,9 +80,27 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="11" class="text-center text-muted">Tidak ada data untuk tanggal ini</td>
+                                <td colspan="16" class="text-center text-muted">Tidak ada data untuk tanggal ini</td>
                             </tr>
                         @endforelse
+                        <tr class="fw-bold table-warning">
+                            <td class="text-center">Total / Rata-rata</td>
+                            <td>{{ $summary['total_item'] }}</td>
+                            <td>{{ $summary['stok_ng'] }}</td>
+                            <td>{{ $summary['stok_ok'] }}</td>
+                            <td>{{ $summary['on_schedule'] }}</td>
+                            <td>{{ $summary['material'] }}</td>
+                            <td>{{ $summary['man'] }}</td>
+                            <td>{{ $summary['machine'] }}</td>
+                            <td>{{ $summary['method'] }}</td>
+                            <td>{{ $summary['konsistensi'] }}%</td>
+                            <td>{{ $summary['akurasi_stok'] }}%</td>
+                            <td>{{ $summary['akurasi_schedule'] }}%</td>
+                            <td>{{ $summary['persen_material'] }}%</td>
+                            <td>{{ $summary['persen_man'] }}%</td>
+                            <td>{{ $summary['persen_machine'] }}%</td>
+                            <td>{{ $summary['persen_method'] }}%</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
