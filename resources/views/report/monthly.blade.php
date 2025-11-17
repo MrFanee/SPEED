@@ -179,6 +179,12 @@
                 },
                 options: {
                     responsive: true,
+                    layout: {
+                        padding: {
+                            top: 40,
+                            bottom: 30
+                        }
+                    },
                     scales: {
                         y: {
                             beginAtZero: true,
@@ -194,6 +200,11 @@
                             },
                             font: {
                                 weight: 'bold'
+                            }
+                        },
+                        legend: {
+                            labels:{
+                                padding: 30
                             }
                         }
                     }

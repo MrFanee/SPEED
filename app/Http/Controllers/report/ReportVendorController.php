@@ -10,37 +10,12 @@ class ReportVendorController extends Controller
 {
     public function index(Request $request)
     {
-        $tahunList = DB::table('master_stock')
-            ->select(DB::raw('YEAR(tanggal) as tahun'))
-            ->distinct()
-            ->orderBy('tahun', 'desc')
-            ->pluck('tahun');
+        $tanggalPilih = $request->get('tanggal_pilih', date('Y-m-d'));
 
-        $tahun = $request->get('tahun', $tahunList->first());
+        if (!strtotime($tanggalPilih)) {
+            $tanggalPilih = date('Y-m-d');
+        }
 
-        $bulanList = DB::table('master_stock')
-            ->select(DB::raw('MONTH(tanggal) as bulan'))
-            ->whereYear('tanggal', $tahun)
-            ->distinct()
-            ->orderBy('bulan', 'desc')
-            ->pluck('bulan');
-
-        $bulan = $request->get('bulan', $bulanList->first());
-
-        $tanggalList = DB::table('master_stock')
-            ->select(DB::raw('DAY(tanggal) as tanggal'))
-            ->whereYear('tanggal', $tahun)
-            ->whereMonth('tanggal', $bulan)
-            ->distinct()
-            ->orderBy('tanggal', 'desc')
-            ->pluck('tanggal');
-
-        $tanggal = $request->get('tanggal', $tanggalList->first());
-
-        // Format ke YYYY-MM-DD
-        $tanggalPilih = sprintf('%04d-%02d-%02d', $tahun, $bulan, $tanggal);
-
-        // ambil semua data di tanggal tsb
         $data = DB::table('master_stock')
             ->join('vendors', 'master_stock.vendor_id', '=', 'vendors.id')
             ->join('parts', 'master_stock.part_id', '=', 'parts.id')
@@ -58,12 +33,7 @@ class ReportVendorController extends Controller
 
         if ($data->isEmpty()) {
             return view('report.vendor', [
-                'tanggal' => $tanggal,
-                'bulan' => $bulan,
-                'tahun' => $tahun,
-                'tanggalList' => $tanggalList,
-                'bulanList' => $bulanList,
-                'tahunList' => $tahunList,
+                'tanggalPilih' => $tanggalPilih,
                 'report' => [],
                 'summary' => [
                     'total_item'     => 0,
@@ -77,7 +47,7 @@ class ReportVendorController extends Controller
                     'konsistensi'      => 0,
                     'akurasi_stok'     => 0,
                     'akurasi_schedule' => 0,
-                    'persen_material'  => 0, 
+                    'persen_material'  => 0,
                     'persen_man'       => 0,
                     'persen_machine'   => 0,
                     'persen_method'    => 0
@@ -112,7 +82,6 @@ class ReportVendorController extends Controller
             $persen_method = $total_item > 0 ? round(($method / $total_item) * 100, 2) : 0;
 
             $report[] = [
-                'tanggal' => $tanggal,
                 'vendor' => $vendor ?? '(Tidak ada nickname)',
                 'total_item' => $total_item,
                 'stok_ng' => $stok_ng,
@@ -152,12 +121,7 @@ class ReportVendorController extends Controller
         ];
 
         return view('report.vendor', compact(
-            'tahun',
-            'bulan',
-            'tanggal',
-            'tahunList',
-            'bulanList',
-            'tanggalList',
+            'tanggalPilih',
             'report',
             'summary'
         ));

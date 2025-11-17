@@ -38,8 +38,8 @@
           <textarea class="form-control" id="item_code" name="item_code" rows="3" required>{{ $parts->item_code }}</textarea>
         </div>
 
-        <button type="submit" class="btn btn-success">Update</button>
-        <a href="{{ route('part.index') }}" class="btn btn-secondary">Batal</a>
+        <button type="submit" class="btn btn-sm btn-success">Update</button>
+        <a href="{{ route('part.index') }}" class="btn btn-sm btn-secondary">Batal</a>
       </form>
     </div>
   </div>

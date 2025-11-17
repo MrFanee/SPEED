@@ -38,8 +38,8 @@
           <textarea class="form-control" id="alamat" name="alamat" rows="3" required>{{ $vendors->alamat }}</textarea>
         </div>
 
-        <button type="submit" class="btn btn-success">Update</button>
-        <a href="{{ route('vendor.index') }}" class="btn btn-secondary">Batal</a>
+        <button type="submit" class="btn btn-sm btn-success">Update</button>
+        <a href="{{ route('vendor.index') }}" class="btn btn-sm btn-secondary">Batal</a>
       </form>
     </div>
   </div>

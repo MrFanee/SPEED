@@ -6,36 +6,24 @@
     <div class="pagetitle d-flex justify-content-between align-items-center">
         <h1>Daily Report</h1>
         <form action="{{ route('report.vendor') }}" method="get" class="d-flex gap-2 align-items-center">
-            <select name="tanggal" class="form-select w-auto" onchange="this.form.submit()">
-                @foreach ($tanggalList as $tgl)
-                    <option value="{{ $tgl }}" {{ $tgl == $tanggal ? 'selected' : '' }}>
-                        {{ str_pad($tgl, 2, '0', STR_PAD_LEFT) }}
-                    </option>
-                @endforeach
-            </select>
-
-            <select name="bulan" class="form-select w-auto" onchange="this.form.submit()">
-                @foreach ($bulanList as $bln)
-                    <option value="{{ $bln }}" {{ $bln == $bulan ? 'selected' : '' }}>
-                        {{ \Carbon\Carbon::create()->month($bln)->translatedFormat('F') }}
-                    </option>
-                @endforeach
-            </select>
-
-            <select name="tahun" class="form-select w-auto" onchange="this.form.submit()">
-                @foreach ($tahunList as $th)
-                    <option value="{{ $th }}" {{ $th == $tahun ? 'selected' : '' }}>
-                        {{ $th }}
-                    </option>
-                @endforeach
-            </select>
+            <div class="input-group" style="width: 200px;">
+                <input type="date" name="tanggal_pilih" class="form-control" value="{{ $tanggalPilih ?? date('Y-m-d') }}"
+                    max="{{ date('Y-m-d') }}">
+                <button class="btn btn-primary" type="submit">
+                    <i class="bi bi-calendar-check"></i>
+                </button>
+            </div>
         </form>
     </div>
 
     <section class="section">
         <div class="card">
             <div class="card-body table-responsive text-center">
-                <table class="table table-bordered table-striped small mt-3 table" style="font-size: 12px;">
+                <div class="alert mb-0 mt-2">
+                    <strong>Daily Report</strong>
+                    {{ \Carbon\Carbon::parse($tanggalPilih)->translatedFormat('d F Y') }}
+                </div>
+                <table class="table table-bordered table-striped small mt-2 table" style="font-size: 12px;">
                     <thead class="text-center">
                         <tr>
                             {{-- <th>Tanggal</th> --}}

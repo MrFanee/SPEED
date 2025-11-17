@@ -62,8 +62,8 @@
                         @error('qty_outstanding') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Simpan</button>
-                    <a href="{{ route('di.index') }}" class="btn btn-secondary">Batal</a>
+                    <button type="submit" class="btn btn-sm btn-primary">Simpan</button>
+                    <a href="{{ route('po.index') }}" class="btn btn-sm btn-secondary">Batal</a>
                 </form>
 
             </div>

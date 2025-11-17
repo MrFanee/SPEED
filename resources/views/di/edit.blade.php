@@ -48,8 +48,8 @@
                             value="{{ $di->qty_delivery }}" required>
                     </div>
 
-                    <button type="submit" class="btn btn-success">Update</button>
-                    <a href="{{ route('di.index') }}" class="btn btn-secondary">Batal</a>
+                    <button type="submit" class="btn btn-sm btn-success">Update</button>
+                    <a href="{{ route('di.index') }}" class="btn btn-sm btn-secondary">Batal</a>
                 </form>
             </div>
         </div>
