@@ -19,14 +19,13 @@
     <section class="section">
         <div class="card">
             <div class="card-body table-responsive text-center">
-                <div class="alert mb-0 mt-2">
-                    <strong>Daily Report</strong>
-                    {{ \Carbon\Carbon::parse($tanggalPilih)->translatedFormat('d F Y') }}
+                <div class="alert mb-0 mt-2 fw-bold">
+                    DAILY REPORT – 
+                    {{ \Carbon\Carbon::parse($tanggalPilih)->locale('id')->translatedFormat('d F Y') }}
                 </div>
                 <table class="table table-bordered table-striped small mt-2 table" style="font-size: 12px;">
                     <thead class="text-center">
                         <tr>
-                            {{-- <th>Tanggal</th> --}}
                             <th>Vendor</th>
                             <th>Total Item</th>
                             <th>Stok NG</th>
@@ -48,7 +47,6 @@
                     <tbody>
                         @forelse ($report as $row)
                             <tr>
-                                {{-- <td>{{ $row['tanggal']}}</td> --}}
                                 <td class="text-start">{{ $row['vendor'] }}</td>
                                 <td>{{ $row['total_item'] }}</td>
                                 <td>{{ $row['stok_ng'] }}</td>

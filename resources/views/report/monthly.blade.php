@@ -17,7 +17,7 @@
             <select name="bulan" class="form-select w-auto" onchange="this.form.submit()">
                 @foreach ($bulanList as $bln)
                     <option value="{{ $bln }}" {{ $bln == $bulan ? 'selected' : '' }}>
-                        {{ \Carbon\Carbon::create()->month($bln)->translatedFormat('F') }}
+                        {{ \Carbon\Carbon::create()->locale('id')->month($bln)->translatedFormat('F') }}
                     </option>
                 @endforeach
             </select>
@@ -39,7 +39,7 @@
                     <div class="card-body">
                         <h6 class="text-center mt-2 mb-2 fw-bold">
                             ACHIEVEMENT 2 DAYS STOCK – {{ $vendorName }} periode
-                            {{ \Carbon\Carbon::create()->month($bulan)->translatedFormat('F') }}
+                            {{ \Carbon\Carbon::create()->locale('id')->month($bulan)->year($tahun)->translatedFormat('F Y') }}
                         </h6>
                         <canvas id="monthlyChart" height="100"></canvas>
                     </div>
@@ -49,7 +49,6 @@
                     <thead class="text-center">
                         <tr>
                             <th>Tanggal</th>
-                            {{-- <th>Vendor</th> --}}
                             <th>Total Item</th>
                             <th>Stok NG</th>
                             <th>Stok OK</th>
@@ -70,8 +69,7 @@
                     <tbody>
                         @forelse ($report as $row)
                             <tr>
-                                <td class="text-start">{{ \Carbon\Carbon::parse($row['tanggal'])->format('d-M') }}</td>
-                                {{-- <td>{{ $row['vendor'] }}</td> --}}
+                                <td class="text-start">{{ \Carbon\Carbon::parse($row['tanggal'])->locale('id')->translatedFormat('d-M') }}</td>
                                 <td>{{ $row['total_item'] }}</td>
                                 <td>{{ $row['stok_ng'] }}</td>
                                 <td>{{ $row['stok_ok'] }}</td>
@@ -83,10 +81,6 @@
                                 <td>{{ $row['konsistensi'] }}%</td>
                                 <td>{{ $row['akurasi_stok'] }}%</td>
                                 <td>{{ $row['akurasi_schedule'] }}%</td>
-                                {{-- <td>{{ $row['persen_material'] }}%</td>
-                                <td>{{ $row['persen_man'] }}%</td>
-                                <td>{{ $row['persen_machine'] }}%</td>
-                                <td>{{ $row['persen_method'] }}%</td> --}}
                             </tr>
                         @empty
                             <tr>
@@ -106,10 +100,6 @@
                             <td>{{ $summary['konsistensi'] }}%</td>
                             <td>{{ $summary['akurasi_stok'] }}%</td>
                             <td>{{ $summary['akurasi_schedule'] }}%</td>
-                            {{-- <td>{{ $summary['persen_material'] }}%</td>
-                            <td>{{ $summary['persen_man'] }}%</td>
-                            <td>{{ $summary['persen_machine'] }}%</td>
-                            <td>{{ $summary['persen_method'] }}%</td> --}}
                         </tr>
                     </tbody>
                 </table>
@@ -141,10 +131,20 @@
             konsistensi.push(summary.konsistensi);
 
             const ctx = document.getElementById('monthlyChart').getContext('2d');
+            const chartLegendMargin = {
+                id: 'chartLegendMargin',
+                beforeInit: function(chart) {
+                    const originalFit = chart.legend.fit;
+                    chart.legend.fit = function fit() {
+                        originalFit.bind(chart.legend)();
+                        this.height += 20; 
+                    }
+                }
+            };
 
             new Chart(ctx, {
                 type: 'bar',
-                plugins: [ChartDataLabels],
+                plugins: [ChartDataLabels, chartLegendMargin],
                 data: {
                     labels: formattedLabels,
                     datasets: [
@@ -179,12 +179,6 @@
                 },
                 options: {
                     responsive: true,
-                    layout: {
-                        padding: {
-                            top: 40,
-                            bottom: 30
-                        }
-                    },
                     scales: {
                         y: {
                             beginAtZero: true,
@@ -195,17 +189,8 @@
                         datalabels: {
                             anchor: 'end',
                             align: 'top',
-                            formatter: function(value) {
-                                return value + '%';
-                            },
-                            font: {
-                                weight: 'bold'
-                            }
-                        },
-                        legend: {
-                            labels:{
-                                padding: 30
-                            }
+                            formatter: value => value + '%',
+                            font: {weight: 'bold'}
                         }
                     }
                 }
