@@ -33,7 +33,9 @@
                     <thead class="text-center">
                         <tr>
                             <th>#</th>
-                            <th>Qty PO</th>
+                            <th>Item Code</th>
+                            <th>Part Name</th>
+                            {{-- <th>Qty PO</th> --}}
                             <th>∑ Plan</th>
                             <th>∑ Delivery</th>
                             <th>Balance</th>
@@ -44,7 +46,9 @@
                         @foreach ($di as $d)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ $d->po->qty_po }}</td>
+                                <td>{{ $d->item_code }}</td>
+                                <td>{{ $d->part_name }}</td>
+                                {{-- <td>{{ $d->qty_po }}</td> --}}
                                 <td>{{ $d->qty_plan }}</td>
                                 <td>{{ $d->qty_delivery }}</td>
                                 <td>{{ $d->balance }}</td>

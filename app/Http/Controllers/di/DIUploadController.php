@@ -41,17 +41,22 @@ class DIUploadController extends Controller
         foreach (array_slice($rows, 1) as $row) {
             if (count($row) < 2) continue;
 
-            $po_number = trim($row[0]);
-            $qty_plan = trim($row[1]);
-            $qty_delivery = trim($row[2]);
+            $item_code = trim($row[0]);
+            $part_name = trim($row[1]);
+            $po_number = trim($row[2]);
+            $qty_plan = trim($row[3]);
+            $qty_delivery = trim($row[4]);
 
             $po = PO::where('po_number', $po_number)->first();
 
             if ($po) {
                 DI::updateOrCreate(
                     ['po_id' => $po->id],
-                    ['qty_plan' => $qty_plan, 
-                    'qty_delivery' => $qty_delivery]
+                    [
+                        'item_code' => $item_code, 
+                        'part_name' => $part_name,
+                        'qty_plan' => $qty_plan, 
+                        'qty_delivery' => $qty_delivery]
                 );
                 $imported++;
             } else {

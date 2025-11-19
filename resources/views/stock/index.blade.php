@@ -15,24 +15,34 @@
                 </nav>
             </div>
 
-            <h6 class="text-secondary mb-0">
-                {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}
-            </h6>
+            <form action="{{ route('stock.index') }}" method="get" class="d-flex gap-2 align-items-center">
+                <div class="input-group" style="width: 150px;">
+                    <input type="date" name="tanggal" class="form-control"
+                        value="{{ request('tanggal') ?? \Carbon\Carbon::now()->format('Y-m-d') }}"
+                        onchange="this.form.submit()">
+                </div>
+            </form>
         </div>
     </div>
+
+    @php
+        $isToday = ($tanggal == date('Y-m-d'));
+    @endphp
 
     <section class="section">
         <div class="card">
             <div class="card-body table-responsive text-center">
                 <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
-                    <form action="{{ route('stock.create') }}" method="POST">
-                        @csrf
-                        <button type="submit" class="btn btn-primary btn-sm">
-                            Tambah +
-                        </button>
-                    </form>
+                    @if ($isToday)
+                        <form action="{{ route('stock.create') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                Tambah +
+                            </button>
+                        </form>
 
-                    <a href="{{ route('stock.upload') }}" class="btn btn-success btn-sm">Upload CSV</a>
+                        <a href="{{ route('stock.upload') }}" class="btn btn-success btn-sm">Upload CSV</a>
+                    @endif
                 </div>
 
                 @if(session('success'))
@@ -63,7 +73,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($stock as $s)
+                        @forelse ($stock as $s)
                             <tr data-id="{{ $s->id }}" data-judgement="{{ $s->judgement }}">
                                 <td>{{ $s->nickname }}</td>
                                 <td>{{ $s->item_code }}</td>
@@ -73,9 +83,9 @@
                                 <td>{{ $s->qty_plan ?? '-'}}</td>
                                 <td>{{ $s->qty_delivery ?? '-'}}</td>
                                 <td>{{ $s->balance ?? '-'}}</td>
-                                <td contenteditable="true" class="editable" data-field="rm">{{ $s->rm }}</td>
-                                <td contenteditable="true" class="editable" data-field="wip">{{ $s->wip }}</td>
-                                <td contenteditable="true" class="editable" data-field="fg">{{ $s->fg }}</td>
+                                <td @if ($isToday) contenteditable="true" class="editable" @endif data-field="rm">{{ $s->rm }}</td>
+                                <td @if ($isToday) contenteditable="true" class="editable" @endif data-field="wip">{{ $s->wip }}</td>
+                                <td @if ($isToday) contenteditable="true" class="editable" @endif data-field="fg">{{ $s->fg }}</td>
                                 <td>{{ $s->std_stock ?? '-'}}</td>
                                 <td>
                                     @if ($s->judgement == 'OK')
@@ -88,8 +98,8 @@
                                         <span class="badge bg-secondary">{{ $s->judgement }}</span>
                                     @endif
                                 </td>
-                                <td data-field="kategori_problem" class="editable">
-                                    <select class="kategori-problem" data-id="{{ $s->id }}">
+                                <td data-field="kategori_problem" class="@if ($isToday) editable @endif">
+                                    <select class="kategori-problem" data-id="{{ $s->id }}" @if (!$isToday) disabled @endif>
                                         <option value="">- Pilih -</option>
                                         <option value="Man" {{ $s->kategori_problem == 'Man' ? 'selected' : '' }}>Man</option>
                                         <option value="Material" {{ $s->kategori_problem == 'Material' ? 'selected' : '' }}>
@@ -100,16 +110,22 @@
                                         </option>
                                     </select>
                                 </td>
-                                <td contenteditable="true" class="editable text-start" data-field="detail_problem">{{ $s->detail_problem }}
+                                <td class="text-start @if ($isToday) editable @endif" @if ($isToday) contenteditable="true" @endif data-field="detail_problem">
+                                    {{ $s->detail_problem }}
                                 </td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="16" class="text-center text-muted">Tidak ada data untuk tanggal ini</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
         </div>
     </section>
 
+    @if ($isToday)
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const editableCells = document.querySelectorAll('.editable');
@@ -349,5 +365,6 @@
             });
         });
     </script>
+    @endif
 
 @endsection

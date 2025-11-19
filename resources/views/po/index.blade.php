@@ -33,13 +33,16 @@
                     <thead class="text-center">
                         <tr>
                             <th>#</th>
+                            <th>Periode</th>
                             <th>No. PO</th>
+                            <th>Purch. Group</th>
                             <th>Vendor</th>
                             <th>Item Code</th>
                             <th>Part Name</th>
                             <th>Qty PO</th>
                             <th>OS PO</th>
-                            <th>Status</th>
+                            <th>Delv. Date</th>
+                            {{-- <th>Status</th> --}}
                             {{-- <th>Aksi</th> --}}
                         </tr>
                     </thead>
@@ -47,13 +50,16 @@
                         @foreach ($po as $p)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
+                                <td>{{ $p->period }}</td>
                                 <td>{{ $p->po_number }}</td>
+                                <td>{{ $p->purchase_group }}</td>
                                 <td>{{ $p->vendor->vendor_name }}</td>
                                 <td>{{ $p->part->item_code }}</td>
                                 <td>{{ $p->part->part_name }}</td>
                                 <td>{{ $p->qty_po }}</td>
                                 <td>{{ $p->qty_outstanding }}</td>
-                                <td>{{ $p->status }}</td>
+                                <td>{{ $p->delivery_date }}</td>
+                                {{-- <td>{{ $p->status }}</td> --}}
                                 {{-- <td>
                                     <div class="d-flex gap-2">
                                         <a href="{{ route('po.edit', $p->id) }}" class="btn btn-warning btn-sm">Edit</a>

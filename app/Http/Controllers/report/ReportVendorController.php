@@ -22,6 +22,7 @@ class ReportVendorController extends Controller
             ->leftJoin('po_table', 'po_table.part_id', '=', 'parts.id')
             ->leftJoin('master_di', 'po_table.id', '=', 'master_di.po_id')
             ->select(
+                'master_stock.part_id',
                 'vendors.nickname',
                 'po_table.qty_po',
                 'master_stock.judgement',
@@ -63,15 +64,17 @@ class ReportVendorController extends Controller
         foreach ($grouped as $vendor => $records) {
             $records = collect($records);
 
-            $total_item = $records->where('qty_po', '>', 0)->count();
-            $stok_ok = $records->where('qty_po', '>', 0)->where('judgement', 'OK')->count();
-            $stok_ng = $records->where('qty_po', '>', 0)->where('judgement', 'NG')->count();
-            $on_schedule = $records->where('balance', '>=', 0)->count();
+            $unique = $records->unique('part_id');
 
-            $material = $records->where('kategori_problem', 'Material')->count();
-            $man = $records->where('kategori_problem', 'Man')->count();
-            $machine = $records->where('kategori_problem', 'Machine')->count();
-            $method = $records->where('kategori_problem', 'Method')->count();
+            $total_item = $unique->where('qty_po', '>', 0)->count();
+            $stok_ok = $unique->where('qty_po', '>', 0)->where('judgement', 'OK')->count();
+            $stok_ng = $unique->where('qty_po', '>', 0)->where('judgement', 'NG')->count();
+            $on_schedule = $unique->where('balance', '>=', 0)->count();
+
+            $material = $unique->where('kategori_problem', 'Material')->count();
+            $man = $unique->where('kategori_problem', 'Man')->count();
+            $machine = $unique->where('kategori_problem', 'Machine')->count();
+            $method = $unique->where('kategori_problem', 'Method')->count();
 
             $konsistensi = $total_item > 0 ? 100 : 0;
             $akurasi_stok = $total_item > 0 ? round(($stok_ok / $total_item) * 100, 2) : 0;

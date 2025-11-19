@@ -8,7 +8,7 @@ class PO extends Model
 {
     protected $table = 'po_table';
     protected $primaryKey = 'id';
-    protected $fillable = ['po_number', 'qty_po', 'qty_outstanding', 'status', 'vendor_id', 'part_id'];
+    protected $fillable = ['period', 'po_number', 'purchase_group', 'vendor_id', 'part_id', 'qty_po', 'qty_outstanding', 'delivery_date', 'status'];
 
     public function vendor()
     {

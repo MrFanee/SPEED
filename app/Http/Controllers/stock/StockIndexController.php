@@ -9,10 +9,10 @@ class StockIndexController extends Controller
 {
     public function index()
     {
-        $today = now()->toDateString();
+        $tanggal = request()->tanggal ?? date('Y-m-d');
 
         $stock = DB::table('master_stock')
-            ->whereDate('tanggal', $today)
+            ->whereDate('tanggal', $tanggal)
             ->leftJoin('parts', 'master_stock.part_id', '=', 'parts.id')
             ->leftJoin('vendors', 'master_stock.vendor_id', '=', 'vendors.id')
             ->leftJoin('master_2hk', 'parts.id', '=', 'master_2hk.part_id')
@@ -23,13 +23,15 @@ class StockIndexController extends Controller
                 'vendors.nickname',
                 'parts.item_code',
                 'parts.part_name',
-                'po_table.qty_po',
-                'po_table.qty_outstanding',
-                'master_di.qty_plan',
-                'master_di.qty_delivery',
-                'master_di.balance',
-                'master_2hk.std_stock'
-            )->get();
-        return view('stock.index', compact('stock'));
+                DB::raw('SUM(po_table.qty_po) as qty_po'),
+                DB::raw('SUM(po_table.qty_outstanding) as qty_outstanding'),
+                DB::raw('SUM(master_di.qty_plan) as qty_plan'),
+                DB::raw('SUM(master_di.qty_delivery) as qty_delivery'),
+                DB::raw('SUM(master_di.balance) as balance'),
+                DB::raw('MAX(master_2hk.std_stock) as std_stock')
+            )
+            ->groupBy('master_stock.id')
+            ->get();
+        return view('stock.index', compact('tanggal', 'stock'));
     }
 }

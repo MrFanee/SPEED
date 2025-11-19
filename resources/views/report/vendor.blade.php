@@ -6,12 +6,10 @@
     <div class="pagetitle d-flex justify-content-between align-items-center">
         <h1>Daily Report</h1>
         <form action="{{ route('report.vendor') }}" method="get" class="d-flex gap-2 align-items-center">
-            <div class="input-group" style="width: 200px;">
+            <div class="input-group" style="width: 150px;">
                 <input type="date" name="tanggal_pilih" class="form-control" value="{{ $tanggalPilih ?? date('Y-m-d') }}"
-                    max="{{ date('Y-m-d') }}">
-                <button class="btn btn-primary" type="submit">
-                    <i class="bi bi-calendar-check"></i>
-                </button>
+                    max="{{ date('Y-m-d') }}"
+                    onchange="this.form.submit()">
             </div>
         </form>
     </div>

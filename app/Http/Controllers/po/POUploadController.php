@@ -42,12 +42,15 @@ class POUploadController extends Controller
         foreach (array_slice($rows, 1) as $row) {
             if (count($row) < 2) continue;
 
-            $po_number = trim($row[0]);
-            $qty_po = trim($row[1]);
-            $qty_outstanding = trim($row[2]);
-            $status = trim($row[3]);
+            $period = trim($row[0]);
+            $po_number = trim($row[1]);
+            $purchase_group = trim($row[2]);            
+            $vendor_name = trim($row[3]);
             $item_code = trim($row[4]);
-            $vendor_name = trim($row[5]);
+            $qty_po = trim($row[5]);
+            $qty_outstanding = trim($row[6]);
+            $delivery_date = trim($row[7]);
+            $status = trim($row[8]);
 
             $part = Part::where('item_code', $item_code)->first();
             $vendor = Vendor::where('vendor_name', $vendor_name)->first();
@@ -55,13 +58,17 @@ class POUploadController extends Controller
             if ($part && $vendor) {
                 PO::updateOrCreate(
                     [
-                        'part_id' => $part->id,
-                        'vendor_id' => $vendor->id
+                        'po_number' => $po_number
                     ],
                     [
+                        'period' => $period,
                         'po_number' => $po_number,
+                        'purchase_group' => $purchase_group,
+                        'vendor_id' => $vendor->id,
+                        'part_id' => $part->id,
                         'qty_po' => $qty_po,
                         'qty_outstanding' => $qty_outstanding,
+                        'delivery_date' => $delivery_date,
                         'status' => $status
                     ]
                 );
