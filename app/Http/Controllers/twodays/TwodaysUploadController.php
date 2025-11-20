@@ -42,14 +42,18 @@ class TwodaysUploadController extends Controller
             if (count($row) < 2) continue;
 
             $item_code = trim($row[0]);
-            $std_stock = trim($row[1]);
+            $part_name = trim($row[1]);
+            $std_stock = trim($row[2]);
 
             $parts = Part::where('item_code', $item_code)->first();
 
             if ($parts) {
                 Twodays::updateOrCreate(
                     ['part_id' => $parts->id],
-                    ['std_stock' => $std_stock]
+                    [
+                        'part_name'=>$part_name, 
+                        'std_stock' => $std_stock
+                    ]
                 );
                 $imported++;
             } else {

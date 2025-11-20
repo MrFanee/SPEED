@@ -44,10 +44,14 @@ class ReportMonthlyController extends Controller
             ->leftJoin('master_di', 'po_table.id', '=', 'master_di.po_id')
             ->select(
                 DB::raw('DATE(master_stock.tanggal) as tgl'),
+                'master_stock.part_id',
                 'po_table.qty_po',
                 'master_stock.judgement',
                 'master_di.balance',
-                'master_stock.kategori_problem'
+                'master_stock.kategori_problem',
+                'master_stock.rm',
+                'master_stock.wip',
+                'master_stock.fg'
             )
             ->whereYear('master_stock.tanggal', $tahun)
             ->whereMonth('master_stock.tanggal', $bulan);
@@ -94,36 +98,56 @@ class ReportMonthlyController extends Controller
         $report = [];
 
         foreach ($grouped as $tanggal => $records) {
-            $records = collect($records);
+            $tanggalSebelumnya = DB::table('master_stock')
+                ->where('tanggal', '<', $tanggal)
+                ->max('tanggal');
 
-            $total_item = $records->where('qty_po', '>', 0)->count();
-            $stok_ok = $records->where('qty_po', '>', 0)->where('judgement', 'OK')->count();
-            $stok_ng = $records->where('qty_po', '>', 0)->where('judgement', 'NG')->count();
-            $on_schedule = $records->where('balance', '>=', 0)->count();
+            $dataSebelumnya = collect([]);
 
-            $material = $records->where('kategori_problem', 'Material')->count();
-            $man = $records->where('kategori_problem', 'Man')->count();
-            $machine = $records->where('kategori_problem', 'Machine')->count();
-            $method = $records->where('kategori_problem', 'Method')->count();
+            if ($tanggalSebelumnya) {
+                $dataSebelumnya = DB::table('master_stock')
+                    ->select('vendor_id', 'part_id', 'rm', 'wip', 'fg')
+                    ->whereDate('tanggal', $tanggalSebelumnya)
+                    ->where('vendor_id', function ($q) use ($vendor) {
+                        $q->from('vendors')->select('id')->where('nickname', $vendor);
+                    })
+                    ->get();
+            }
 
-            $report[] = [
-                'tanggal' => $tanggal,
-                'total_item' => $total_item,
-                'stok_ok' => $stok_ok,
-                'stok_ng' => $stok_ng,
-                'on_schedule' => $on_schedule,
-                'material' => $material,
-                'man' => $man,
-                'machine' => $machine,
-                'method' => $method,
-                'konsistensi' => $total_item > 0 ? 100 : 0,
-                'akurasi_stok' => $total_item > 0 ? round(($stok_ok / $total_item) * 100, 2) : 0,
-                'akurasi_schedule' => $total_item > 0 ? round(($on_schedule / $total_item) * 100, 2) : 0,
-                // 'persen_material' => $total_item > 0 ? round(($material / $total_item) * 100, 2) : 0,
-                // 'persen_man' => $total_item > 0 ? round(($man / $total_item) * 100, 2) : 0,
-                // 'persen_machine' => $total_item > 0 ? round(($machine / $total_item) * 100, 2) : 0,
-                // 'persen_method' => $total_item > 0 ? round(($method / $total_item) * 100, 2) : 0,
-            ];
+            $updated = false;
+
+            foreach ($records as $row) {
+                $prev = $dataSebelumnya->firstWhere('part_id', $row->part_id);
+
+                if (!$prev) {
+                    $updated = true;
+                    break;
+                }
+
+                if ($prev->rm != $row->rm || $prev->wip != $row->wip || $prev->fg != $row->fg) {
+                    $updated = true;
+                    break;
+                }
+            }
+
+            // Jika tidak update → report 0
+            if (!$updated) {
+                $report[] = [
+                    'tanggal' => $tanggal,
+                    'total_item' => 0,
+                    'stok_ok' => 0,
+                    'stok_ng' => 0,
+                    'on_schedule' => 0,
+                    'material' => 0,
+                    'man' => 0,
+                    'machine' => 0,
+                    'method' => 0,
+                    'konsistensi' => 0,
+                    'akurasi_stok' => 0,
+                    'akurasi_schedule' => 0,
+                ];
+                continue;
+            }
         }
 
         $summary = [

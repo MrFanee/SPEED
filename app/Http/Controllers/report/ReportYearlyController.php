@@ -39,6 +39,7 @@ class ReportYearlyController extends Controller
                 ->leftJoin('master_di', 'po_table.id', '=', 'master_di.po_id')
                 ->select(
                     DB::raw('DATE(master_stock.tanggal) as tgl'),
+                    'master_stock.part_id',
                     'po_table.qty_po',
                     'master_stock.judgement',
                     'master_di.balance',
@@ -57,29 +58,74 @@ class ReportYearlyController extends Controller
                 continue;
             }
 
-            $total_item  = $data->where('qty_po', '>', 0)->count();
-            $stok_ok     = $data->where('qty_po', '>', 0)->where('judgement', 'OK')->count();
-            $stok_ng     = $data->where('qty_po', '>', 0)->where('judgement', 'NG')->count();
-            $on_schedule = $data->where('balance', '>=', 0)->count();
+            $grouped = $data->groupBy('tgl');
 
-            $material = $data->where('kategori_problem', 'Material')->count();
-            $man      = $data->where('kategori_problem', 'Man')->count();
-            $machine  = $data->where('kategori_problem', 'Machine')->count();
-            $method   = $data->where('kategori_problem', 'Method')->count();
+            $report = [];
+            foreach ($grouped as $tanggal => $records) {
+                $records = collect($records);
+
+                $perPart = $records->groupBy('part_id')->map(function ($rows) {
+                    return [
+                        'qty_po' => $rows->sum('qty_po'),
+                        'judgement' => $rows->first()->judgement,
+                        'balance' => $rows->sum('balance'),
+                        'kategori_problem' => $rows->first()->kategori_problem,
+                    ];
+                });
+
+                $total_item = $perPart->where('qty_po', '>', 0)->count();
+                $stok_ok = $perPart->where('qty_po', '>', 0)->where('judgement', 'OK')->count();
+                $stok_ng = $perPart->where('qty_po', '>', 0)->where('judgement', 'NG')->count();
+                $on_schedule = $perPart->where('balance', '>=', 0)->count();
+
+                $material = $perPart->where('kategori_problem', 'Material')->count();
+                $man = $perPart->where('kategori_problem', 'Man')->count();
+                $machine = $perPart->where('kategori_problem', 'Machine')->count();
+                $method = $perPart->where('kategori_problem', 'Method')->count();
+
+                $report[] = [
+                    'bulan' => $bulan,
+                    'total_item' => $total_item,
+                    'stok_ok' => $stok_ok,
+                    'stok_ng' => $stok_ng,
+                    'on_schedule' => $on_schedule,
+                    'material' => $material,
+                    'man' => $man,
+                    'machine' => $machine,
+                    'method' => $method,
+                    'konsistensi' => $total_item > 0 ? 100 : 0,
+                    'akurasi_stok' => $total_item > 0 ? round(($stok_ok / $total_item) * 100, 2) : 0,
+                    'akurasi_schedule' => $total_item > 0 ? round(($on_schedule / $total_item) * 100, 2) : 0,
+                ];
+            }
+
+            $summaryBulanan = [
+                'total_item'     => collect($report)->sum('total_item'),
+                'stok_ng'        => collect($report)->sum('stok_ng'),
+                'stok_ok'        => collect($report)->sum('stok_ok'),
+                'on_schedule'    => collect($report)->sum('on_schedule'),
+                'material'       => collect($report)->sum('material'),
+                'man'            => collect($report)->sum('man'),
+                'machine'        => collect($report)->sum('machine'),
+                'method'         => collect($report)->sum('method'),
+                'konsistensi'      => round(collect($report)->avg('konsistensi'), 2),
+                'akurasi_stok'     => round(collect($report)->avg('akurasi_stok'), 2),
+                'akurasi_schedule' => round(collect($report)->avg('akurasi_schedule'), 2),
+            ];
 
             $monthlyReport[] = [
                 'bulan' => $bulan,
-                'total_item' => $total_item,
-                'stok_ok' => $stok_ok,
-                'stok_ng' => $stok_ng,
-                'on_schedule' => $on_schedule,
-                'material' => $material,
-                'man' => $man,
-                'machine' => $machine,
-                'method' => $method,
-                'konsistensi' => $total_item > 0 ? 100 : 0,
-                'akurasi_stok' => $total_item > 0 ? round(($stok_ok / $total_item) * 100, 2) : 0,
-                'akurasi_schedule' => $total_item > 0 ? round(($on_schedule / $total_item) * 100, 2) : 0,
+                'total_item' => $summaryBulanan['total_item'],
+                'stok_ng' => $summaryBulanan['stok_ng'],
+                'stok_ok' => $summaryBulanan['stok_ok'],
+                'on_schedule' => $summaryBulanan['on_schedule'],
+                'material' => $summaryBulanan['material'],
+                'man' => $summaryBulanan['man'],
+                'machine' => $summaryBulanan['machine'],
+                'method' => $summaryBulanan['method'],
+                'konsistensi' => $summaryBulanan['konsistensi'],
+                'akurasi_stok' => $summaryBulanan['akurasi_stok'],
+                'akurasi_schedule' => $summaryBulanan['akurasi_schedule'],
             ];
         }
 
@@ -98,14 +144,14 @@ class ReportYearlyController extends Controller
             'akurasi_schedule' => round(collect($monthlyReport)->avg('akurasi_schedule'), 2),
         ];
 
-        return view('report.yearly',[
-            'tahun'=>$tahun,
-            'vendor'=>$vendor,
-            'vendorList'=>$vendorList,
-            'vendorName'=>$vendorName,
-            'tahunList'=>$tahunList,
-            'report'=>$monthlyReport,
-            'summary'=>$summary
+        return view('report.yearly', [
+            'tahun' => $tahun,
+            'vendor' => $vendor,
+            'vendorList' => $vendorList,
+            'vendorName' => $vendorName,
+            'tahunList' => $tahunList,
+            'report' => $monthlyReport,
+            'summary' => $summary
         ]);
     }
 }

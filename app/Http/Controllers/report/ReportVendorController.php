@@ -23,11 +23,15 @@ class ReportVendorController extends Controller
             ->leftJoin('master_di', 'po_table.id', '=', 'master_di.po_id')
             ->select(
                 'master_stock.part_id',
+                'vendors.id as vendor_id',
                 'vendors.nickname',
                 'po_table.qty_po',
                 'master_stock.judgement',
                 'master_di.balance',
-                'master_stock.kategori_problem'
+                'master_stock.kategori_problem',
+                'master_stock.rm',
+                'master_stock.wip',
+                'master_stock.fg'
             )
             ->whereDate('master_stock.tanggal', $tanggalPilih)
             ->get();
@@ -56,25 +60,113 @@ class ReportVendorController extends Controller
             ]);
         }
 
-        // group berdasarkan vendor
-        $grouped = $data->groupBy('nickname');
+        $tanggalSebelumnya = DB::table('master_stock')
+            ->where('tanggal', '<', $tanggalPilih)
+            ->max('tanggal');
+
+        if (!$tanggalSebelumnya) {
+            $tanggalSebelumnya = null;
+        }
+
+        if ($tanggalSebelumnya) {
+            $dataKemarin = DB::table('master_stock')
+                ->select('vendor_id', 'part_id', 'rm', 'wip', 'fg')
+                ->whereDate('tanggal', $tanggalSebelumnya)
+                ->get()
+                ->groupBy('vendor_id');
+        } else {
+            $dataKemarin = collect([]);
+        }
+
+        $grouped = $data->groupBy('vendor_id');
 
         $report = [];
 
-        foreach ($grouped as $vendor => $records) {
-            $records = collect($records);
+        foreach ($grouped as $vendorId => $records) {
 
-            $unique = $records->unique('part_id');
+            $vendorName = $records->first()->nickname ?? '(Tidak ada nickname)';
+            $recordsToday = collect($records);
+            $recordsYesterday = $dataKemarin[$vendorId] ?? collect([]);
 
-            $total_item = $unique->where('qty_po', '>', 0)->count();
-            $stok_ok = $unique->where('qty_po', '>', 0)->where('judgement', 'OK')->count();
-            $stok_ng = $unique->where('qty_po', '>', 0)->where('judgement', 'NG')->count();
-            $on_schedule = $unique->where('balance', '>=', 0)->count();
+            if ($recordsYesterday->isEmpty()) {
+                $vendorUpdated = true;
+            } else {
+                $vendorUpdated = false;
 
-            $material = $unique->where('kategori_problem', 'Material')->count();
-            $man = $unique->where('kategori_problem', 'Man')->count();
-            $machine = $unique->where('kategori_problem', 'Machine')->count();
-            $method = $unique->where('kategori_problem', 'Method')->count();
+                foreach ($recordsToday as $rowToday) {
+                    $rowYesterday = $recordsYesterday->firstWhere('part_id', $rowToday->part_id);
+
+                    // part baru --> vendor update
+                    if (!$rowYesterday) {
+                        $vendorUpdated = true;
+                        break;
+                    }
+
+                    // compare RM/WIP/FG
+                    if (
+                        $rowToday->rm != $rowYesterday->rm ||
+                        $rowToday->wip != $rowYesterday->wip ||
+                        $rowToday->fg != $rowYesterday->fg
+                    ) {
+                        $vendorUpdated = true;
+                        break;
+                    }
+                }
+            }
+
+            foreach ($recordsToday as $rowToday) {
+                $rowYesterday = $recordsYesterday->firstWhere('part_id', $rowToday->part_id);
+                if (!$rowYesterday) continue;
+
+                if (
+                    $rowToday->rm != $rowYesterday->rm ||
+                    $rowToday->wip != $rowYesterday->wip ||
+                    $rowToday->fg != $rowYesterday->fg
+                ) {
+                    $vendorUpdated = true;
+                    break;
+                }
+            }
+
+            if (!$vendorUpdated) {
+                $report[] = [
+                    'vendor' => $vendorName,
+                    'total_item' => 0,
+                    'stok_ng' => 0,
+                    'stok_ok' => 0,
+                    'on_schedule' => 0,
+                    'material' => 0,
+                    'man' => 0,
+                    'machine' => 0,
+                    'method' => 0,
+                    'konsistensi' => 0,
+                    'akurasi_stok' => 0,
+                    'akurasi_schedule' => 0,
+                    'persen_material' => 0,
+                    'persen_man' => 0,
+                    'persen_machine' => 0,
+                    'persen_method' => 0,
+                ];
+                continue;
+            }
+
+            $perPart = $recordsToday->groupBy('part_id')->map(function ($rows) {
+                return [
+                    'qty_po' => $rows->sum('qty_po'),
+                    'judgement' => $rows->first()->judgement,
+                    'balance' => $rows->sum('balance'),
+                    'kategori_problem' => $rows->first()->kategori_problem,
+                ];
+            });
+
+            $total_item = $perPart->where('qty_po', '>', 0)->count();
+            $stok_ok = $perPart->where('qty_po', '>', 0)->where('judgement', 'OK')->count();
+            $stok_ng = $perPart->where('qty_po', '>', 0)->where('judgement', 'NG')->count();
+            $on_schedule = $perPart->where('balance', '>=', 0)->count();
+            $material = $perPart->where('kategori_problem', 'Material')->count();
+            $man = $perPart->where('kategori_problem', 'Man')->count();
+            $machine = $perPart->where('kategori_problem', 'Machine')->count();
+            $method = $perPart->where('kategori_problem', 'Method')->count();
 
             $konsistensi = $total_item > 0 ? 100 : 0;
             $akurasi_stok = $total_item > 0 ? round(($stok_ok / $total_item) * 100, 2) : 0;
@@ -85,7 +177,7 @@ class ReportVendorController extends Controller
             $persen_method = $total_item > 0 ? round(($method / $total_item) * 100, 2) : 0;
 
             $report[] = [
-                'vendor' => $vendor ?? '(Tidak ada nickname)',
+                'vendor' => $vendorName,
                 'total_item' => $total_item,
                 'stok_ng' => $stok_ng,
                 'stok_ok' => $stok_ok,
@@ -104,6 +196,7 @@ class ReportVendorController extends Controller
             ];
         }
 
+
         $summary = [
             'total_item'     => collect($report)->sum('total_item'),
             'stok_ng'        => collect($report)->sum('stok_ng'),
@@ -113,7 +206,6 @@ class ReportVendorController extends Controller
             'man'            => collect($report)->sum('man'),
             'machine'        => collect($report)->sum('machine'),
             'method'         => collect($report)->sum('method'),
-
             'konsistensi'      => round(collect($report)->avg('konsistensi'), 2),
             'akurasi_stok'     => round(collect($report)->avg('akurasi_stok'), 2),
             'akurasi_schedule' => round(collect($report)->avg('akurasi_schedule'), 2),
