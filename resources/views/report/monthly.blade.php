@@ -131,14 +131,14 @@
             konsistensi.push(summary.konsistensi);
 
             const ctx = document.getElementById('monthlyChart').getContext('2d');
-            const chartLegendMargin = {
+           const chartLegendMargin = {
                 id: 'chartLegendMargin',
                 beforeInit: function(chart) {
                     const originalFit = chart.legend.fit;
                     chart.legend.fit = function fit() {
                         originalFit.bind(chart.legend)();
                         this.height += 20; 
-                    }
+                     }
                 }
             };
 

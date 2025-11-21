@@ -196,7 +196,6 @@ class ReportVendorController extends Controller
             ];
         }
 
-
         $summary = [
             'total_item'     => collect($report)->sum('total_item'),
             'stok_ng'        => collect($report)->sum('stok_ng'),

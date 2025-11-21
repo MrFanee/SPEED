@@ -43,7 +43,10 @@ class ReportYearlyController extends Controller
                     'po_table.qty_po',
                     'master_stock.judgement',
                     'master_di.balance',
-                    'master_stock.kategori_problem'
+                    'master_stock.kategori_problem',
+                    'master_stock.rm',
+                    'master_stock.wip',
+                    'master_stock.fg'
                 )
                 ->whereYear('master_stock.tanggal', $tahun)
                 ->whereMonth('master_stock.tanggal', $bulan);
@@ -63,6 +66,57 @@ class ReportYearlyController extends Controller
             $report = [];
             foreach ($grouped as $tanggal => $records) {
                 $records = collect($records);
+
+                $tanggalSebelumnya = DB::table('master_stock')
+                    ->where('tanggal', '<', $tanggal)
+                    ->max('tanggal');
+
+                $dataSebelumnya = collect([]);
+
+                if ($tanggalSebelumnya) {
+                    $dataSebelumnya = DB::table('master_stock')
+                        ->select('vendor_id', 'part_id', 'rm', 'wip', 'fg')
+                        ->whereDate('tanggal', $tanggalSebelumnya)
+                        ->where('vendor_id', function ($q) use ($vendor) {
+                            $q->from('vendors')->select('id')->where('nickname', $vendor);
+                        })
+                        ->get();
+                }
+
+                $updated = false;
+
+                foreach ($records as $row) {
+                    $prev = $dataSebelumnya->firstWhere('part_id', $row->part_id);
+
+                    if (!$prev) {
+                        $updated = true;
+                        break;
+                    }
+
+                    if ($prev->rm != $row->rm || $prev->wip != $row->wip || $prev->fg != $row->fg) {
+                        $updated = true;
+                        break;
+                    }
+                }
+
+                // Jika tidak update → report 0
+                if (!$updated) {
+                    $report[] = [
+                        'tanggal' => $tanggal,
+                        'total_item' => 0,
+                        'stok_ok' => 0,
+                        'stok_ng' => 0,
+                        'on_schedule' => 0,
+                        'material' => 0,
+                        'man' => 0,
+                        'machine' => 0,
+                        'method' => 0,
+                        'konsistensi' => 0,
+                        'akurasi_stok' => 0,
+                        'akurasi_schedule' => 0,
+                    ];
+                    continue;
+                }
 
                 $perPart = $records->groupBy('part_id')->map(function ($rows) {
                     return [

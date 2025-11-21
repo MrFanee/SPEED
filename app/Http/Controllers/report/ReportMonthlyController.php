@@ -148,6 +148,40 @@ class ReportMonthlyController extends Controller
                 ];
                 continue;
             }
+
+            $perPart = $records->groupBy('part_id')->map(function ($rows) {
+                return [
+                    'qty_po' => $rows->sum('qty_po'),
+                    'judgement' => $rows->first()->judgement,
+                    'balance' => $rows->sum('balance'),
+                    'kategori_problem' => $rows->first()->kategori_problem,
+                ];
+            });
+
+            $total_item = $perPart->where('qty_po', '>', 0)->count();
+            $stok_ok = $perPart->where('qty_po', '>', 0)->where('judgement', 'OK')->count();
+            $stok_ng = $perPart->where('qty_po', '>', 0)->where('judgement', 'NG')->count();
+            $on_schedule = $perPart->where('balance', '>=', 0)->count();
+
+            $material = $perPart->where('kategori_problem', 'Material')->count();
+            $man = $perPart->where('kategori_problem', 'Man')->count();
+            $machine = $perPart->where('kategori_problem', 'Machine')->count();
+            $method = $perPart->where('kategori_problem', 'Method')->count();
+
+            $report[] = [
+                'tanggal' => $tanggal,
+                'total_item' => $total_item,
+                'stok_ok' => $stok_ok,
+                'stok_ng' => $stok_ng,
+                'on_schedule' => $on_schedule,
+                'material' => $material,
+                'man' => $man,
+                'machine' => $machine,
+                'method' => $method,
+                'konsistensi' => $total_item > 0 ? 100 : 0,
+                'akurasi_stok' => $total_item > 0 ? round(($stok_ok / $total_item) * 100, 2) : 0,
+                'akurasi_schedule' => $total_item > 0 ? round(($on_schedule / $total_item) * 100, 2) : 0,
+            ];
         }
 
         $summary = [

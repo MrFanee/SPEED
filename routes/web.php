@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\vendor\VendorIndexController;
 use App\Http\Controllers\vendor\VendorCreateController;
 use App\Http\Controllers\vendor\VendorStoreController;
@@ -53,7 +54,7 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', function () {return view('dashboard');})->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Vendor routes
     Route::get('/vendor/view', [VendorIndexController::class, 'index'])->name('vendor.index');
