@@ -1,14 +1,14 @@
 @extends('layouts.main')
 
-@section('title', 'Data Standar Stok')
+@section('title', 'Data User')
 
 @section('content')
   <div class="pagetitle">
-    <h1>Data Standar Stok</h1>
+    <h1>Data User</h1>
     <nav>
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
-        <li class="breadcrumb-item active">Standar Stok</li>
+        <li class="breadcrumb-item active">User</li>
       </ol>
     </nav>
   </div>
@@ -16,10 +16,10 @@
   <section class="section">
     <div class="card">
       <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
-          <a href="{{ route('twodays.create') }}" class="btn btn-sm btn-primary">+ Tambah</a>
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <a href="{{ route('user.create') }}" class="btn btn-sm btn-primary mb-3">+ Tambah</a>
 
-          <a href="{{ route('twodays.upload') }}" class="btn btn-sm btn-success">Upload CSV</a>
+          {{-- <a href="{{ route('po.upload') }}" class="btn btn-sm btn-success">Upload CSV</a> --}}
         </div>
 
         @if (session('error'))
@@ -36,28 +36,25 @@
           </div>
         @endif
 
-
-        <table class="table table-bordered table-striped small" id="twodaysTable">
+        <table class="table table-bordered table-striped small" id="userTable">
           <thead class="text-center">
             <tr>
               <th>#</th>
-              <th>Part Name</th>
-              <th>Item Code</th>
-              <th>Standar Stok</th>
+              <th>Username</th>
+              <th>Role</th>
               <th>Aksi</th>
             </tr>
           </thead>
           <tbody>
-            @foreach ($twodays as $t)
+            @foreach ($users as $u)
               <tr>
                 <td>{{ $loop->iteration }}</td>
-                <td>{{ $t->part->item_code }}</td>
-                <td>{{ $t->part->part_name }}</td>
-                <td>{{ $t->std_stock }}</td>
+                <td>{{ $u->username }}</td>
+                <td>{{ $u->role }}</td>
                 <td>
                   <div class="d-flex gap-2">
-                    <a href="{{ route('twodays.edit', $t->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                    <form action="{{ route('twodays.delete', $t->id) }}" method="POST">
+                    <a href="{{ route('user.edit', $u->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                    <form action="{{ route('user.delete', $u->id) }}" method="POST">
                       @csrf
                       @method('DELETE')
                       <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
@@ -75,7 +72,7 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-      const table = document.querySelector("#twodaysTable");
+      const table = document.querySelector("#userTable");
       if (table) {
         new simpleDatatables.DataTable(table);
       }

@@ -11,15 +11,7 @@ class TwodaysIndexController extends Controller
     {
         $query = request()->query('query'); 
 
-        $twodays = Twodays::with('part')
-            ->when($query, function ($q) use ($query) {
-                $q->whereHas('part', function ($p) use ($query) {
-                    $p->where('item_code', 'like', "%$query%")
-                        ->orWhere('part_name', 'like', "%$query%");
-                })
-                    ->orWhere('std_stock', 'like', "%$query%");
-            })
-            ->get();
+        $twodays = Twodays::with('part')->get();
 
         return view('twodays.index', compact('twodays', 'query'));
     }

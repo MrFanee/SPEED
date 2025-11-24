@@ -1,13 +1,4 @@
 @extends('layouts.main')
-@section('searchbar')
-    <div class="search-bar mb-3">
-        <form class="search-form d-flex align-items-center" method="GET" action="{{ route('po.index') }}">
-            <input type="text" name="query" placeholder="Search item..." title="Search keyword" class="form-control"
-                value="{{ request('query') }}">
-            <button type="submit" class="btn btn-primary ms-2"><i class="bi bi-search"></i></button>
-        </form>
-    </div>
-@endsection
 
 @section('title', 'Data PO')
 
@@ -45,7 +36,7 @@
                     </div>
                 @endif
 
-                <table class="table table-bordered table-striped small">
+                <table class="table table-bordered table-striped small" id="poTable">
                     <thead class="text-center">
                         <tr>
                             <th>#</th>
@@ -94,4 +85,13 @@
             </div>
         </div>
     </section>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const table = document.querySelector("#poTable");
+            if (table) {
+                new simpleDatatables.DataTable(table);
+            }
+        });
+    </script>
 @endsection

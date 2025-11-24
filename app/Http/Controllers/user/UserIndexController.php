@@ -11,10 +11,7 @@ class UserIndexController extends Controller
     {
         $query = request()->query('query'); 
 
-        $users = User::when($query, function ($q) use ($query) {
-            $q->where('username', 'like', "%$query%")
-              ->orWhere('role', 'like', "%$query%");
-        })->get();
+        $users = User::all();
 
         return view('user.index', compact('users', 'query'));
     }

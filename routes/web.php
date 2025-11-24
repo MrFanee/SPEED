@@ -42,7 +42,13 @@ use App\Http\Controllers\stock\StockUpdateController;
 use App\Http\Controllers\stock\StockCreateController;
 use App\Http\Controllers\report\ReportVendorController;
 use App\Http\Controllers\report\ReportMonthlyController;
-use App\Http\Controllers\report\ReportYearlyController;    
+use App\Http\Controllers\report\ReportYearlyController;
+use App\Http\Controllers\user\UserIndexController;
+use App\Http\Controllers\user\UserCreateController;
+use App\Http\Controllers\user\UserStoreController;
+use App\Http\Controllers\user\UserEditController;
+use App\Http\Controllers\user\UserUpdateController;
+use App\Http\Controllers\user\UserDestroyController;
 
 
 Route::get('/', function () {
@@ -113,7 +119,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/report/vendor', [ReportVendorController::class, 'index'])->name('report.vendor');
     Route::get('/report/monthly', [ReportMonthlyController::class, 'index'])->name('report.monthly');
     Route::get('/report/yearly', [ReportYearlyController::class, 'index'])->name('report.yearly');
-    
-    // Resource routes
-    Route::resource('users', 'UserController');
+
+    // User routes
+    Route::get('/user/view', [UserIndexController::class, 'index'])->name('user.index');
+    Route::get('/user/create', [UserCreateController::class, 'create'])->name('user.create');
+    Route::post('/user/store', [UserStoreController::class, 'store'])->name('user.store');
+    Route::get('/user/edit/{id}', [UserEditController::class, 'edit'])->name('user.edit');
+    Route::put('/user/update/{id}', [UserUpdateController::class, 'update'])->name('user.update');
+    Route::delete('/user/delete/{id}', [UserDestroyController::class, 'destroy'])->name('user.delete');
 });
