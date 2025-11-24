@@ -10,6 +10,7 @@ class StockIndexController extends Controller
     public function index()
     {
         $tanggal = request()->tanggal ?? date('Y-m-d');
+        $query   = request('query'); 
 
         $stock = DB::table('master_stock')
             ->whereDate('tanggal', $tanggal)
@@ -30,8 +31,21 @@ class StockIndexController extends Controller
                 DB::raw('SUM(master_di.balance) as balance'),
                 DB::raw('MAX(master_2hk.std_stock) as std_stock')
             )
+
+            ->when($query, function ($q) use ($query) {
+                $q->where(function ($sub) use ($query) {
+                    $sub->where('parts.item_code', 'like', "%$query%")
+                        ->orWhere('parts.part_name', 'like', "%$query%")
+                        ->orWhere('vendors.nickname', 'like', "%$query%")
+                        ->orWhere('master_stock.judgement', 'like', "%$query%")
+                        ->orWhere('po_table.qty_po', 'like', "%$query%")
+                        ->orWhere('master_2hk.std_stock', 'like', "%$query%");
+                });
+            })
+
             ->groupBy('master_stock.id')
             ->get();
-        return view('stock.index', compact('tanggal', 'stock'));
+
+        return view('stock.index', compact('tanggal', 'stock', 'query'));
     }
 }

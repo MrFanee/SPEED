@@ -23,11 +23,11 @@
           @csrf
 
           <div class="mb-3">
-            <label for="part_name" class="form-label">Part Name</label>
-            <input type="text" name="part_name" class="form-control" id="part_name" value="{{ old('part_name') }}">
-            @error('part_name') <small class="text-danger">{{ $message }}</small> @enderror
+            <label for="item_code" class="form-label">Item Code</label>
+            <input type="item_code" name="item_code" class="form-control" id="item_code" value="{{ old('item_code') }}">
+            @error('item_code') <small class="text-danger">{{ $message }}</small> @enderror
           </div>
-
+          
           <div class="mb-3">
             <label for="part_number" class="form-label">Part Number</label>
             <input type="text" name="part_number" class="form-control" id="part_number" value="{{ old('part_number') }}">
@@ -35,9 +35,9 @@
           </div>
 
           <div class="mb-3">
-            <label for="item_code" class="form-label">Item Code</label>
-            <input type="item_code" name="item_code" class="form-control" id="item_code" value="{{ old('item_code') }}">
-            @error('item_code') <small class="text-danger">{{ $message }}</small> @enderror
+            <label for="part_name" class="form-label">Part Name</label>
+            <input type="text" name="part_name" class="form-control" id="part_name" value="{{ old('part_name') }}">
+            @error('part_name') <small class="text-danger">{{ $message }}</small> @enderror
           </div>
 
           <button type="submit" class="btn btn-sm btn-primary">Simpan</button>

@@ -1,4 +1,13 @@
 @extends('layouts.main')
+@section('searchbar')
+    <div class="search-bar mb-3">
+        <form class="search-form d-flex align-items-center" method="GET" action="{{ route('stock.index') }}">
+            <input type="text" name="query" placeholder="Search item..." title="Search keyword" class="form-control"
+                value="{{ request('query') }}">
+            <button type="submit" class="btn btn-primary ms-2"><i class="bi bi-search"></i></button>
+        </form>
+    </div>
+@endsection
 
 @section('title', '2 Days Stock')
 
@@ -83,9 +92,12 @@
                                 <td>{{ $s->qty_plan ?? '-'}}</td>
                                 <td>{{ $s->qty_delivery ?? '-'}}</td>
                                 <td>{{ $s->balance ?? '-'}}</td>
-                                <td @if ($isToday) contenteditable="true" class="editable" @endif data-field="rm">{{ $s->rm }}</td>
-                                <td @if ($isToday) contenteditable="true" class="editable" @endif data-field="wip">{{ $s->wip }}</td>
-                                <td @if ($isToday) contenteditable="true" class="editable" @endif data-field="fg">{{ $s->fg }}</td>
+                                <td @if ($isToday) contenteditable="true" class="editable" @endif data-field="rm">{{ $s->rm }}
+                                </td>
+                                <td @if ($isToday) contenteditable="true" class="editable" @endif data-field="wip">{{ $s->wip }}
+                                </td>
+                                <td @if ($isToday) contenteditable="true" class="editable" @endif data-field="fg">{{ $s->fg }}
+                                </td>
                                 <td>{{ $s->std_stock ?? '-'}}</td>
                                 <td>
                                     @if ($s->judgement == 'OK')
@@ -110,7 +122,8 @@
                                         </option>
                                     </select>
                                 </td>
-                                <td class="text-start @if ($isToday) editable @endif" @if ($isToday) contenteditable="true" @endif data-field="detail_problem">
+                                <td class="text-start @if ($isToday) editable @endif" @if ($isToday) contenteditable="true"
+                                @endif data-field="detail_problem">
                                     {{ $s->detail_problem }}
                                 </td>
                             </tr>
@@ -126,245 +139,245 @@
     </section>
 
     @if ($isToday)
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const editableCells = document.querySelectorAll('.editable');
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const editableCells = document.querySelectorAll('.editable');
 
-            // --- recalculate judgement ---
-            function recalcJudgement(row) {
-                const poCell = row.querySelector('[data-field="qty_po"]');
-                const fgCell = row.querySelector('[data-field="fg"]');
-                const stdCell = row.querySelector('[data-field="std_stock"]');
+                // --- recalculate judgement ---
+                function recalcJudgement(row) {
+                    const poCell = row.querySelector('[data-field="qty_po"]');
+                    const fgCell = row.querySelector('[data-field="fg"]');
+                    const stdCell = row.querySelector('[data-field="std_stock"]');
 
-                let jumlahPO = parseFloat(poCell?.textContent.trim()) || 0;
-                let fg = parseFloat(fgCell?.textContent.trim()) || 0;
-                let stdStock = parseFloat(stdCell?.textContent.trim()) || 0;
+                    let jumlahPO = parseFloat(poCell?.textContent.trim()) || 0;
+                    let fg = parseFloat(fgCell?.textContent.trim()) || 0;
+                    let stdStock = parseFloat(stdCell?.textContent.trim()) || 0;
 
-                let judgement = "-";
-                if (jumlahPO === 0) {
-                    judgement = "NO PO";
-                } else if (jumlahPO > 0 && fg >= stdStock) {
-                    judgement = "OK";
-                } else if (jumlahPO > 0 && fg < stdStock) {
-                    judgement = "NG";
-                }
-
-                row.dataset.judgement = judgement;
-                return judgement;
-            }
-
-            // --- update badge ---
-            function updateJudgementBadge(row, judgement) {
-                const badgeCell = row.querySelector('td:nth-child(13)');
-                const oldBadge = badgeCell.querySelector('.badge');
-
-                let newBadge = document.createElement('span');
-                newBadge.classList.add('badge');
-
-                if (judgement === 'OK') newBadge.classList.add('bg-success');
-                else if (judgement === 'NG') newBadge.classList.add('bg-danger');
-                else if (judgement === 'NO PO') newBadge.classList.add('bg-warning', 'text-dark');
-                else newBadge.classList.add('bg-secondary');
-
-                newBadge.textContent = judgement;
-
-                if (oldBadge) oldBadge.replaceWith(newBadge);
-                else badgeCell.appendChild(newBadge);
-            }
-
-            // --- highlight problem fields ---
-            function highlightProblemFields(row) {
-                const kategoriCell = row.querySelector('[data-field="kategori_problem"]');
-                const detailCell = row.querySelector('[data-field="detail_problem"]');
-                const judgement = row.dataset.judgement;
-
-                if (kategoriCell) kategoriCell.style.border = '';
-                if (detailCell) detailCell.style.border = '';
-
-                if (judgement === 'NG') {
-                    const kategoriVal = kategoriCell?.textContent.trim();
-                    const detailVal = detailCell?.textContent.trim();
-
-                    if (!kategoriVal || !detailVal) {
-                        if (kategoriCell) kategoriCell.style.border = '1px solid #dc3545';
-                        if (detailCell) detailCell.style.border = '1px solid #dc3545';
+                    let judgement = "-";
+                    if (jumlahPO === 0) {
+                        judgement = "NO PO";
+                    } else if (jumlahPO > 0 && fg >= stdStock) {
+                        judgement = "OK";
+                    } else if (jumlahPO > 0 && fg < stdStock) {
+                        judgement = "NG";
                     }
-                }
-            }
 
-            // --- reset problem fields jika judgement bukan NG ---
-            function resetProblemFields(row) {
-                const kategoriCell = row.querySelector('[data-field="kategori_problem"]');
-                const detailCell = row.querySelector('[data-field="detail_problem"]');
-                const kategoriSelect = kategoriCell?.querySelector('select');
-                const id = row.dataset.id;
-
-                if (!id) return;
-
-                if (kategoriSelect) {
-                    kategoriSelect.value = '';
-                } else if (kategoriCell) {
-                    kategoriCell.textContent = '';
+                    row.dataset.judgement = judgement;
+                    return judgement;
                 }
 
-                if (detailCell) detailCell.textContent = '';
+                // --- update badge ---
+                function updateJudgementBadge(row, judgement) {
+                    const badgeCell = row.querySelector('td:nth-child(13)');
+                    const oldBadge = badgeCell.querySelector('.badge');
 
-                const updates = [
-                    { field: 'kategori_problem', value: '' },
-                    { field: 'detail_problem', value: '' }
-                ];
+                    let newBadge = document.createElement('span');
+                    newBadge.classList.add('badge');
 
-                updates.forEach(u => {
-                    fetch(`/stock/update/${id}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify(u)
-                    });
-                });
-            }
+                    if (judgement === 'OK') newBadge.classList.add('bg-success');
+                    else if (judgement === 'NG') newBadge.classList.add('bg-danger');
+                    else if (judgement === 'NO PO') newBadge.classList.add('bg-warning', 'text-dark');
+                    else newBadge.classList.add('bg-secondary');
 
-            // --- cek baris NG dengan problem ga lengkap ---
-            function isTableLocked() {
-                const rows = document.querySelectorAll('tr[data-judgement]');
-                for (const row of rows) {
-                    const j = row.dataset.judgement;
-                    if (j === 'NG') {
-                        const kategoriVal = row.querySelector('[data-field="kategori_problem"]')?.textContent.trim();
-                        const detailVal = row.querySelector('[data-field="detail_problem"]')?.textContent.trim();
-                        if (!kategoriVal || !detailVal) return row;
-                    }
+                    newBadge.textContent = judgement;
+
+                    if (oldBadge) oldBadge.replaceWith(newBadge);
+                    else badgeCell.appendChild(newBadge);
                 }
-                return null;
-            }
 
-            // --- Event listeners ---
-            editableCells.forEach(cell => {
+                // --- highlight problem fields ---
+                function highlightProblemFields(row) {
+                    const kategoriCell = row.querySelector('[data-field="kategori_problem"]');
+                    const detailCell = row.querySelector('[data-field="detail_problem"]');
+                    const judgement = row.dataset.judgement;
 
-                // focus ke cell lain saat tabel terkunci
-                cell.addEventListener('focus', function (e) {
-                    const lockedRow = isTableLocked();
-                    const field = this.dataset.field;
-                    const row = this.closest('tr');
+                    if (kategoriCell) kategoriCell.style.border = '';
+                    if (detailCell) detailCell.style.border = '';
 
-                    if (lockedRow && (row !== lockedRow || !['kategori_problem', 'detail_problem'].includes(field))) {
-                        e.preventDefault();
-                        this.blur();
+                    if (judgement === 'NG') {
+                        const kategoriVal = kategoriCell?.textContent.trim();
+                        const detailVal = detailCell?.textContent.trim();
 
-                        cell.style.backgroundColor = '#f8d7da';
-                        setTimeout(() => cell.style.backgroundColor = '', 400);
-                        return;
-                    }
-                });
-
-                // Enter key
-                cell.addEventListener('keypress', function (e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        const row = this.closest('tr');
-                        const field = this.dataset.field;
-
-                        if (['fg'].includes(field)) {
-                            const newJudgement = recalcJudgement(row);
-                            updateJudgementBadge(row, newJudgement);
-
-                            if (newJudgement !== 'NG') resetProblemFields(row);
+                        if (!kategoriVal || !detailVal) {
+                            if (kategoriCell) kategoriCell.style.border = '1px solid #dc3545';
+                            if (detailCell) detailCell.style.border = '1px solid #dc3545';
                         }
-
-                        highlightProblemFields(row);
-                        this.blur();
                     }
-                });
+                }
 
-                // Arrow keys
-                cell.addEventListener('keydown', function (e) {
-                    if (['ArrowDown', 'ArrowUp', 'ArrowRight', 'ArrowLeft'].includes(e.key)) {
+                // --- reset problem fields jika judgement bukan NG ---
+                function resetProblemFields(row) {
+                    const kategoriCell = row.querySelector('[data-field="kategori_problem"]');
+                    const detailCell = row.querySelector('[data-field="detail_problem"]');
+                    const kategoriSelect = kategoriCell?.querySelector('select');
+                    const id = row.dataset.id;
+
+                    if (!id) return;
+
+                    if (kategoriSelect) {
+                        kategoriSelect.value = '';
+                    } else if (kategoriCell) {
+                        kategoriCell.textContent = '';
+                    }
+
+                    if (detailCell) detailCell.textContent = '';
+
+                    const updates = [
+                        { field: 'kategori_problem', value: '' },
+                        { field: 'detail_problem', value: '' }
+                    ];
+
+                    updates.forEach(u => {
+                        fetch(`/stock/update/${id}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify(u)
+                        });
+                    });
+                }
+
+                // --- cek baris NG dengan problem ga lengkap ---
+                function isTableLocked() {
+                    const rows = document.querySelectorAll('tr[data-judgement]');
+                    for (const row of rows) {
+                        const j = row.dataset.judgement;
+                        if (j === 'NG') {
+                            const kategoriVal = row.querySelector('[data-field="kategori_problem"]')?.textContent.trim();
+                            const detailVal = row.querySelector('[data-field="detail_problem"]')?.textContent.trim();
+                            if (!kategoriVal || !detailVal) return row;
+                        }
+                    }
+                    return null;
+                }
+
+                // --- Event listeners ---
+                editableCells.forEach(cell => {
+
+                    // focus ke cell lain saat tabel terkunci
+                    cell.addEventListener('focus', function (e) {
                         const lockedRow = isTableLocked();
                         const field = this.dataset.field;
                         const row = this.closest('tr');
 
-                        // kalau tabel terkunci dan bukan kolom problem di baris NG
                         if (lockedRow && (row !== lockedRow || !['kategori_problem', 'detail_problem'].includes(field))) {
                             e.preventDefault();
+                            this.blur();
+
+                            cell.style.backgroundColor = '#f8d7da';
+                            setTimeout(() => cell.style.backgroundColor = '', 400);
                             return;
                         }
+                    });
 
-                        let nextCell;
-                        if (e.key === 'ArrowDown') {
-                            nextCell = row.nextElementSibling?.cells[this.cellIndex];
-                        } else if (e.key === 'ArrowUp') {
-                            nextCell = row.previousElementSibling?.cells[this.cellIndex];
-                        } else if (e.key === 'ArrowRight') {
-                            nextCell = this.nextElementSibling;
-                        } else if (e.key === 'ArrowLeft') {
-                            nextCell = this.previousElementSibling;
-                        }
-
-                        if (nextCell && nextCell.classList.contains('editable')) {
+                    // Enter key
+                    cell.addEventListener('keypress', function (e) {
+                        if (e.key === 'Enter') {
                             e.preventDefault();
-                            nextCell.focus();
+                            const row = this.closest('tr');
+                            const field = this.dataset.field;
+
+                            if (['fg'].includes(field)) {
+                                const newJudgement = recalcJudgement(row);
+                                updateJudgementBadge(row, newJudgement);
+
+                                if (newJudgement !== 'NG') resetProblemFields(row);
+                            }
+
+                            highlightProblemFields(row);
+                            this.blur();
                         }
+                    });
+
+                    // Arrow keys
+                    cell.addEventListener('keydown', function (e) {
+                        if (['ArrowDown', 'ArrowUp', 'ArrowRight', 'ArrowLeft'].includes(e.key)) {
+                            const lockedRow = isTableLocked();
+                            const field = this.dataset.field;
+                            const row = this.closest('tr');
+
+                            // kalau tabel terkunci dan bukan kolom problem di baris NG
+                            if (lockedRow && (row !== lockedRow || !['kategori_problem', 'detail_problem'].includes(field))) {
+                                e.preventDefault();
+                                return;
+                            }
+
+                            let nextCell;
+                            if (e.key === 'ArrowDown') {
+                                nextCell = row.nextElementSibling?.cells[this.cellIndex];
+                            } else if (e.key === 'ArrowUp') {
+                                nextCell = row.previousElementSibling?.cells[this.cellIndex];
+                            } else if (e.key === 'ArrowRight') {
+                                nextCell = this.nextElementSibling;
+                            } else if (e.key === 'ArrowLeft') {
+                                nextCell = this.previousElementSibling;
+                            }
+
+                            if (nextCell && nextCell.classList.contains('editable')) {
+                                e.preventDefault();
+                                nextCell.focus();
+                            }
+                        }
+                    });
+
+                    // Blur event (simpan)
+                    cell.addEventListener('blur', function () {
+                        const row = this.closest('tr');
+                        const id = row.dataset.id;
+                        const field = this.dataset.field;
+                        const newValue = this.textContent.trim();
+
+                        highlightProblemFields(row);
+
+                        fetch(`/stock/update/${id}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({ field, value: newValue })
+                        })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.success) {
+                                    this.style.backgroundColor = '#d4edda';
+                                    setTimeout(() => this.style.backgroundColor = '', 800);
+
+                                    if (data.judgement) {
+                                        updateJudgementBadge(row, data.judgement);
+                                        row.dataset.judgement = data.judgement;
+                                        highlightProblemFields(row);
+
+                                        if (data.judgement !== 'NG') resetProblemFields(row);
+                                    }
+                                }
+                            });
+                    });
+                });
+
+                // Event untuk dropdown kategori
+                document.addEventListener('change', function (e) {
+                    if (e.target.matches('select.kategori-problem')) {
+                        const row = e.target.closest('tr');
+                        const id = e.target.dataset.id;
+                        const value = e.target.value;
+
+                        highlightProblemFields(row);
+
+                        fetch(`/stock/update/${id}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({ field: 'kategori_problem', value })
+                        });
                     }
                 });
-
-                // Blur event (simpan)
-                cell.addEventListener('blur', function () {
-                    const row = this.closest('tr');
-                    const id = row.dataset.id;
-                    const field = this.dataset.field;
-                    const newValue = this.textContent.trim();
-
-                    highlightProblemFields(row);
-
-                    fetch(`/stock/update/${id}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({ field, value: newValue })
-                    })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.success) {
-                                this.style.backgroundColor = '#d4edda';
-                                setTimeout(() => this.style.backgroundColor = '', 800);
-
-                                if (data.judgement) {
-                                    updateJudgementBadge(row, data.judgement);
-                                    row.dataset.judgement = data.judgement;
-                                    highlightProblemFields(row);
-
-                                    if (data.judgement !== 'NG') resetProblemFields(row);
-                                }
-                            }
-                        });
-                });
             });
-
-            // Event untuk dropdown kategori
-            document.addEventListener('change', function (e) {
-                if (e.target.matches('select.kategori-problem')) {
-                    const row = e.target.closest('tr');
-                    const id = e.target.dataset.id;
-                    const value = e.target.value;
-
-                    highlightProblemFields(row);
-
-                    fetch(`/stock/update/${id}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({ field: 'kategori_problem', value })
-                    });
-                }
-            });
-        });
-    </script>
+        </script>
     @endif
 
 @endsection

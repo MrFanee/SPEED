@@ -8,144 +8,177 @@
   </div>
 
   <section class="section dashboard">
-    <div class="col-12">
+    <div class="container-fluid py-1">
       <div class="row">
-        <!-- Total Item -->
-        <div class="col-lg-3 col-md-6">
-          <div class="card info-card sales-card">
-            <div class="card-body">
-              <h5 class="card-title">Total Item</h5>
-              <div class="d-flex align-items-center">
-                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <i class="bi bi-box-seam"></i>
+
+        <!-- 8 cards -->
+        <div class="col-lg-8 col-12">
+          <div class="row">
+            <!-- Total Item -->
+            <div class="col-lg-3 col-md-6 col-sm-6 p-1">
+              <div class="card info-card sales-card">
+                <div class="card-body">
+                  <h5 class="card-title" style="font-size: 15px;">Total Item</h5>
+                  <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                      <i class="bi bi-box-seam"></i>
+                    </div>
+                    <div class="ps-3">
+                      <h6 style="font-size: 18px;">{{ number_format($cardData['total_item']) }}</h6>
+                    </div>
+                  </div>
                 </div>
-                <div class="ps-3">
-                  <h6>{{ number_format($cardData['total_item']) }}</h6>
+              </div>
+            </div>
+
+            <!-- Total Item NG -->
+            <div class="col-lg-3 col-md-6 col-sm-6 p-1">
+              <div class="card info-card revenue-card">
+                <div class="card-body">
+                  <h5 class="card-title" style="font-size: 15px;">Total Item NG</h5>
+                  <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                      <i class="bi bi-x-circle"></i>
+                    </div>
+                    <div class="ps-3">
+                      <h6 style="font-size: 18px;">{{ number_format($cardData['total_ng']) }}</h6>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Total Item OK -->
+            <div class="col-lg-3 col-md-6 col-sm-6 p-1">
+              <div class="card info-card customers-card">
+                <div class="card-body">
+                  <h5 class="card-title" style="font-size: 15px;">Total Item OK</h5>
+                  <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                      <i class="bi bi-check-circle"></i>
+                    </div>
+                    <div class="ps-3">
+                      <h6 style="font-size: 18px;">{{ number_format($cardData['total_ok']) }}</h6>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Total On Schedule -->
+            <div class="col-lg-3 col-md-6 col-sm-6 p-1">
+              <div class="card info-card sales-card">
+                <div class="card-body">
+                  <h5 class="card-title" style="font-size: 15px;">On Schedule</h5>
+                  <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                      <i class="bi bi-calendar-check"></i>
+                    </div>
+                    <div class="ps-3">
+                      <h6 style="font-size: 18px;">{{ number_format($cardData['total_on_schedule']) }}</h6>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Material -->
+            <div class="col-lg-3 col-md-6 col-sm-6 p-1">
+              <div class="card info-card revenue-card">
+                <div class="card-body">
+                  <h5 class="card-title" style="font-size: 15px;">Material</h5>
+                  <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                      <i class="bi bi-tools"></i>
+                    </div>
+                    <div class="ps-3">
+                      <h6 style="font-size: 18px;">{{ number_format($cardData['total_material']) }}</h6>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Man -->
+            <div class="col-lg-3 col-md-6 col-sm-6 p-1">
+              <div class="card info-card customers-card">
+                <div class="card-body">
+                  <h5 class="card-title" style="font-size: 15px;">Man</h5>
+                  <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                      <i class="bi bi-person-x"></i>
+                    </div>
+                    <div class="ps-3">
+                      <h6 style="font-size: 18px;">{{ number_format($cardData['total_man']) }}</h6>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Machine -->
+            <div class="col-lg-3 col-md-6 col-sm-6 p-1">
+              <div class="card info-card sales-card">
+                <div class="card-body">
+                  <h5 class="card-title" style="font-size: 15px;">Machine</h5>
+                  <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                      <i class="bi bi-gear"></i>
+                    </div>
+                    <div class="ps-3">
+                      <h6 style="font-size: 18px;">{{ number_format($cardData['total_machine']) }}</h6>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Method -->
+            <div class="col-lg-3 col-md-6 col-sm-6 p-1">
+              <div class="card info-card revenue-card">
+                <div class="card-body">
+                  <h5 class="card-title" style="font-size: 15px;">Method</h5>
+                  <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                      <i class="bi bi-diagram-3"></i>
+                    </div>
+                    <div class="ps-3">
+                      <h6 style="font-size: 18px;">{{ number_format($cardData['total_method']) }}</h6>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Total Item NG -->
-        <div class="col-lg-3 col-md-6">
-          <div class="card info-card revenue-card">
-            <div class="card-body">
-              <h5 class="card-title">Total Item NG</h5>
-              <div class="d-flex align-items-center">
-                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <i class="bi bi-x-circle"></i>
-                </div>
-                <div class="ps-3">
-                  <h6>{{ number_format($cardData['total_ng']) }}</h6>
-                </div>
+        <!-- Last Update Vendor -->
+        <div class="col-lg-4 col-12 p-1">
+          <div class="card vendor-update-card" style="height: 92%">
+            <div class="card-body d-flex flex-column p-2">
+              <h5 class="card-title mb-0">Last Update Vendor</h5>
+              <div class="list-group flex-grow-1 overflow-auto" style="height:200px">
+                @foreach ($lastUpdates as $row)
+                  <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 small">{{ $row->vendor }}</h6>
+                    @if ($row->last_update)
+                      @php
+                        $isToday = \Carbon\Carbon::parse($row->last_update)->isToday();
+                      @endphp
+                      <span class="badge rounded-pill {{ $isToday ? 'bg-primary' : 'bg-danger' }}">
+                        {{ \Carbon\Carbon::parse($row->last_update)->format('d M H:i') }}
+                      </span>
+                    @else
+                      <span class="badge bg-secondary rounded-pill">
+                        No Update
+                      </span>
+                    @endif
+                  </div>
+                @endforeach
               </div>
             </div>
           </div>
         </div>
-
-        <!-- Total Item OK -->
-        <div class="col-lg-3 col-md-6">
-          <div class="card info-card customers-card">
-            <div class="card-body">
-              <h5 class="card-title">Total Item OK</h5>
-              <div class="d-flex align-items-center">
-                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <i class="bi bi-check-circle"></i>
-                </div>
-                <div class="ps-3">
-                  <h6>{{ number_format($cardData['total_ok']) }}</h6>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Total On Schedule -->
-        <div class="col-lg-3 col-md-6">
-          <div class="card info-card sales-card">
-            <div class="card-body">
-              <h5 class="card-title">On Schedule</h5>
-              <div class="d-flex align-items-center">
-                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <i class="bi bi-calendar-check"></i>
-                </div>
-                <div class="ps-3">
-                  <h6>{{ number_format($cardData['total_on_schedule']) }}</h6>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Problem Material -->
-        <div class="col-lg-3 col-md-6">
-          <div class="card info-card revenue-card">
-            <div class="card-body">
-              <h5 class="card-title">Problem Material</h5>
-              <div class="d-flex align-items-center">
-                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <i class="bi bi-tools"></i>
-                </div>
-                <div class="ps-3">
-                  <h6>{{ number_format($cardData['total_material']) }}</h6>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Problem Man -->
-        <div class="col-lg-3 col-md-6">
-          <div class="card info-card customers-card">
-            <div class="card-body">
-              <h5 class="card-title">Problem Man</h5>
-              <div class="d-flex align-items-center">
-                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <i class="bi bi-person-x"></i>
-                </div>
-                <div class="ps-3">
-                  <h6>{{ number_format($cardData['total_man']) }}</h6>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Problem Machine -->
-        <div class="col-lg-3 col-md-6">
-          <div class="card info-card sales-card">
-            <div class="card-body">
-              <h5 class="card-title">Problem Machine</h5>
-              <div class="d-flex align-items-center">
-                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <i class="bi bi-gear"></i>
-                </div>
-                <div class="ps-3">
-                  <h6>{{ number_format($cardData['total_machine']) }}</h6>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Problem Method -->
-        <div class="col-lg-3 col-md-6">
-          <div class="card info-card revenue-card">
-            <div class="card-body">
-              <h5 class="card-title">Problem Method</h5>
-              <div class="d-flex align-items-center">
-                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                  <i class="bi bi-diagram-3"></i>
-                </div>
-                <div class="ps-3">
-                  <h6>{{ number_format($cardData['total_method']) }}</h6>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
 
@@ -185,7 +218,7 @@
 
       new Chart(ctx, {
         type: 'bar',
-        plugins: [ChartDataLabels, chartLegendMargin], 
+        plugins: [ChartDataLabels, chartLegendMargin],
         data: {
           labels: vendors,
           datasets: [

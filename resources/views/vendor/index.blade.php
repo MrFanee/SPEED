@@ -1,4 +1,13 @@
 @extends('layouts.main')
+@section('searchbar')
+  <div class="search-bar mb-3">
+    <form class="search-form d-flex align-items-center" method="GET" action="{{ route('vendor.index') }}">
+      <input type="text" name="query" placeholder="Search item..." title="Search keyword" class="form-control"
+        value="{{ request('query') }}">
+      <button type="submit" class="btn btn-primary ms-2"><i class="bi bi-search"></i></button>
+    </form>
+  </div>
+@endsection
 
 @section('title', 'Data Vendor')
 
@@ -22,13 +31,19 @@
           {{-- <a href="{{ route('po.upload') }}" class="btn btn-sm btn-success">Upload CSV</a> --}}
         </div>
 
+        @if (session('error'))
+          <div class="alert alert-danger alert-dismissible fade show">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        @endif
+        
         @if(session('success'))
           <div class="alert alert-success alert-dismissible fade show" role="alert">
             {{ session('success') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
         @endif
-
 
         <table class="table table-bordered table-striped small">
           <thead class="text-center">
@@ -59,7 +74,6 @@
                     </form>
                   </div>
                 </td>
-
               </tr>
             @endforeach
           </tbody>

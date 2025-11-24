@@ -190,7 +190,7 @@
                             anchor: 'end',
                             align: 'top',
                             formatter: value => value + '%',
-                            font: {weight: 'bold'}
+                            font: {weight: 'bold', size: 9}
                         }
                     }
                 }

@@ -6,8 +6,7 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    public function index()
-    {
+    public function index(){
         $tanggalHariIni = date('Y-m-d');
         $tanggalKemarin = date('Y-m-d', strtotime('-1 day'));
 
@@ -15,7 +14,16 @@ class DashboardController extends Controller
 
         $chartData = $this->getChartData($tanggalHariIni, $tanggalKemarin);
 
-        return view('dashboard', compact('cardData', 'chartData'));
+        $lastUpdates = DB::table('vendors')
+            ->leftJoin('master_stock', 'vendors.id', '=', 'master_stock.vendor_id')
+            ->select(
+                'vendors.nickname as vendor',
+                DB::raw('MAX(master_stock.updated_at) as last_update'))
+            ->groupBy('vendors.id', 'vendors.nickname')
+            ->orderBy('last_update', 'desc')
+            ->get();
+
+        return view('dashboard', compact('cardData', 'chartData', 'lastUpdates'));
     }
 
     private function getCardData($tanggal){
@@ -113,9 +121,9 @@ class DashboardController extends Controller
 
             $perPart = $vendorRecords->groupBy('part_id');
 
-            $item_ng = $perPart->filter(fn($rows) =>optional($rows->first())->judgement === 'NG')->count();
+            $item_ng = $perPart->filter(fn($rows) => optional($rows->first())->judgement === 'NG')->count();
 
-            $item_ok = $perPart->filter(fn($rows) =>optional($rows->first())->judgement === 'OK')->count();
+            $item_ok = $perPart->filter(fn($rows) => optional($rows->first())->judgement === 'OK')->count();
 
             $chartData[] = [
                 'vendor' => $vendorName,

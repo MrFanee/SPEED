@@ -36,7 +36,10 @@ class StockUpdateController extends Controller
             if ($field && in_array($field, ['rm', 'wip', 'fg', 'kategori_problem', 'detail_problem'])) {
                 DB::table('master_stock')
                     ->where('id', $id)
-                    ->update([$field => $value]);
+                    ->update([
+                        $field => $value,
+                        'updated_at' => now()
+                    ]);
             }
 
             // HITUNG JUDGEMENT 
@@ -70,7 +73,10 @@ class StockUpdateController extends Controller
                 // Update judgement
                 DB::table('master_stock')
                     ->where('id', $id)
-                    ->update(['judgement' => $judgement]);
+                    ->update([
+                        'judgement' => $judgement,
+                        'updated_at' => now()
+                    ]);
             } else {
                 $judgement = $stock->judgement;
             }

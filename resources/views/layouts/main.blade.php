@@ -19,6 +19,8 @@
     @include('partials.sidebar')
 
     <main id="main" class="main">
+            @yield('searchbar')
+
         @yield('content')
     </main>
 
