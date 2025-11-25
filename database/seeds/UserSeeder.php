@@ -25,14 +25,6 @@ class UserSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-            // [
-            //     'username' => 'atmi',
-            //     'password' => Hash::make('123456'),
-            //     'role' => 'vendor',
-            //     'vendor_id' => 100497, 
-            //     'created_at' => now(),
-            //     'updated_at' => now(),
-            // ],
         ]);
     }
 }

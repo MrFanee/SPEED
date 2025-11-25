@@ -6,13 +6,15 @@
     <div class="pagetitle d-flex justify-content-between align-items-center">
         <h1>Yearly Report</h1>
         <form action="{{ route('report.yearly') }}" method="get" class="d-flex gap-2 align-items-center">
-            <select name="vendor" class="form-select w-auto" onchange="this.form.submit()">
-                @foreach ($vendorList as $v)
-                    <option value="{{ $v }}" {{ $v == $vendor ? 'selected' : '' }}>
-                        {{ $v }}
-                    </option>
-                @endforeach
-            </select>
+            @if(auth()->user()->role !== 'vendor')
+                <select name="vendor" class="form-select w-auto" onchange="this.form.submit()">
+                    @foreach ($vendorList as $v)
+                        <option value="{{ $v }}" {{ $v == $vendor ? 'selected' : '' }}>
+                            {{ $v }}
+                        </option>
+                    @endforeach
+                </select>
+            @endif
 
             <select name="tahun" class="form-select w-auto" onchange="this.form.submit()">
                 @foreach ($tahunList as $th)

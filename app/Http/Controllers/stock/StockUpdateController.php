@@ -38,7 +38,8 @@ class StockUpdateController extends Controller
                     ->where('id', $id)
                     ->update([
                         $field => $value,
-                        'updated_at' => now()
+                        'updated_at' => now(),
+                        'vendor_updated_at' => now()
                     ]);
             }
 

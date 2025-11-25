@@ -4,14 +4,17 @@ namespace App\Http\Controllers\di;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+
 
 class DIIndexController extends Controller
 {
     public function index()
-    {        
+    {
         $di = DB::table('master_di')
             ->leftJoin('po_table', 'master_di.po_id', '=', 'po_table.id')
             ->leftJoin('parts', 'po_table.part_id', '=', 'parts.id')
+            ->leftJoin('vendors', 'po_table.vendor_id', '=', 'vendors.id')
             ->select(
                 DB::raw('MAX(master_di.id) as id'),
                 'parts.item_code',
@@ -22,8 +25,13 @@ class DIIndexController extends Controller
                 DB::raw('SUM(master_di.qty_delivery) as qty_delivery'),
                 DB::raw('SUM(master_di.balance) as balance')
             )
-            ->groupBy('parts.item_code', 'parts.part_name')
-            ->get();
+            ->groupBy('parts.item_code', 'parts.part_name');
+
+        if (Auth::user()->role === 'vendor') {
+            $di->where('po_table.vendor_id', Auth::user()->vendor_id);
+        }
+
+        $di = $di->get();
 
         return view('di.index', compact('di'));
     }

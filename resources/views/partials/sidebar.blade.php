@@ -69,22 +69,32 @@
             </li>
         @endif
 
-        {{-- VENDOR: hanya boleh lihat part + po + di --}}
+        {{-- VENDOR: hanya boleh lihat po + di --}}
         @if($role == 'vendor')
             <li class="nav-item">
-                <a class="nav-link {{ request()->is('part*') ? 'active' : 'collapsed' }}" href="{{ route('part.index') }}">
-                    <i class="bi bi-circle"></i> <span>Part</span>
+                <a class="nav-link {{ request()->is('part*') || request()->is('po*') || request()->is('di*') ? '' : 'collapsed' }}"
+                    data-bs-target="#masterdata-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-database"></i>
+                    <span>Master Data</span>
+                    <i class="bi bi-chevron-down ms-auto"></i>
                 </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('po*') ? 'active' : 'collapsed' }}" href="{{ route('po.index') }}">
-                    <i class="bi bi-circle"></i> <span>Master PO</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('di*') ? 'active' : 'collapsed' }}" href="{{ route('di.index') }}">
-                    <i class="bi bi-circle"></i> <span>Master DI</span>
-                </a>
+
+                <ul id="masterdata-nav"
+                    class="nav-content collapse {{ request()->is('vendor*') || request()->is('part*') || request()->is('twodays*') || request()->is('po*') || request()->is('di*') ? 'show' : '' }}"
+                    data-bs-parent="#sidebar-nav">
+
+                    <li>
+                        <a href="{{ route('po.index') }}" class="{{ request()->is('po*') ? 'active' : '' }}">
+                            <i class="bi bi-circle"></i><span>Master PO</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('di.index') }}" class="{{ request()->is('di*') ? 'active' : '' }}">
+                            <i class="bi bi-circle"></i><span>Master DI</span>
+                        </a>
+                    </li>
+                </ul>
             </li>
         @endif
 
@@ -133,7 +143,7 @@
         </li>
 
         <li class="nav-item">
-            <a class="nav-link" href="{{route('logout')}}">
+            <a class="nav-link {{ request()->is('logout*') ? 'active' : 'collapsed' }}" href="{{ route('logout') }}">
                 <i class="bi bi-box-arrow-in-right"></i>
                 <span>Logout</span>
             </a>

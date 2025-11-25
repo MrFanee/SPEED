@@ -34,8 +34,15 @@
                         <select name="role" id="role" class="form-select">
                             <option value="admin" {{ old('role', $users->role) == 'admin' ? 'selected' : '' }}>Admin</option>
                             <option value="staff" {{ old('role', $users->role) == 'staff' ? 'selected' : '' }}>Staff</option>
-                            <option value="vendor" {{ old('role', $users->role) == 'vendor' ? 'selected' : '' }}>Vendor</option>
+                            <option value="vendor" {{ old('role', $users->role) == 'vendor' ? 'selected' : '' }}>Vendor
+                            </option>
                         </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Password Baru (opsional)</label>
+                        <input type="password" name="password" class="form-control"
+                            placeholder="Kosongkan jika tidak diubah">
                     </div>
 
                     <button type="submit" class="btn btn-sm btn-success">Update</button>

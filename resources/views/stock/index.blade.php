@@ -43,12 +43,14 @@
             <div class="card-body table-responsive text-center">
                 <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
                     @if ($isToday)
-                        <form action="{{ route('stock.create') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="btn btn-primary btn-sm">
-                                Tambah +
-                            </button>
-                        </form>
+                        @if(auth()->user()->role !== 'vendor')
+                            <form action="{{ route('stock.create') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    Tambah +
+                                </button>
+                            </form>
+                        @endif
 
                         <a href="{{ route('stock.upload') }}" class="btn btn-success btn-sm">Upload CSV</a>
                     @endif

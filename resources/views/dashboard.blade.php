@@ -10,7 +10,6 @@
   <section class="section dashboard">
     <div class="container-fluid py-1">
       <div class="row">
-
         <!-- 8 cards -->
         <div class="col-lg-8 col-12">
           <div class="row">
@@ -183,11 +182,25 @@
     </div>
 
     <!-- Bar Chart -->
+    @if(auth()->user()->role !== 'vendor')
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title text-center fw-bold">Vendor Performance {{ $formattedTanggal }}</h5>
+            <canvas id="vendorChart"></canvas>
+          </div>
+        </div>
+      </div>
+    @endif
+
+    <!-- Resume Chart -->
     <div class="col-12">
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title text-center fw-bold">Today's Vendor Performance</h5>
-          <canvas id="vendorChart" style="min-height: 400px;"></canvas>
+          <h5 class="card-title text-center fw-bold">
+            Monitoring 2 Days Stock periode {{ \Carbon\Carbon::now()->translatedFormat('F Y') }}
+          </h5>
+          <canvas id="monthlyResumeChart" style="height:250px;"></canvas>
         </div>
       </div>
     </div>
@@ -196,6 +209,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 
+  <!-- Bar Chart -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const chartData = @json($chartData);
@@ -225,17 +239,19 @@
             {
               label: 'Item NG',
               data: itemNG,
-              backgroundColor: 'rgba(220, 53, 69, 0.7)'
+              backgroundColor: '#F2AEBB'
             },
             {
               label: 'Item OK',
               data: itemOK,
-              backgroundColor: 'rgba(40, 167, 69, 0.7)'
+              backgroundColor: '#6DC3BB'
             }
           ]
         },
         options: {
+          indexAxis: 'y',
           responsive: true,
+          // maintainAspectRatio: false,
           plugins: {
             legend: {
               position: 'top'
@@ -244,7 +260,9 @@
               color: 'gray',
               anchor: 'end',
               align: 'top',
-              formatter: Math.round,
+              formatter: function (value) {
+                return value > 0 ? value : '';
+              },
               font: {
                 weight: 'bold'
               }
@@ -252,12 +270,89 @@
           },
           scales: {
             x: {
+              beginAtZero: true,
               ticks: {
-                maxRotation: 45,
-                minRotation: 45
+                callback: function (value) {
+                  return Number.isInteger(value) ? value : null;
+                }
               }
             },
             y: {
+              ticks: {
+                maxRotation: 0,
+                minRotation: 0
+              }
+            }
+          }
+        }
+      });
+    });
+  </script>
+
+  <!-- Resume Chart -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const monthlyResume = @json($monthlyResume);
+
+      const labels = monthlyResume.map(r => r.tgl);
+      const dataOK = monthlyResume.map(r => r.ok);
+      const dataMaterial = monthlyResume.map(r => r.material);
+      const dataMan = monthlyResume.map(r => r.man);
+      const dataMachine = monthlyResume.map(r => r.machine);
+      const dataMethod = monthlyResume.map(r => r.method);
+      const totalItems = monthlyResume.map(r => r.total_item);
+      const chartLegendMargin = {
+        id: 'chartLegendMargin',
+        beforeInit: function (chart) {
+          const originalFit = chart.legend.fit;
+          chart.legend.fit = function fit() {
+            originalFit.bind(chart.legend)();
+            this.height += 20;
+          }
+        }
+      };
+
+      new Chart(document.getElementById('monthlyResumeChart'), {
+        type: 'bar',
+        plugins: [ChartDataLabels, chartLegendMargin],
+        data: {
+          labels: labels,
+          datasets: [
+            { label: 'Method', data: dataMethod, stack: 'stack1', backgroundColor: '#DDC57A' },
+            { label: 'Machine', data: dataMachine, stack: 'stack1', backgroundColor: '#CE7E5A' },
+            { label: 'Man', data: dataMan, stack: 'stack1', backgroundColor: '#FCB53B' },
+            { label: 'Material', data: dataMaterial, stack: 'stack1', backgroundColor: '#FFE797' },
+            { label: 'OK', data: dataOK, stack: 'stack1', backgroundColor: '#89AC46' },
+
+            {
+              type: 'line',
+              label: 'Total Item',
+              data: totalItems,
+              borderWidth: 2,
+              fill: false,
+              yAxisID: 'y'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: {
+              stacked: true,
+              ticks: {
+                maxRotation: 45,
+                minRotation: 45,
+                callback: function (value, index, ticks) {
+                  const raw = this.getLabelForValue(value); // contoh: 2025-11-12
+                  const date = new Date(raw);
+                  const day = date.getDate();
+                  const month = date.toLocaleString('en-US', { month: 'short' });
+                  return `${day}-${month}`; // hasil: 12-Nov
+                }
+              }
+            },
+            y: {
+              stacked: true,
               beginAtZero: true,
               ticks: {
                 callback: function (value) {
@@ -265,9 +360,24 @@
                 }
               }
             }
+          },
+          plugins: {
+            legend: { position: 'top' },
+            datalabels: {
+              color: '#BF092F',
+              anchor: 'start',
+              align: 'top',
+              formatter: function (value) {
+                return value > 0 ? value : '';
+              },
+              font: {
+                weight: 'bold'
+              }
+            }
           }
         }
       });
+
     });
   </script>
 @endsection

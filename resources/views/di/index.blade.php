@@ -16,11 +16,13 @@
     <section class="section">
         <div class="card">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
-                    <a href="{{ route('di.create') }}" class="btn btn-sm btn-primary">+ Tambah</a>
+                @if(auth()->user()->role !== 'vendor')
+                    <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
+                        <a href="{{ route('di.create') }}" class="btn btn-sm btn-primary">+ Tambah</a>
 
-                    <a href="{{ route('di.upload') }}" class="btn btn-sm btn-success">Upload CSV</a>
-                </div>
+                        <a href="{{ route('di.upload') }}" class="btn btn-sm btn-success">Upload CSV</a>
+                    </div>
+                @endif
 
                 @if (session('error'))
                     <div class="alert alert-danger alert-dismissible fade show">
@@ -46,7 +48,9 @@
                             <th>∑ Plan</th>
                             <th>∑ Delivery</th>
                             <th>Balance</th>
-                            <th>Aksi</th>
+                            @if(auth()->user()->role !== 'vendor')
+                                <th>Aksi</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -59,16 +63,18 @@
                                 <td>{{ $d->qty_plan }}</td>
                                 <td>{{ $d->qty_delivery }}</td>
                                 <td>{{ $d->balance }}</td>
-                                <td>
-                                    <div class="d-flex gap-2">
-                                        <a href="{{ route('di.edit', $d->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                                        <form action="{{ route('di.delete', $d->id) }}" method="POST">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
-                                        </form>
-                                    </div>
-                                </td>
+                                @if(auth()->user()->role !== 'vendor')
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            <a href="{{ route('di.edit', $d->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                                            <form action="{{ route('di.delete', $d->id) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                @endif
                             </tr>
                         @endforeach
                     </tbody>

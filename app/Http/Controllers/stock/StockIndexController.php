@@ -4,13 +4,14 @@ namespace App\Http\Controllers\stock;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class StockIndexController extends Controller
 {
     public function index()
     {
         $tanggal = request()->tanggal ?? date('Y-m-d');
-        $query   = request('query'); 
+        $query   = request('query');
 
         $stock = DB::table('master_stock')
             ->whereDate('tanggal', $tanggal)
@@ -32,19 +33,24 @@ class StockIndexController extends Controller
                 DB::raw('MAX(master_2hk.std_stock) as std_stock')
             )
 
-            ->when($query, function ($q) use ($query) {
-                $q->where(function ($sub) use ($query) {
-                    $sub->where('parts.item_code', 'like', "%$query%")
-                        ->orWhere('parts.part_name', 'like', "%$query%")
-                        ->orWhere('vendors.nickname', 'like', "%$query%")
-                        ->orWhere('master_stock.judgement', 'like', "%$query%")
-                        ->orWhere('po_table.qty_po', 'like', "%$query%")
-                        ->orWhere('master_2hk.std_stock', 'like', "%$query%");
-                });
-            })
+            ->groupBy('master_stock.id');
 
-            ->groupBy('master_stock.id')
-            ->get();
+        if (Auth::user()->role === 'vendor') {
+            $stock->where('master_stock.vendor_id', Auth::user()->vendor_id);
+        }
+
+        if ($query) {
+            $stock->where(function ($q) use ($query) {
+                $q->where('parts.item_code', 'like', "%$query%")
+                    ->orWhere('parts.part_name', 'like', "%$query%")
+                    ->orWhere('vendors.nickname', 'like', "%$query%")
+                    ->orWhere('master_stock.judgement', 'like', "%$query%")
+                    ->orWhere('po_table.qty_po', 'like', "%$query%")
+                    ->orWhere('master_2hk.std_stock', 'like', "%$query%");
+            });
+        }
+
+        $stock = $stock->get();
 
         return view('stock.index', compact('tanggal', 'stock', 'query'));
     }

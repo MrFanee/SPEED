@@ -33,6 +33,7 @@ class StockCreateController extends Controller
             $new['tanggal'] = $today;
             $new['created_at'] = now();
             $new['updated_at'] = now();
+            $new['vendor_updated_at'] = null;
 
             DB::table('master_stock')->insert($new);
         }

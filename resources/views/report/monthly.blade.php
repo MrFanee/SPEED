@@ -6,6 +6,7 @@
     <div class="pagetitle d-flex justify-content-between align-items-center">
         <h1>Monthly Report</h1>
         <form action="{{ route('report.monthly') }}" method="get" class="d-flex gap-2 align-items-center">
+            @if(auth()->user()->role !== 'vendor')
             <select name="vendor" class="form-select w-auto" onchange="this.form.submit()">
                 @foreach ($vendorList as $v)
                     <option value="{{ $v }}" {{ $v == $vendor ? 'selected' : '' }}>
@@ -13,6 +14,7 @@
                     </option>
                 @endforeach
             </select>
+            @endif
 
             <select name="bulan" class="form-select w-auto" onchange="this.form.submit()">
                 @foreach ($bulanList as $bln)
@@ -69,7 +71,8 @@
                     <tbody>
                         @forelse ($report as $row)
                             <tr>
-                                <td class="text-start">{{ \Carbon\Carbon::parse($row['tanggal'])->locale('id')->translatedFormat('d-M') }}</td>
+                                <td class="text-start">
+                                    {{ \Carbon\Carbon::parse($row['tanggal'])->locale('id')->translatedFormat('d-M') }}</td>
                                 <td>{{ $row['total_item'] }}</td>
                                 <td>{{ $row['stok_ng'] }}</td>
                                 <td>{{ $row['stok_ok'] }}</td>
@@ -131,14 +134,14 @@
             konsistensi.push(summary.konsistensi);
 
             const ctx = document.getElementById('monthlyChart').getContext('2d');
-           const chartLegendMargin = {
+            const chartLegendMargin = {
                 id: 'chartLegendMargin',
-                beforeInit: function(chart) {
+                beforeInit: function (chart) {
                     const originalFit = chart.legend.fit;
                     chart.legend.fit = function fit() {
                         originalFit.bind(chart.legend)();
-                        this.height += 20; 
-                     }
+                        this.height += 20;
+                    }
                 }
             };
 
@@ -190,7 +193,7 @@
                             anchor: 'end',
                             align: 'top',
                             formatter: value => value + '%',
-                            font: {weight: 'bold', size: 9}
+                            font: { weight: 'bold', size: 9 }
                         }
                     }
                 }

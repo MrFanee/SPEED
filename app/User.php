@@ -24,6 +24,6 @@ class User extends Authenticatable
 
     public function vendor()
     {
-        return $this->belongsTo(Vendor::class, 'vendor_id', 'vendor_id');
+        return $this->belongsTo(Vendor::class, 'vendor_id', 'id');
     }
 }

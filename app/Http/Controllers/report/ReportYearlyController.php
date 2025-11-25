@@ -5,6 +5,7 @@ namespace App\Http\Controllers\report;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class ReportYearlyController extends Controller
 {
@@ -53,6 +54,10 @@ class ReportYearlyController extends Controller
 
             if ($vendor) {
                 $data->where('vendors.nickname', $vendor);
+            }
+
+            if (Auth::user()->role === 'vendor') {
+                $data->where('master_stock.vendor_id', Auth::user()->vendor_id);
             }
 
             $data = $data->get();

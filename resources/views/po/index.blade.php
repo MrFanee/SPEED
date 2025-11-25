@@ -16,11 +16,13 @@
     <section class="section">
         <div class="card">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
-                    {{-- <a href="{{ route('po.create') }}" class="btn btn-primary">+ Tambah</a> --}}
+                @if(auth()->user()->role !== 'vendor')
+                    <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
+                        {{-- <a href="{{ route('po.create') }}" class="btn btn-primary">+ Tambah</a> --}}
 
-                    <a href="{{ route('po.upload') }}" class="btn btn-sm btn-success">Upload CSV</a>
-                </div>
+                        <a href="{{ route('po.upload') }}" class="btn btn-sm btn-success">Upload CSV</a>
+                    </div>
+                @endif
 
                 @if (session('error'))
                     <div class="alert alert-danger alert-dismissible fade show">

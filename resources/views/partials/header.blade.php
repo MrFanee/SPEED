@@ -27,7 +27,9 @@
             <li class="nav-item dropdown pe-3">
                 <a class="nav-link nav-profile d-flex align-items-center pe-0">
                     <i class="bi bi-person-circle"></i>
-                    <span class="d-none d-md-block ps-2">Admin</span>
+                    <span class="d-none d-md-block ps-2">
+                        {{ auth()->user()->role === 'vendor' ? optional(auth()->user()->vendor)->vendor_name : auth()->user()->username }}
+                    </span>
                 </a>
             </li>
 

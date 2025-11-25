@@ -17,33 +17,43 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'username' => 'required',
-            'password' => 'required',
-        ]);
+        $credentials = $request->validate(
+            [
+                'username' => 'required',
+                'password' => 'required',
+            ],
+            [
+                'username.required' => 'Username harus diisi!',
+                'password.required' => 'Password harus diisi!',
+            ]
+        );
 
         $user = User::where('username', $request->username)->first();
 
-        if ($user && Hash::check($request->password, $user->password)) {
-            Auth::login($user, false);
-            
-            $request->session()->regenerate();
-            
-            session(['user_id' => $user->id_user]);
-            session(['username' => $user->username]);
-                        
-            return redirect('/dashboard');
+        // if ($user && Hash::check($request->password, $user->password)) {
+        //     Auth::login($user, false);
+
+        //     $request->session()->regenerate();
+
+        //     session(['user_id' => $user->id_user]);
+        //     session(['username' => $user->username]);
+
+        //     return redirect('/dashboard');
+        // }
+
+        if (Auth::attempt($credentials)) {
+            return redirect()->intended('dashboard');
         }
 
-        return back()->withErrors(['username' => 'Login failed']);
+        return back()->withErrors(['loginError' => 'Username atau password salah!',])->withInput();
     }
 
     public function logout(Request $request)
     {
         Auth::logout();
-        
+
         $request->session()->invalidate();
-        
+
         $request->session()->regenerateToken();
 
         return redirect('/login');
