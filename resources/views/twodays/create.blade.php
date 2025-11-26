@@ -19,12 +19,17 @@
             <div class="card-body">
                 <h5 class="card-title">Form Standar Stok</h5>
 
-                <form action="{{ route('twodays.store') }}" method="POST">
+                <form action="{{ route('twodays.store') }}" method="POST" class="small">
                     @csrf
 
                     <div class="mb-3">
                         <label for="part_id">Nama Part</label>
-                        <select name="part_id" id="part_id" class="form-select" required>
+                        
+                        @error('part_id')
+                            <div class="text-danger mb-1">{{ $message }}</div>
+                        @enderror
+
+                        <select name="part_id" id="part_id" class="form-select">
                             <option value="">-- Pilih Part --</option>
                             @foreach ($parts as $part)
                                 <option value="{{ $part->id }}">{{ $part->part_name }} ({{ $part->item_code }})</option>
@@ -34,9 +39,12 @@
 
                     <div class="mb-3">
                         <label for="std_stock" class="form-label">Standar Stok</label>
-                        <input type="text" name="std_stock" class="form-control" id="std_stock"
-                            value="{{ old('std_stock') }}">
-                        @error('std_stock') <small class="text-danger">{{ $message }}</small> @enderror
+                        
+                        @error('std_stock')
+                            <div class="text-danger mb-1">{{ $message }}</div>
+                        @enderror
+                        
+                        <input type="text" name="std_stock" class="form-control" id="std_stock" value="{{ old('std_stock') }}">
                     </div>
 
                     <button type="submit" class="btn btn-sm btn-primary">Simpan</button>

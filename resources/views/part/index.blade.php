@@ -36,7 +36,6 @@
           </div>
         @endif
 
-
         <table class="table table-bordered table-striped small" id="partTable">
           <thead class="text-center">
             <tr>
@@ -60,11 +59,13 @@
                     <form action="{{ route('part.delete', $p->id) }}" method="POST">
                       @csrf
                       @method('DELETE')
-                      <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                      <button type="submit" class="btn btn-sm btn-danger"
+                        onclick="return confirm('Yakin mau hapus data ini?')">
+                        Hapus
+                      </button>
                     </form>
                   </div>
                 </td>
-
               </tr>
             @endforeach
           </tbody>

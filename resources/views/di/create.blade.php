@@ -19,12 +19,15 @@
             <div class="card-body">
                 <h5 class="card-title">Form DI</h5>
 
-                <form action="{{ route('di.store') }}" method="POST">
+                <form action="{{ route('di.store') }}" method="POST" class="small">
                     @csrf
 
                     <div class="mb-3">
                         <label for="po_id">No. PO</label>
-                        <select name="po_id" id="po_id" class="form-select" required>
+                        @error('po_id')
+                            <div class="text-danger mb-1">{{ $message }}</div>
+                        @enderror
+                        <select name="po_id" id="po_id" class="form-select">
                             <option value="">-- Pilih PO --</option>
                             @foreach ($po as $po)
                                 <option value="{{ $po->id }}">{{ $po->po_number }}</option>
@@ -34,16 +37,19 @@
 
                     <div class="mb-3">
                         <label for="qty_plan" class="form-label">∑ Plan</label>
-                        <input type="text" name="qty_plan" class="form-control" id="qty_plan"
-                            value="{{ old('qty_plan') }}">
-                        @error('qty_plan') <small class="text-danger">{{ $message }}</small> @enderror
+                        @error('qty_plan')
+                            <div class="text-danger mb-1">{{ $message }}</div>
+                        @enderror
+                        <input type="text" name="qty_plan" class="form-control" id="qty_plan" value="{{ old('qty_plan') }}">
                     </div>
 
                     <div class="mb-3">
                         <label for="qty_delivery" class="form-label">∑ Delivery</label>
+                        @error('qty_delivery')
+                            <div class="text-danger mb-1">{{ $message }}</div>
+                        @enderror
                         <input type="text" name="qty_delivery" class="form-control" id="qty_delivery"
                             value="{{ old('qty_delivery') }}">
-                        @error('qty_delivery') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
 
                     <button type="submit" class="btn btn-sm btn-primary">Simpan</button>

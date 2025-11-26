@@ -19,30 +19,42 @@
             <div class="card-body">
                 <h5 class="card-title">Form Tambah User</h5>
 
-                <form action="{{ route('user.store') }}" method="POST">
+                <form action="{{ route('user.store') }}" method="POST" class="small">
                     @csrf
 
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
+
+                        @error('username')
+                            <div class="text-danger mb-1">{{ $message }}</div>
+                        @enderror
+
                         <input type="text" name="username" class="form-control" id="username" value="{{ old('username') }}">
-                        @error('username') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
 
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>
+                        
+                        @error('password')
+                            <div class="text-danger mb-1">{{ $message }}</div>
+                        @enderror
+
                         <input type="text" name="password" class="form-control" id="password" value="{{ old('password') }}">
-                        @error('password') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
 
                     <div class="mb-3">
                         <label for="role" class="form-label">Role</label>
+                        
+                        @error('role')
+                            <div class="text-danger mb-1">{{ $message }}</div>
+                        @enderror
+
                         <select name="role" id="role" class="form-select">
                             <option value="" selected disabled>-- Pilih --</option>
                             <option value="admin">Admin</option>
                             <option value="staff">Staff</option>
                             <option value="vendor">Vendor</option>
                         </select>
-                        @error('role') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
 
                     <button type="submit" class="btn btn-sm btn-primary">Simpan</button>

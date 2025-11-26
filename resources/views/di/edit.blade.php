@@ -19,33 +19,39 @@
             <div class="card-body">
                 <h5 class="card-title">Edit Data DI</h5>
 
-                <form action="{{ route('di.update', $di->id) }}" method="POST">
+                <form action="{{ route('di.update', $di->id) }}" method="POST" class="small">
                     @csrf
                     @method('PUT')
 
                     <div class="mb-3">
                         <label for="po_id" class="form-label">PO</label>
-                        <select class="form-select" id="po_id" name="po_id" required>
+                        @error('po_id')
+                            <div class="text-danger mb-1">{{ $message }}</div>
+                        @enderror
+                        <select class="form-select" id="po_id" name="po_id">
                             <option value="">-- Pilih PO --</option>
                             @foreach ($poList as $p)
-                                <option value="{{ $p->id }}" {{ $di->po_id == $p->id ? 'selected' : '' }}>
+                                <option value="{{ $p->id }}" {{  $di->po_id == $p->id ? 'selected' : '' }}>
                                     {{ $p->po_number }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
 
-
                     <div class="mb-3">
                         <label for="qty_plan" class="form-label">∑ Plan</label>
-                        <input type="text" class="form-control" id="qty_plan" name="qty_plan" value="{{ $di->qty_plan }}"
-                            required>
+                        @error('qty_plan')
+                            <div class="text-danger mb-1">{{ $message }}</div>
+                        @enderror
+                        <input type="text" class="form-control" id="qty_plan" name="qty_plan" value="{{ $di->qty_plan }}">
                     </div>
 
                     <div class="mb-3">
                         <label for="qty_delivery" class="form-label">∑ Delivery</label>
-                        <input type="text" class="form-control" id="qty_delivery" name="qty_delivery"
-                            value="{{ $di->qty_delivery }}" required>
+                        @error('qty_delivery')
+                            <div class="text-danger mb-1">{{ $message }}</div>
+                        @enderror
+                        <input type="text" class="form-control" id="qty_delivery" name="qty_delivery" value="{{ $di->qty_delivery }}">
                     </div>
 
                     <button type="submit" class="btn btn-sm btn-success">Update</button>

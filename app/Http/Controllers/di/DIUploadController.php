@@ -16,30 +16,32 @@ class DIUploadController extends Controller
 
     public function upload(Request $request)
     {
-        $request->validate([
-            'file' => 'required|mimes:csv,txt|max:2048',
-        ]);
+        $request->validate(
+            [
+                'file' => 'required|mimes:csv,txt|max:2048',
+            ],
+            [
+                'file.required' => 'File belum dipilih!',
+                'file.mimes' => 'Format file harus CSV!',
+                'file.max' => 'Ukuran file maksimal 2MB!',
+            ]
+        );
 
         $file = $request->file('file');
         $path = $file->getRealPath();
         $rows = array_map('str_getcsv', file($path));
 
-        if (count($rows) < 2) {
-            return back()->with('error', 'File CSV kosong atau tidak valid.');
+        if (count($rows) <= 1) {
+            return back()->with('error', 'File CSV kosong atau tidak valid!');
         }
-
-        // $header = array_map('strtolower', $rows[0]);
-        // $expected = ['item_code', 'std_stock'];
-
-        // if ($header !== $expected) {
-        //     return back()->with('error', 'Format header CSV harus: item_code,std_stock');
-        // }
 
         $imported = 0;
         $skipped = 0;
 
         foreach (array_slice($rows, 1) as $row) {
-            if (count($row) < 2) continue;
+            if (count($row) !== 5) {
+                return back()->with('error', "Jumlah kolom tidak sesuai!");
+            }
 
             $item_code = trim($row[0]);
             $part_name = trim($row[1]);
@@ -53,10 +55,11 @@ class DIUploadController extends Controller
                 DI::updateOrCreate(
                     ['po_id' => $po->id],
                     [
-                        'item_code' => $item_code, 
+                        'item_code' => $item_code,
                         'part_name' => $part_name,
-                        'qty_plan' => $qty_plan, 
-                        'qty_delivery' => $qty_delivery]
+                        'qty_plan' => $qty_plan,
+                        'qty_delivery' => $qty_delivery
+                    ]
                 );
                 $imported++;
             } else {

@@ -18,8 +18,6 @@
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mt-3">
           <a href="{{ route('user.create') }}" class="btn btn-sm btn-primary mb-3">+ Tambah</a>
-
-          {{-- <a href="{{ route('po.upload') }}" class="btn btn-sm btn-success">Upload CSV</a> --}}
         </div>
 
         @if (session('error'))
@@ -57,7 +55,10 @@
                     <form action="{{ route('user.delete', $u->id) }}" method="POST">
                       @csrf
                       @method('DELETE')
-                      <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                      <button type="submit" class="btn btn-sm btn-danger"
+                        onclick="return confirm('Yakin mau hapus data ini?')">
+                        Hapus
+                      </button>
                     </form>
                   </div>
                 </td>

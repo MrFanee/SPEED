@@ -19,25 +19,28 @@
       <div class="card-body">
         <h5 class="card-title">Form Tambah Part</h5>
 
-        <form action="{{ route('part.store') }}" method="POST">
+        <form action="{{ route('part.store') }}" method="POST" class="small">
           @csrf
 
           <div class="mb-3">
             <label for="item_code" class="form-label">Item Code</label>
+            @error('item_code')
+              <div class="text-danger mb-1">{{ $message }}</div>
+            @enderror
             <input type="item_code" name="item_code" class="form-control" id="item_code" value="{{ old('item_code') }}">
-            @error('item_code') <small class="text-danger">{{ $message }}</small> @enderror
           </div>
-          
+
           <div class="mb-3">
             <label for="part_number" class="form-label">Part Number</label>
             <input type="text" name="part_number" class="form-control" id="part_number" value="{{ old('part_number') }}">
-            @error('part_number') <small class="text-danger">{{ $message }}</small> @enderror
           </div>
 
           <div class="mb-3">
             <label for="part_name" class="form-label">Part Name</label>
+            @error('part_name')
+              <div class="text-danger mb-1">{{ $message }}</div>
+            @enderror
             <input type="text" name="part_name" class="form-control" id="part_name" value="{{ old('part_name') }}">
-            @error('part_name') <small class="text-danger">{{ $message }}</small> @enderror
           </div>
 
           <button type="submit" class="btn btn-sm btn-primary">Simpan</button>

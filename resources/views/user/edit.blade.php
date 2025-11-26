@@ -19,18 +19,27 @@
             <div class="card-body">
                 <h5 class="card-title">Edit Data User</h5>
 
-                <form action="{{ route('user.update', $users->id) }}" method="POST">
+                <form action="{{ route('user.update', $users->id) }}" method="POST" class="small">
                     @csrf
                     @method('PUT')
 
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" value="{{ $users->username }}"
-                            required>
+
+                        @error('username')
+                            <div class="text-danger mb-1">{{ $message }}</div>
+                        @enderror
+
+                        <input type="text" class="form-control" id="username" name="username" value="{{ $users->username }}">
                     </div>
 
                     <div class="mb-3">
                         <label for="role" class="form-label">Role</label>
+
+                        @error('role')
+                            <div class="text-danger mb-1">{{ $message }}</div>
+                        @enderror
+                        
                         <select name="role" id="role" class="form-select">
                             <option value="admin" {{ old('role', $users->role) == 'admin' ? 'selected' : '' }}>Admin</option>
                             <option value="staff" {{ old('role', $users->role) == 'staff' ? 'selected' : '' }}>Staff</option>

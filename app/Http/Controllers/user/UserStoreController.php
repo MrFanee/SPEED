@@ -11,11 +11,19 @@ class UserStoreController extends Controller
 {
     public function store(Request $request)
     {
-        $request->validate([
+        $rules = [
             'username' => 'required',
             'password' => 'required',
-            'role' => 'required',
-        ]);
+            'role' => 'required'
+        ];
+
+        $messages = [
+            'username.required' => 'Username wajib diisi!',
+            'password.required' => 'Password wajib diisi!',
+            'role.required' => 'Role wajib dipilih!',
+        ];
+
+        $request->validate($rules, $messages);
 
         User::create([
             'username' => $request->username,

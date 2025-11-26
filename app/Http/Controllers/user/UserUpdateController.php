@@ -11,11 +11,17 @@ class UserUpdateController extends Controller
 {
     public function update(Request $request, $id)
     {
-        $request->validate([
+        $rules = [
             'username' => 'required',
-            'role' => 'required',
-            'password' => 'nullable'
-        ]);
+            'role' => 'required'
+        ];
+
+        $messages = [
+            'username.required' => 'Username wajib diisi!',
+            'role.required' => 'Role wajib dipilih!',
+        ];
+
+        $request->validate($rules, $messages);
 
         $user = User::findOrFail($id);
         if ($request->filled('password')) {

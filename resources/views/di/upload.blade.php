@@ -20,18 +20,23 @@
         <h5 class="card-title">Upload File CSV</h5>
 
         @if(session('error'))
-          <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-          </div>
+          <div class="text-danger mb-2 fw-bold">{{ session('error') }}</div>
         @endif
 
-        <form action="{{ route('di.upload') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('di.upload') }}" method="POST" enctype="multipart/form-data" class="small">
           @csrf
           <div class="mb-3">
-            <label for="file" class="form-label">Pilih file CSV</label>
+            <label for="file" class="form-label">Format kolom CSV harus: Item Code | Part Name | No. PO | Qty Plan | Qty Delv.</label>
+           
+            @error('file')
+              <div class="text-danger mb-1">{{ $message }}</div>
+            @enderror
+
+            @if(session('error'))
+              <div class="text-danger mb-1">{{ session('error') }}</div>
+            @endif
+
             <input type="file" name="file" id="file" accept=".csv" class="form-control" required>
-            {{-- <div class="form-text">Format header wajib: <code>item_code,std_stock</code></div> --}}
           </div>
 
           <button type="submit" class="btn btn-sm btn-success">

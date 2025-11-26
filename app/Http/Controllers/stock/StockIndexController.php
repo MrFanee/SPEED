@@ -18,7 +18,10 @@ class StockIndexController extends Controller
             ->leftJoin('parts', 'master_stock.part_id', '=', 'parts.id')
             ->leftJoin('vendors', 'master_stock.vendor_id', '=', 'vendors.id')
             ->leftJoin('master_2hk', 'parts.id', '=', 'master_2hk.part_id')
-            ->leftJoin('po_table', 'parts.id', '=', 'po_table.part_id')
+            ->leftJoin('po_table', function ($join) {
+                $join->on('parts.id', '=', 'po_table.part_id')
+                    ->on('master_stock.vendor_id', '=', 'po_table.vendor_id');
+            })
             ->leftJoin('master_di', 'po_table.id', '=', 'master_di.po_id')
             ->select(
                 'master_stock.*',

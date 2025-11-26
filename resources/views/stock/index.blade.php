@@ -1,10 +1,16 @@
 @extends('layouts.main')
 @section('searchbar')
     <div class="search-bar mb-3">
-        <form class="search-form d-flex align-items-center" method="GET" action="{{ route('stock.index') }}">
-            <input type="text" name="query" placeholder="Search item..." title="Search keyword" class="form-control"
-                value="{{ request('query') }}">
-            <button type="submit" class="btn btn-primary ms-2"><i class="bi bi-search"></i></button>
+        <form id="searchForm" class="search-form d-flex align-items-center" method="GET"
+            action="{{ route('stock.index') }}">
+            <div class="position-relative w-100">
+                <input type="text" id="searchInput" name="query" placeholder="Search..." class="form-control"
+                    value="{{ request('query') }}">
+                <span id="clearSearch" class="position-absolute top-50 end-0 translate-middle-y me-3"
+                    style="cursor:pointer;">
+                    <i class="bi bi-x-lg"></i>
+                </span>
+            </div>
         </form>
     </div>
 @endsection
@@ -63,7 +69,7 @@
                     </div>
                 @endif
 
-                <table class="table table-bordered table-striped small" style="font-size: 12px;">
+                <table class="table table-bordered table-striped small table-responsive" style="font-size: 10px;">
                     <thead class="text-center">
                         <tr>
                             <th>Vendor</th>
@@ -381,5 +387,23 @@
             });
         </script>
     @endif
+
+    <script>
+        const input = document.getElementById('searchInput');
+        const clearBtn = document.getElementById('clearSearch');
+        const form = document.getElementById('searchForm');
+
+        let timer;
+        input.addEventListener('input', () => {
+            clearTimeout(timer);
+            timer = setTimeout(() => form.submit(), 400);
+        });
+
+        clearBtn.addEventListener('click', () => {
+            input.value = '';
+            form.submit();
+        });
+    </script>
+
 
 @endsection

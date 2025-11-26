@@ -96,6 +96,8 @@ class DashboardController extends Controller
 
     private function getChartData($tanggalHariIni, $tanggalKemarin)
     {
+        $today = date('Y-m-d');
+
         $allVendors = DB::table('vendors')
             ->select('id', 'nickname')
             ->orderBy('nickname', 'asc')
@@ -145,6 +147,21 @@ class DashboardController extends Controller
                 continue;
             }
 
+            // $lastUpdate = DB::table('master_stock')
+            //     ->where('vendor_id', $vendorId)
+            //     ->max('vendor_updated_at');
+
+            // $updatedToday = $lastUpdate && date('Y-m-d', strtotime($lastUpdate)) === $today;
+
+            // if (!$updatedToday) {
+            //     $chartData[] = [
+            //         'vendor' => $vendorName,
+            //         'item_ng' => 0,
+            //         'item_ok' => 0
+            //     ];
+            //     continue;
+            // }
+
             $perPart = $vendorRecords->groupBy('part_id');
 
             $item_ng = $perPart->filter(fn($rows) => optional($rows->first())->judgement === 'NG')->count();
@@ -183,6 +200,9 @@ class DashboardController extends Controller
         if (Auth::user()->role === 'vendor') {
             $data->where('master_stock.vendor_id', Auth::user()->vendor_id);
         }
+
+        // $data->whereNotNull('vendor_updated_at');
+        // $data->whereDate('vendor_updated_at', '>=', $start);
 
         $data = $data->get();
 

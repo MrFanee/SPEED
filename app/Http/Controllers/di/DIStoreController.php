@@ -10,11 +10,26 @@ class DIStoreController extends Controller
 {
     public function store(Request $request)
     {
-        $request->validate([
+        $rules = [
             'po_id' => 'required|exists:po_table,id',
-            'qty_plan' => 'required',
-            'qty_delivery' => 'required',
-        ]);
+            'qty_plan' => 'required|numeric|min:1',
+            'qty_delivery' => 'required|numeric|min:0'
+        ];
+
+        $messages = [
+            'po_id.required' => 'PO harus dipilih!',
+            'po_id.exists' => 'PO tidak valid atau tidak ditemukan!',
+
+            'qty_plan.required' => 'Qty Plan wajib diisi!',
+            'qty_plan.numeric' => 'Qty Plan harus berupa angka!',
+            'qty_plan.min' => 'Qty Plan harus lebih dari 0!',
+
+            'qty_delivery.required' => 'Qty Delivery wajib diisi!',
+            'qty_delivery.numeric' => 'Qty Delivery harus berupa angka!',
+            'qty_delivery.min' => 'Qty Delivery tidak boleh minus!',
+        ];
+
+        $request->validate($rules, $messages);
 
         DI::create([
             'po_id' => $request->po_id,

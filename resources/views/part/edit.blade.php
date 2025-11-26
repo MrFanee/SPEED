@@ -19,26 +19,29 @@
       <div class="card-body">
         <h5 class="card-title">Edit Data Part</h5>
 
-        <form action="{{ route('part.update', $parts->id) }}" method="POST">
+        <form action="{{ route('part.update', $parts->id) }}" method="POST" class="small">
           @csrf
           @method('PUT')
 
           <div class="mb-3">
             <label for="item_code" class="form-label">Item Code</label>
-            <textarea class="form-control" id="item_code" name="item_code" rows="3"
-              required>{{ $parts->item_code }}</textarea>
+            @error('item_code')
+              <div class="text-danger mb-1">{{ $message }}</div>
+            @enderror
+            <textarea class="form-control" id="item_code" name="item_code" rows="3">{{ $parts->item_code }}</textarea>
           </div>
-          
+
           <div class="mb-3">
             <label for="part_number" class="form-label">Part Number</label>
-            <input type="text" class="form-control" id="part_number" name="part_number" value="{{ $parts->part_number }}"
-              required>
+            <input type="text" class="form-control" id="part_number" name="part_number" value="{{ $parts->part_number }}">
           </div>
 
           <div class="mb-3">
             <label for="part_name" class="form-label">Part Name</label>
-            <input type="text" class="form-control" id="part_name" name="part_name" value="{{ $parts->part_name }}"
-              required>
+            @error('part_name')
+              <div class="text-danger mb-1">{{ $message }}</div>
+            @enderror
+            <input type="text" class="form-control" id="part_name" name="part_name" value="{{ $parts->part_name }}">
           </div>
 
           <button type="submit" class="btn btn-sm btn-success">Update</button>

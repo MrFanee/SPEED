@@ -75,7 +75,10 @@
                                         <form action="{{ route('po.delete', $p->id) }}" method="POST">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                            <button type="submit" class="btn btn-sm btn-danger"
+                                                onclick="return confirm('Yakin mau hapus data ini?')">
+                                                Hapus
+                                            </button>
                                         </form>
                                     </div>
                                 </td> --}}

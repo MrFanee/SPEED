@@ -67,11 +67,15 @@
                                     <td>
                                         <div class="d-flex gap-2">
                                             <a href="{{ route('di.edit', $d->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                                            <form action="{{ route('di.delete', $d->id) }}" method="POST">
+                                            <form action="{{ route('di.delete', $d->id) }}" method="POST" style="display:inline;">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                                <button type="submit" class="btn btn-sm btn-danger"
+                                                    onclick="return confirm('Yakin mau hapus data ini?')">
+                                                    Hapus
+                                                </button>
                                             </form>
+
                                         </div>
                                     </td>
                                 @endif
