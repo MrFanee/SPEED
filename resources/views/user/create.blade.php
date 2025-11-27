@@ -57,6 +57,19 @@
                         </select>
                     </div>
 
+                    <div class="mb-3">
+                        <label for="vendor_id">Vendor</label>
+                        @error('vendor_id')
+                            <div class="text-danger mb-1">{{ $message }}</div>
+                        @enderror
+                        <select name="vendor_id" id="vendor_id" class="form-select">
+                            <option value="">-- Pilih Vendor --</option>
+                            @foreach ($vendor as $vendor)
+                                <option value="{{ $vendor->id }}">{{ $vendor->vendor_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <button type="submit" class="btn btn-sm btn-primary">Simpan</button>
                     <a href="{{ route('user.index') }}" class="btn btn-sm btn-secondary">Batal</a>
                 </form>

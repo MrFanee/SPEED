@@ -43,8 +43,25 @@
                         <select name="role" id="role" class="form-select">
                             <option value="admin" {{ old('role', $users->role) == 'admin' ? 'selected' : '' }}>Admin</option>
                             <option value="staff" {{ old('role', $users->role) == 'staff' ? 'selected' : '' }}>Staff</option>
-                            <option value="vendor" {{ old('role', $users->role) == 'vendor' ? 'selected' : '' }}>Vendor
-                            </option>
+                            <option value="vendor" {{ old('role', $users->role) == 'vendor' ? 'selected' : '' }}>Vendor</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="vendor_id">Vendor</label>
+
+                        @error('vendor_id')
+                            <div class="text-danger mb-1">{{ $message }}</div>
+                        @enderror
+
+                        <select name="vendor_id" id="vendor_id" class="form-select">
+                            <option value="">-- Pilih Vendor --</option>
+                            @foreach ($vendorList as $vendor)
+                                <option value="{{ $vendor->id }}" 
+                                    {{ $users->vendor_id == $vendor->id ? 'selected' : '' }}>
+                                    {{ $vendor->vendor_name }} 
+                                </option>
+                            @endforeach
                         </select>
                     </div>
 

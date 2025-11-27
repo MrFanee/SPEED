@@ -39,23 +39,36 @@ class DIUploadController extends Controller
         $skipped = 0;
 
         foreach (array_slice($rows, 1) as $row) {
-            if (count($row) !== 5) {
+            if (count($row) !== 6) {
                 return back()->with('error', "Jumlah kolom tidak sesuai!");
             }
 
-            $item_code = trim($row[0]);
-            $part_name = trim($row[1]);
-            $po_number = trim($row[2]);
-            $qty_plan = trim($row[3]);
-            $qty_delivery = trim($row[4]);
+            $rawDate = trim($row[0]);
+            $item_code = trim($row[1]);
+            $part_name = trim($row[2]);
+            $po_number = trim($row[3]);
+            $qty_plan = trim($row[4]);
+            $qty_delivery = trim($row[5]);
 
             $po = PO::where('po_number', $po_number)->first();
 
+            $delivery_date = null;
+            if ($rawDate && preg_match('/\d{2}\/\d{2}\/\d{4}/', $rawDate)) {
+                try {
+                    $delivery_date = \Carbon\Carbon::createFromFormat('d/m/Y', $rawDate)->format('Y/m/d');
+                } catch (\Exception $e) {
+                    $delivery_date = null;
+                }
+            }
+
             if ($po) {
                 DI::updateOrCreate(
-                    ['po_id' => $po->id],
                     [
+                        'po_id' => $po->id,
                         'item_code' => $item_code,
+                    ],
+                    [
+                        'delivery_date' => $delivery_date,
                         'part_name' => $part_name,
                         'qty_plan' => $qty_plan,
                         'qty_delivery' => $qty_delivery

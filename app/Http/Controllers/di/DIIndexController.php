@@ -25,6 +25,8 @@ class DIIndexController extends Controller
                 DB::raw('SUM(master_di.qty_delivery) as qty_delivery'),
                 DB::raw('SUM(master_di.balance) as balance')
             )
+            ->whereMonth('master_di.delivery_date', date('m'))
+            ->whereYear('master_di.delivery_date', date('Y'))
             ->groupBy('parts.item_code', 'parts.part_name');
 
         if (Auth::user()->role === 'vendor') {

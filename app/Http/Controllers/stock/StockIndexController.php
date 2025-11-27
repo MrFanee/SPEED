@@ -20,9 +20,15 @@ class StockIndexController extends Controller
             ->leftJoin('master_2hk', 'parts.id', '=', 'master_2hk.part_id')
             ->leftJoin('po_table', function ($join) {
                 $join->on('parts.id', '=', 'po_table.part_id')
-                    ->on('master_stock.vendor_id', '=', 'po_table.vendor_id');
+                    ->on('master_stock.vendor_id', '=', 'po_table.vendor_id')
+                    ->whereMonth('po_table.delivery_date', date('m'))
+                    ->whereYear('po_table.delivery_date', date('Y'));
             })
-            ->leftJoin('master_di', 'po_table.id', '=', 'master_di.po_id')
+            ->leftJoin('master_di', function($join) {
+                $join->on('po_table.id', '=', 'master_di.po_id')
+                    ->whereMonth('master_di.delivery_date', date('m'))
+                    ->whereYear('master_di.delivery_date', date('Y'));
+            })
             ->select(
                 'master_stock.*',
                 'vendors.nickname',

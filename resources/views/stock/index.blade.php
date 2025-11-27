@@ -69,7 +69,7 @@
                     </div>
                 @endif
 
-                <table class="table table-bordered table-striped small table-responsive" style="font-size: 10px;">
+                <table class="table table-bordered table-striped small table-responsive" style="font-size: 9px;">
                     <thead class="text-center">
                         <tr>
                             <th>Vendor</th>
@@ -404,6 +404,4 @@
             form.submit();
         });
     </script>
-
-
 @endsection

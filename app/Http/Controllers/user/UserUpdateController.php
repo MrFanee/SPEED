@@ -13,22 +13,29 @@ class UserUpdateController extends Controller
     {
         $rules = [
             'username' => 'required',
-            'role' => 'required'
+            'role' => 'required',
+            'vendor_id' => 'required_if:role,vendor'
         ];
 
         $messages = [
             'username.required' => 'Username wajib diisi!',
             'role.required' => 'Role wajib dipilih!',
+            'vendor_id.required_if' => 'Vendor wajib dipilih untuk role vendor!'
         ];
 
         $request->validate($rules, $messages);
 
-        $user = User::findOrFail($id);
+        $users = User::findOrFail($id);
+
+        $users->username = $request->username;
+        $users->role = $request->role;
+        $users->vendor_id = $request->vendor_id;
+
         if ($request->filled('password')) {
-            $user->password = Hash::make($request->password);
+            $users->password = Hash::make($request->password);
         }
 
-        $user->update($request->only(['username', 'role', 'password']));
+        $users->save();
 
         return redirect()->route('user.index')->with('success', 'User berhasil diupdate!');
     }

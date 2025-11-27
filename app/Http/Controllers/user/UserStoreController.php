@@ -14,13 +14,15 @@ class UserStoreController extends Controller
         $rules = [
             'username' => 'required',
             'password' => 'required',
-            'role' => 'required'
+            'role' => 'required',
+            'vendor_id' => 'required_if:role,vendor'
         ];
 
         $messages = [
             'username.required' => 'Username wajib diisi!',
             'password.required' => 'Password wajib diisi!',
             'role.required' => 'Role wajib dipilih!',
+            'vendor_id.required_if' => 'Vendor wajib dipilih untuk role vendor!'
         ];
 
         $request->validate($rules, $messages);
@@ -29,6 +31,7 @@ class UserStoreController extends Controller
             'username' => $request->username,
             'password' => Hash::make($request->password),
             'role' => $request->role,
+            'vendor_id' => $request->vendor_id
         ]);
         return redirect()->route('user.index')->with('success', 'User berhasil ditambahkan!');
     }

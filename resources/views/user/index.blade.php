@@ -40,6 +40,7 @@
               <th>#</th>
               <th>Username</th>
               <th>Role</th>
+              <th>Vendor</th>
               <th>Aksi</th>
             </tr>
           </thead>
@@ -49,6 +50,7 @@
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $u->username }}</td>
                 <td>{{ $u->role }}</td>
+                <td>{{ $u->vendor->vendor_name ?? '-' }}</td>
                 <td>
                   <div class="d-flex gap-2">
                     <a href="{{ route('user.edit', $u->id) }}" class="btn btn-warning btn-sm">Edit</a>

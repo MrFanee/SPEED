@@ -51,22 +51,31 @@ class POUploadController extends Controller
             $item_code = trim($row[4]);
             $qty_po = trim($row[5]);
             $qty_outstanding = trim($row[6]);
-            $delivery_date = trim($row[7]);
+            $rawDate = trim($row[7]);
 
             $part = Part::where('item_code', $item_code)->first();
             $vendor = Vendor::where('kode_vendor', $kode_vendor)->first();
 
+            $delivery_date = null;
+            if ($rawDate && preg_match('/\d{2}\/\d{2}\/\d{4}/', $rawDate)) {
+                try {
+                    $delivery_date = \Carbon\Carbon::createFromFormat('d/m/Y', $rawDate)->format('Y/m/d');
+                } catch (\Exception $e) {
+                    $delivery_date = null;
+                }
+            }
+
             if ($part && $vendor) {
                 PO::updateOrCreate(
                     [
-                        'po_number' => $po_number
+                        'po_number' => $po_number,
+                        'vendor_id' => $vendor->id,
+                        'part_id' => $part->id
                     ],
                     [
                         'period' => $period,
                         'po_number' => $po_number,
                         'purchase_group' => $purchase_group,
-                        'vendor_id' => $vendor->id,
-                        'part_id' => $part->id,
                         'qty_po' => $qty_po,
                         'qty_outstanding' => $qty_outstanding,
                         'delivery_date' => $delivery_date

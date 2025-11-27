@@ -26,7 +26,7 @@
         <form action="{{ route('di.upload') }}" method="POST" enctype="multipart/form-data" class="small">
           @csrf
           <div class="mb-3">
-            <label for="file" class="form-label">Format kolom CSV harus: Item Code | Part Name | No. PO | Qty Plan | Qty Delv.</label>
+            <label for="file" class="form-label">Format kolom CSV harus: Delivery Date | Item Code | Part Name | No. PO | Qty Plan | Qty Delv.</label>
            
             @error('file')
               <div class="text-danger mb-1">{{ $message }}</div>

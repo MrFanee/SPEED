@@ -9,10 +9,9 @@ class UserIndexController extends Controller
 {
     public function index()
     {
-        $query = request()->query('query'); 
+        $users = User::with('vendor');
 
-        $users = User::all();
-
-        return view('user.index', compact('users', 'query'));
+        $users = $users->get();
+        return view('user.index', compact('users'));
     }
 }
