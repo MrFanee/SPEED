@@ -296,6 +296,7 @@
 
       const labels = monthlyResume.map(r => r.tgl);
       const dataOK = monthlyResume.map(r => r.ok);
+      const dataNG = monthlyResume.map(r => r.ng_no_category);
       const dataMaterial = monthlyResume.map(r => r.material);
       const dataMan = monthlyResume.map(r => r.man);
       const dataMachine = monthlyResume.map(r => r.machine);
@@ -318,12 +319,12 @@
         data: {
           labels: labels,
           datasets: [
-            { label: 'Method', data: dataMethod, stack: 'stack1', backgroundColor: '#DDC57A' },
-            { label: 'Machine', data: dataMachine, stack: 'stack1', backgroundColor: '#CE7E5A' },
-            { label: 'Man', data: dataMan, stack: 'stack1', backgroundColor: '#FCB53B' },
-            { label: 'Material', data: dataMaterial, stack: 'stack1', backgroundColor: '#FFE797' },
-            { label: 'OK', data: dataOK, stack: 'stack1', backgroundColor: '#89AC46' },
-
+            { label: 'Method', data: dataMethod, stack: 'stack1', backgroundColor: '#890596' },
+            { label: 'Machine', data: dataMachine, stack: 'stack1', backgroundColor: '#EB5353' },
+            { label: 'Man', data: dataMan, stack: 'stack1', backgroundColor: '#F6FA70' },
+            { label: 'Material', data: dataMaterial, stack: 'stack1', backgroundColor: '#00DFA2' },
+            { label: 'Empty Problem', data: dataNG, stack: 'stack1', backgroundColor: '#FF0060' },
+            { label: 'OK', data: dataOK, stack: 'stack1', backgroundColor: '#0079FF' },
             {
               type: 'line',
               label: 'Total Item',
@@ -364,7 +365,7 @@
           plugins: {
             legend: { position: 'top' },
             datalabels: {
-              color: '#BF092F',
+              color: 'black',
               anchor: 'start',
               align: 'top',
               formatter: function (value) {

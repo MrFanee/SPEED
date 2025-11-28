@@ -17,6 +17,7 @@
 
 @section('title', '2 Days Stock')
 
+
 @section('content')
     <div class="pagetitle">
         <div class="d-flex justify-content-between align-items-center">
@@ -46,12 +47,13 @@
 
     <section class="section">
         <div class="card">
-            <div class="card-body table-responsive text-center">
+            <div class="card-body text-center">
                 <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
-                    @if ($isToday)
+                    {{-- @if ($isToday) --}}
                         @if(auth()->user()->role !== 'vendor')
                             <form action="{{ route('stock.create') }}" method="POST">
                                 @csrf
+                                <input type="hidden" name="tanggal" value="{{ $tanggal }}">
                                 <button type="submit" class="btn btn-primary btn-sm">
                                     Tambah +
                                 </button>
@@ -59,89 +61,99 @@
                         @endif
 
                         <a href="{{ route('stock.upload') }}" class="btn btn-success btn-sm">Upload CSV</a>
-                    @endif
+                    {{-- @endif --}}
                 </div>
 
-                @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show small d-inline-block float-end" role="alert">
-                        {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
+                <div style="max-height: 350px; overflow-y: auto; position: relative;">
+                    @if(session('success'))
+                        <div class="alert alert-success alert-dismissible fade show small d-inline-block float-end"
+                            role="alert">
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
 
-                <table class="table table-bordered table-striped small table-responsive" style="font-size: 9px;">
-                    <thead class="text-center">
-                        <tr>
-                            <th>Vendor</th>
-                            <th>Item Code</th>
-                            <th>Part</th>
-                            <th>PO</th>
-                            <th>OS PO</th>
-                            <th>∑ Plan</th>
-                            <th>∑ Delv.</th>
-                            <th>Balance</th>
-                            <th>RM</th>
-                            <th>WIP</th>
-                            <th>FG</th>
-                            <th>Std. 2HK</th>
-                            <th>Judge.</th>
-                            <th>Kategori Problem</th>
-                            <th>Detail Problem</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($stock as $s)
-                            <tr data-id="{{ $s->id }}" data-judgement="{{ $s->judgement }}">
-                                <td>{{ $s->nickname }}</td>
-                                <td>{{ $s->item_code }}</td>
-                                <td class="text-start">{{ $s->part_name }}</td>
-                                <td>{{ $s->qty_po ?? '-'}}</td>
-                                <td>{{ $s->qty_outstanding ?? '-'}}</td>
-                                <td>{{ $s->qty_plan ?? '-'}}</td>
-                                <td>{{ $s->qty_delivery ?? '-'}}</td>
-                                <td>{{ $s->balance ?? '-'}}</td>
-                                <td @if ($isToday) contenteditable="true" class="editable" @endif data-field="rm">{{ $s->rm }}
-                                </td>
-                                <td @if ($isToday) contenteditable="true" class="editable" @endif data-field="wip">{{ $s->wip }}
-                                </td>
-                                <td @if ($isToday) contenteditable="true" class="editable" @endif data-field="fg">{{ $s->fg }}
-                                </td>
-                                <td>{{ $s->std_stock ?? '-'}}</td>
-                                <td>
-                                    @if ($s->judgement == 'OK')
-                                        <span class="badge bg-success">{{ $s->judgement }}</span>
-                                    @elseif ($s->judgement == 'NG')
-                                        <span class="badge bg-danger">{{ $s->judgement }}</span>
-                                    @elseif ($s->judgement == 'NO PO')
-                                        <span class="badge bg-warning text-dark">{{ $s->judgement }}</span>
-                                    @else
-                                        <span class="badge bg-secondary">{{ $s->judgement }}</span>
-                                    @endif
-                                </td>
-                                <td data-field="kategori_problem" class="@if ($isToday) editable @endif">
-                                    <select class="kategori-problem" data-id="{{ $s->id }}" @if (!$isToday) disabled @endif>
-                                        <option value="">- Pilih -</option>
-                                        <option value="Man" {{ $s->kategori_problem == 'Man' ? 'selected' : '' }}>Man</option>
-                                        <option value="Material" {{ $s->kategori_problem == 'Material' ? 'selected' : '' }}>
-                                            Material</option>
-                                        <option value="Machine" {{ $s->kategori_problem == 'Machine' ? 'selected' : '' }}>Machine
-                                        </option>
-                                        <option value="Method" {{ $s->kategori_problem == 'Method' ? 'selected' : '' }}>Method
-                                        </option>
-                                    </select>
-                                </td>
-                                <td class="text-start @if ($isToday) editable @endif" @if ($isToday) contenteditable="true"
-                                @endif data-field="detail_problem">
-                                    {{ $s->detail_problem }}
-                                </td>
-                            </tr>
-                        @empty
+                    <table class="table table-bordered table-striped small table-responsive"
+                        style="font-size: 9px; position: relative;">
+                        <thead class="text-center"
+                            style="position: sticky; top: 0; z-index: 1000 !important; background-color: white;">
                             <tr>
-                                <td colspan="16" class="text-center text-muted">Tidak ada data untuk tanggal ini</td>
+                                <th>Vendor</th>
+                                <th>Item Code</th>
+                                <th>Part</th>
+                                <th>PO</th>
+                                <th>OS PO</th>
+                                <th>∑ Plan</th>
+                                <th>∑ Delv.</th>
+                                <th>Balance</th>
+                                <th>RM</th>
+                                <th>WIP</th>
+                                <th>FG</th>
+                                <th>Std. 2HK</th>
+                                <th>Judge.</th>
+                                <th>Kategori Problem</th>
+                                <th>Detail Problem</th>
                             </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @forelse ($stock as $s)
+                                <tr data-id="{{ $s->id }}" data-judgement="{{ $s->judgement }}">
+                                    <td>{{ $s->nickname }}</td>
+                                    <td>{{ $s->item_code }}</td>
+                                    <td class="text-start">{{ $s->part_name }}</td>
+                                    <td>{{ $s->qty_po ?? '-'}}</td>
+                                    <td>{{ $s->qty_outstanding ?? '-'}}</td>
+                                    <td>{{ $s->qty_plan ?? '-'}}</td>
+                                    <td>{{ $s->qty_delivery ?? '-'}}</td>
+                                    <td>{{ $s->balance ?? '-'}}</td>
+                                    <td @if ($isToday) contenteditable="true" class="editable" @endif data-field="rm">
+                                        {{ $s->rm }}
+                                    </td>
+                                    <td @if ($isToday) contenteditable="true" class="editable" @endif data-field="wip">
+                                        {{ $s->wip }}
+                                    </td>
+                                    <td @if ($isToday) contenteditable="true" class="editable" @endif data-field="fg">
+                                        {{ $s->fg }}
+                                    </td>
+                                    <td>{{ $s->std_stock ?? '-'}}</td>
+                                    <td>
+                                        @if ($s->judgement == 'OK')
+                                            <span class="badge bg-success">{{ $s->judgement }}</span>
+                                        @elseif ($s->judgement == 'NG')
+                                            <span class="badge bg-danger">{{ $s->judgement }}</span>
+                                        @elseif ($s->judgement == 'NO PO')
+                                            <span class="badge bg-warning text-dark">{{ $s->judgement }}</span>
+                                        @else
+                                            <span class="badge bg-secondary">{{ $s->judgement }}</span>
+                                        @endif
+                                    </td>
+                                    <td data-field="kategori_problem" class="@if ($isToday) editable @endif">
+                                        <select class="kategori-problem" data-id="{{ $s->id }}" @if (!$isToday) disabled @endif>
+                                            <option value="">- Pilih -</option>
+                                            <option value="Man" {{ $s->kategori_problem == 'Man' ? 'selected' : '' }}>Man</option>
+                                            <option value="Material" {{ $s->kategori_problem == 'Material' ? 'selected' : '' }}>
+                                                Material</option>
+                                            <option value="Machine" {{ $s->kategori_problem == 'Machine' ? 'selected' : '' }}>
+                                                Machine
+                                            </option>
+                                            <option value="Method" {{ $s->kategori_problem == 'Method' ? 'selected' : '' }}>Method
+                                            </option>
+                                        </select>
+                                    </td>
+                                    <td class="text-start @if ($isToday) editable @endif" @if ($isToday) contenteditable="true"
+                                    @endif data-field="detail_problem">
+                                        {{ $s->detail_problem }}
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="16" class="text-center text-muted">Tidak ada data untuk tanggal ini</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
         </div>
     </section>

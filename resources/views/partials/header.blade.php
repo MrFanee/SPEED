@@ -2,7 +2,7 @@
 
     <div class="d-flex align-items-center justify-content-between" style="max-width: 230px;">
         <a href="index.html" class="logo d-flex align-items-center">
-            {{-- <img src="assets/img/logo.png" alt=""> --}}
+            <img src="{{ asset('images/logo tch no bg.png') }}" alt="logo">
             <span class="d-none d-lg-block">SPEED</span>
         </a>
         <i class="bi bi-list toggle-sidebar-btn"></i>

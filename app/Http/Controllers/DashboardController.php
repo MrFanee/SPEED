@@ -187,6 +187,7 @@ class DashboardController extends Controller
             ->select(
                 DB::raw('DATE(tanggal) as tgl'),
                 DB::raw("SUM(CASE WHEN judgement = 'OK' THEN 1 ELSE 0 END) as ok"),
+                DB::raw("SUM(CASE WHEN judgement = 'NG' AND (kategori_problem IS NULL OR kategori_problem = '') THEN 1 ELSE 0 END) as ng_no_category"),
                 DB::raw("SUM(CASE WHEN judgement = 'NG' AND kategori_problem = 'Material' THEN 1 ELSE 0 END) as material"),
                 DB::raw("SUM(CASE WHEN judgement = 'NG' AND kategori_problem = 'Man' THEN 1 ELSE 0 END) as man"),
                 DB::raw("SUM(CASE WHEN judgement = 'NG' AND kategori_problem = 'Machine' THEN 1 ELSE 0 END) as machine"),

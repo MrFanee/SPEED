@@ -7,6 +7,8 @@
 
     <title>@yield('title', 'Dashboard')</title>
 
+    <link rel="icon" href="{{ asset('images/logo trimitra.png') }}" style="width: 100px; height: 50px;">
+
     <!-- Vendor CSS -->
     <link href="{{ asset('NiceAdmin/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('NiceAdmin/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">

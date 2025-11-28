@@ -24,7 +24,7 @@ class StockIndexController extends Controller
                     ->whereMonth('po_table.delivery_date', date('m'))
                     ->whereYear('po_table.delivery_date', date('Y'));
             })
-            ->leftJoin('master_di', function($join) {
+            ->leftJoin('master_di', function ($join) {
                 $join->on('po_table.id', '=', 'master_di.po_id')
                     ->whereMonth('master_di.delivery_date', date('m'))
                     ->whereYear('master_di.delivery_date', date('Y'));
@@ -60,6 +60,20 @@ class StockIndexController extends Controller
         }
 
         $stock = $stock->get();
+
+        foreach ($stock as $s) {
+            $po = $s->qty_po ?? 0;
+            $fg = $s->fg ?? 0;
+            $std = $s->std_stock ?? 0;
+
+            if ($po == 0) {
+                $s->judgement = "NO PO";
+            } elseif ($fg >= $std) {
+                $s->judgement = "OK";
+            } else {
+                $s->judgement = "NG";
+            }
+        }
 
         return view('stock.index', compact('tanggal', 'stock', 'query'));
     }
