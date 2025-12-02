@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\DI;
 use App\PO;
+use App\Part;
 
 class DIUploadController extends Controller
 {
@@ -51,21 +52,22 @@ class DIUploadController extends Controller
             $qty_delivery = trim($row[5]);
 
             $po = PO::where('po_number', $po_number)->first();
+            $part = Part::where('item_code', $item_code)->first();
 
             $delivery_date = null;
             if ($rawDate && preg_match('/\d{2}\/\d{2}\/\d{4}/', $rawDate)) {
                 try {
-                    $delivery_date = \Carbon\Carbon::createFromFormat('d/m/Y', $rawDate)->format('Y/m/d');
+                    $delivery_date = \Carbon\Carbon::createFromFormat('d/m/Y', $rawDate)->format('Y-m-d');
                 } catch (\Exception $e) {
                     $delivery_date = null;
                 }
             }
 
-            if ($po) {
+            if ($po && $part) {
                 DI::updateOrCreate(
                     [
                         'po_id' => $po->id,
-                        'item_code' => $item_code,
+                        'part_id' => $part->id
                     ],
                     [
                         'delivery_date' => $delivery_date,

@@ -259,7 +259,7 @@
             datalabels: {
               color: 'gray',
               anchor: 'end',
-              align: 'top',
+              align: 'right',
               formatter: function (value) {
                 return value > 0 ? value : '';
               },

@@ -23,7 +23,7 @@
           @csrf
           <div class="mb-3">
             <label for="file" class="form-label">Format kolom CSV harus: Periode | No. PO | Purchase Group | Kode Vendor | Item
-              Code|Qty PO|OS PO|Delivery Date</label>
+              Code | Qty PO | OS PO | Delivery Date</label>
 
             @error('file')
               <div class="text-danger mb-1">{{ $message }}</div>

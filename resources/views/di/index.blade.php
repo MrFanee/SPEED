@@ -44,7 +44,7 @@
                             <th>#</th>
                             <th>Item Code</th>
                             <th>Part Name</th>
-                            {{-- <th>Qty PO</th> --}}
+                            <th>PO</th>
                             <th>∑ Plan</th>
                             <th>∑ Delivery</th>
                             <th>Balance</th>
@@ -59,7 +59,7 @@
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $d->item_code }}</td>
                                 <td>{{ $d->part_name }}</td>
-                                {{-- <td>{{ $d->qty_po }}</td> --}}
+                                <td>{{ $d->po_number }}</td>
                                 <td>{{ $d->qty_plan }}</td>
                                 <td>{{ $d->qty_delivery }}</td>
                                 <td>{{ $d->balance }}</td>

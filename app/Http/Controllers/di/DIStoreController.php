@@ -33,6 +33,7 @@ class DIStoreController extends Controller
 
         DI::create([
             'po_id' => $request->po_id,
+            'part_id' => $request->part_id,
             'qty_plan' => $request->qty_plan,
             'qty_delivery' => $request->qty_delivery,
         ]);

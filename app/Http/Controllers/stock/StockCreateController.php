@@ -14,6 +14,20 @@ class StockCreateController extends Controller
         // Cek apakah tanggal itu sudah ada data
         $already = DB::table('master_stock')
             ->whereDate('tanggal', $tanggal)
+            ->leftJoin('parts', 'master_stock.part_id', '=', 'parts.id')
+            ->leftJoin('vendors', 'master_stock.vendor_id', '=', 'vendors.id')
+            ->leftJoin('master_2hk', 'parts.id', '=', 'master_2hk.part_id')
+            ->leftJoin('po_table', function ($join) {
+                $join->on('parts.id', '=', 'po_table.part_id')
+                    ->on('master_stock.vendor_id', '=', 'po_table.vendor_id')
+                    ->whereMonth('po_table.delivery_date', date('m'))
+                    ->whereYear('po_table.delivery_date', date('Y'));
+            })
+            ->leftJoin('master_di', function ($join) {
+                $join->on('po_table.id', '=', 'master_di.po_id')
+                    ->whereMonth('master_di.delivery_date', date('m'))
+                    ->whereYear('master_di.delivery_date', date('Y'));
+            })
             ->update([
                 'judgement' => DB::raw("
             CASE

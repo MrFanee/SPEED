@@ -16,13 +16,31 @@
     <section class="section">
         <div class="card">
             <div class="card-body">
-                @if(auth()->user()->role !== 'vendor')
-                    <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
-                        {{-- <a href="{{ route('po.create') }}" class="btn btn-primary">+ Tambah</a> --}}
+                <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
 
+                    @if(auth()->user()->role !== 'vendor')
                         <a href="{{ route('po.upload') }}" class="btn btn-sm btn-success">Upload CSV</a>
-                    </div>
-                @endif
+                    @endif
+
+                    <form action="{{ route('po.index') }}" method="GET" class="d-flex gap-2">
+
+                        <select name="bulan" class="form-select form-select-sm" style="width: 120px" onchange="this.form.submit()">
+                            @foreach($bulanList as $bln)
+                                <option value="{{ $bln }}" {{ $bln == $bulan ? 'selected' : '' }}>
+                                    {{ \Carbon\Carbon::create()->locale('id')->month($bln)->translatedFormat('F') }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        <select name="tahun" class="form-select form-select-sm" style="width: 100px" onchange="this.form.submit()">
+                            @foreach ($tahunList as $th)
+                                <option value="{{ $th }}" {{ $tahun == $th ? 'selected' : '' }}>
+                                    {{ $th }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </form>
+                </div>
 
                 @if (session('error'))
                     <div class="alert alert-danger alert-dismissible fade show">
