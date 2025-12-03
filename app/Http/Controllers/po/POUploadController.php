@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\PO;
 use App\Part;
 use App\Vendor;
+use App\UploadFailure;
+use Illuminate\Support\Facades\Auth;
 
 class POUploadController extends Controller
 {
@@ -84,6 +86,23 @@ class POUploadController extends Controller
                 $imported++;
             } else {
                 $skipped++;
+
+                UploadFailure::create([
+                    'module' => 'master_po',
+                    'raw_data' => [
+                        'period' => $period,
+                        'po_number' => $po_number,
+                        'purchase_group' => $purchase_group,
+                        'kode_vendor' => $kode_vendor,
+                        'item_code' => $item_code,
+                        'qty_po' => $qty_po,
+                        'qty_outstanding' => $qty_outstanding,
+                        'delivery_date' => $rawDate,
+                    ],
+                    'error_message' => $part ? 'Vendor tidak ditemukan' : ($vendor ? 'Part tidak ditemukan' : 'Part & Vendor tidak ditemukan'),
+                    'status' => 'pending',
+                    'uploaded_by' => Auth::id(),
+                ]);
             }
         }
 

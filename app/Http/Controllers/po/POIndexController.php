@@ -30,8 +30,8 @@ class POIndexController extends Controller
         $bulan = $request->get('bulan', $bulanList->first());
 
         $po = PO::with('vendor', 'part')
-            ->whereMonth('delivery_date', date('m'))
-            ->whereYear('delivery_date', date('Y'))
+            ->whereMonth('delivery_date', $bulan)
+            ->whereYear('delivery_date', $tahun)
             ->orderBy('po_number', 'asc');
 
         if (Auth::user()->role === 'vendor') {
@@ -40,6 +40,7 @@ class POIndexController extends Controller
 
         $po = $po->get();
 
-        return view('po.index', compact('po', 'bulan', 'tahun'));
+        return view('po.index', compact('po', 
+        'bulan', 'bulanList', 'tahunList','tahun'));
     }
 }

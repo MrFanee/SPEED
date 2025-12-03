@@ -47,8 +47,8 @@
                         <input type="text" name="std_stock" class="form-control" id="std_stock" value="{{ old('std_stock') }}">
                     </div>
 
-                    <button type="submit" class="btn btn-sm btn-primary">Simpan</button>
-                    <a href="{{ route('twodays.index') }}" class="btn btn-sm btn-secondary">Batal</a>
+                    <button type="submit" class="btn btn-sm btn-outline-primary">Simpan</button>
+                    <a href="{{ route('twodays.index') }}" class="btn btn-sm btn-outline-secondary">Batal</a>
                 </form>
 
             </div>

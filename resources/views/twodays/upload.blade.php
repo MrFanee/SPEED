@@ -35,10 +35,10 @@
             <input type="file" name="file" id="file" accept=".csv" class="form-control">
           </div>
 
-          <button type="submit" class="btn btn-sm btn-success">
+          <button type="submit" class="btn btn-sm btn-outline-success">
             <i class="bi bi-upload"></i> Upload
           </button>
-          <a href="{{ route('twodays.index') }}" class="btn btn-sm btn-secondary">Kembali</a>
+          <a href="{{ route('twodays.index') }}" class="btn btn-sm btn-outline-econdary">Kembali</a>
         </form>
       </div>
     </div>

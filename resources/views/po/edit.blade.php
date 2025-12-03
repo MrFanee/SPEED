@@ -65,8 +65,8 @@
                             value="{{ $po->qty_outstanding }}" required>
                     </div>
 
-                    <button type="submit" class="btn btn-sm btn-success">Update</button>
-                    <a href="{{ route('po.index') }}" class="btn btn-sm btn-secondary">Batal</a>
+                    <button type="submit" class="btn btn-sm btn-outline-success">Update</button>
+                    <a href="{{ route('po.index') }}" class="btn btn-sm btn-outline-secondary">Batal</a>
                 </form>
             </div>
         </div>

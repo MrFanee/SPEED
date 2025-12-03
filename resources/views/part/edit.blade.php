@@ -44,8 +44,8 @@
             <input type="text" class="form-control" id="part_name" name="part_name" value="{{ $parts->part_name }}">
           </div>
 
-          <button type="submit" class="btn btn-sm btn-success">Update</button>
-          <a href="{{ route('part.index') }}" class="btn btn-sm btn-secondary">Batal</a>
+          <button type="submit" class="btn btn-sm btn-outline-success">Update</button>
+          <a href="{{ route('part.index') }}" class="btn btn-sm btn-outline-secondary">Batal</a>
         </form>
       </div>
     </div>

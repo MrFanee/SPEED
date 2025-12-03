@@ -19,7 +19,9 @@
                 <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
 
                     @if(auth()->user()->role !== 'vendor')
-                        <a href="{{ route('po.upload') }}" class="btn btn-sm btn-success">Upload CSV</a>
+                        <a href="{{ route('po.upload') }}" class="btn btn-sm btn-outline-success">
+                            <i class="bi bi-upload"></i> Upload CSV
+                        </a>
                     @endif
 
                     <form action="{{ route('po.index') }}" method="GET" class="d-flex gap-2">
@@ -89,13 +91,15 @@
                                 {{-- <td>{{ $p->status }}</td> --}}
                                 {{-- <td>
                                     <div class="d-flex gap-2">
-                                        <a href="{{ route('po.edit', $p->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                                        <a href="{{ route('po.edit', $p->id) }}" class="btn btn-warning btn-sm">
+                                            <i class="bi bi-pencil-fill"></i>
+                                        </a>
                                         <form action="{{ route('po.delete', $p->id) }}" method="POST">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-danger"
                                                 onclick="return confirm('Yakin mau hapus data ini?')">
-                                                Hapus
+                                                <i class="bi bi-trash-fill"></i>
                                             </button>
                                         </form>
                                     </div>

@@ -183,6 +183,11 @@
 
     <!-- Bar Chart -->
     @if(auth()->user()->role !== 'vendor')
+      <form method="GET" action="{{ route('dashboard') }}" class="mb-3 d-flex gap-2">
+        <input type="date" name="tanggal" value="{{ request('tanggal') ?? date('Y-m-d') }}"
+          class="form-control form-control-sm" style="width: 180px" onchange="this.form.submit()">
+      </form>
+
       <div class="col-12">
         <div class="card">
           <div class="card-body">

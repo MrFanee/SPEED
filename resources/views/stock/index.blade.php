@@ -54,13 +54,15 @@
                             <form action="{{ route('stock.create') }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="tanggal" value="{{ $tanggal }}">
-                                <button type="submit" class="btn btn-primary btn-sm">
-                                    Tambah +
+                                <button type="submit" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-plus-circle-dotted"></i> Tambah
                                 </button>
                             </form>
                         @endif
 
-                        <a href="{{ route('stock.upload') }}" class="btn btn-success btn-sm">Upload CSV</a>
+                        <a href="{{ route('stock.upload') }}" class="btn btn-outline-success btn-sm">
+                            <i class="bi bi-upload"></i> Upload CSV
+                        </a>
                     {{-- @endif --}}
                 </div>
 

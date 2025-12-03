@@ -17,8 +17,9 @@
     <div class="card">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mt-3">
-          <a href="{{ route('part.create') }}" class="btn btn-sm btn-primary mb-3">+ Tambah</a>
-
+          <a href="{{ route('part.create') }}" class="btn btn-sm btn-outline-primary mb-3">
+            <i class="bi bi-plus-circle-dotted"></i> Tambah
+          </a>
           {{-- <a href="{{ route('po.upload') }}" class="btn btn-sm btn-success">Upload CSV</a> --}}
         </div>
 
@@ -55,13 +56,15 @@
                 <td>{{ $p->part_name }}</td>
                 <td>
                   <div class="d-flex gap-2">
-                    <a href="{{ route('part.edit', $p->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="{{ route('part.edit', $p->id) }}" class="btn btn-outline-warning btn-sm">
+                      <i class="bi bi-pencil-fill"></i>
+                    </a>
                     <form action="{{ route('part.delete', $p->id) }}" method="POST">
                       @csrf
                       @method('DELETE')
-                      <button type="submit" class="btn btn-sm btn-danger"
+                      <button type="submit" class="btn btn-sm btn-outline-danger"
                         onclick="return confirm('Yakin mau hapus data ini?')">
-                        Hapus
+                        <i class="bi bi-trash-fill"></i>
                       </button>
                     </form>
                   </div>

@@ -5,12 +5,30 @@ namespace App\Http\Controllers\di;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 
 class DIIndexController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $tahunList = DB::table('po_table')
+            ->select(DB::raw('YEAR(delivery_date) as tahun'))
+            ->distinct()
+            ->orderBy('tahun', 'desc')
+            ->pluck('tahun');
+
+        $tahun = $request->get('tahun', $tahunList->first());
+
+        $bulanList = DB::table('po_table')
+            ->select(DB::raw('MONTH(delivery_date) as bulan'))
+            ->whereYear('delivery_date', $tahun)
+            ->distinct()
+            ->orderBy('bulan', 'desc')
+            ->pluck('bulan');
+
+        $bulan = $request->get('bulan', $bulanList->first());
+
         $di = DB::table('master_di')
             ->leftJoin('po_table', 'master_di.po_id', '=', 'po_table.id')
             ->leftJoin('parts', 'po_table.part_id', '=', 'parts.id')
@@ -29,8 +47,8 @@ class DIIndexController extends Controller
                 // DB::raw('SUM(master_di.qty_delivery) as qty_delivery'),
                 // DB::raw('SUM(master_di.balance) as balance')
             )
-            ->whereMonth('master_di.delivery_date', date('m'))
-            ->whereYear('master_di.delivery_date', date('Y'))
+            ->whereMonth('master_di.delivery_date', $bulan)
+            ->whereYear('master_di.delivery_date', $tahun)
             ->get();
 
         if (Auth::user()->role === 'vendor') {
@@ -39,6 +57,7 @@ class DIIndexController extends Controller
 
         // $di = $di->get();
 
-        return view('di.index', compact('di'));
+        return view('di.index', compact('di',
+        'bulan', 'bulanList', 'tahunList','tahun'));
     }
 }

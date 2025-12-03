@@ -49,6 +49,7 @@ use App\Http\Controllers\user\UserStoreController;
 use App\Http\Controllers\user\UserEditController;
 use App\Http\Controllers\user\UserUpdateController;
 use App\Http\Controllers\user\UserDestroyController;
+use App\Http\Controllers\upload_failure\UploadFailureIndexController;
 
 
 Route::get('/', function () {
@@ -127,4 +128,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/user/edit/{id}', [UserEditController::class, 'edit'])->name('user.edit');
     Route::put('/user/update/{id}', [UserUpdateController::class, 'update'])->name('user.update');
     Route::delete('/user/delete/{id}', [UserDestroyController::class, 'destroy'])->name('user.delete');
+
+    // Upload Failure routes
+    Route::get('/upload_failure/index', [UploadFailureIndexController::class, 'index'])->name('upload_failure.index');
+    Route::get('/upload_failure/show/{id}', [UploadFailureIndexController::class, 'show'])->name('upload_failure.show');
+    Route::post('/upload_failure/retry/{id}', [UploadFailureIndexController::class, 'retry'])->name('upload_failure.retry');
 });

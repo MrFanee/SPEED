@@ -70,8 +70,8 @@
                         </select>
                     </div>
 
-                    <button type="submit" class="btn btn-sm btn-primary">Simpan</button>
-                    <a href="{{ route('user.index') }}" class="btn btn-sm btn-secondary">Batal</a>
+                    <button type="submit" class="btn btn-sm btn-outline-primary">Simpan</button>
+                    <a href="{{ route('user.index') }}" class="btn btn-sm btn-outline-secondary">Batal</a>
                 </form>
 
             </div>

@@ -51,7 +51,9 @@ class DashboardController extends Controller
                 'master_stock.part_id',
                 'master_stock.judgement',
                 'master_stock.kategori_problem',
-                'master_di.balance'
+                'master_di.balance',
+                'master_di.qty_plan',
+                // 'po_table.qty_po'
             )
             ->whereDate('master_stock.tanggal', $tanggal);
 
@@ -78,7 +80,9 @@ class DashboardController extends Controller
             return [
                 'judgement' => $rows->first()->judgement,
                 'balance' => $rows->sum('balance'),
+                // 'qty_plan' => $rows->$rows->first()->qty_plan,
                 'kategori_problem' => $rows->first()->kategori_problem,
+                // 'qty_po' => $rows->first()->qty_po
             ];
         });
 
@@ -126,7 +130,7 @@ class DashboardController extends Controller
             ->get()
             ->groupBy(['vendor_id', 'part_id']);
 
-        $vendorsUpdated = $this->getVendorsUpdated($dataHariIni, $dataKemarin);
+        // $vendorsUpdated = $this->getVendorsUpdated($dataHariIni, $dataKemarin);
         $groupedByVendor = $dataHariIni->groupBy('vendor_id');
 
         $chartData = [];

@@ -54,8 +54,8 @@
                         <input type="text" class="form-control" id="qty_delivery" name="qty_delivery" value="{{ $di->qty_delivery }}">
                     </div>
 
-                    <button type="submit" class="btn btn-sm btn-success">Update</button>
-                    <a href="{{ route('di.index') }}" class="btn btn-sm btn-secondary">Batal</a>
+                    <button type="submit" class="btn btn-sm btn-outline-success">Update</button>
+                    <a href="{{ route('di.index') }}" class="btn btn-sm btn-outline-secondary">Batal</a>
                 </form>
             </div>
         </div>

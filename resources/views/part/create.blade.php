@@ -43,8 +43,8 @@
             <input type="text" name="part_name" class="form-control" id="part_name" value="{{ old('part_name') }}">
           </div>
 
-          <button type="submit" class="btn btn-sm btn-primary">Simpan</button>
-          <a href="{{ route('part.index') }}" class="btn btn-sm btn-secondary">Batal</a>
+          <button type="submit" class="btn btn-sm btn-outline-primary">Simpan</button>
+          <a href="{{ route('part.index') }}" class="btn btn-sm btn-outline-secondary">Batal</a>
         </form>
 
       </div>

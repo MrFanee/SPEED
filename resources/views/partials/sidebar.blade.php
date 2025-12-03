@@ -62,7 +62,13 @@
 
                     <li>
                         <a href="{{ route('di.index') }}" class="{{ request()->is('di*') ? 'active' : '' }}">
-                            <i class="bi bi-circle"></i><span>Master DI vs PO</span>
+                            <i class="bi bi-circle"></i><span>Master DI vs GR</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ route('upload_failure.index') }}" class="{{ request()->is('upload_failure*') ? 'active' : '' }}">
+                            <i class="bi bi-circle"></i><span>Upload Failed</span>
                         </a>
                     </li>
                 </ul>

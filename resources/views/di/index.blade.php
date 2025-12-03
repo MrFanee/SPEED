@@ -16,13 +16,35 @@
     <section class="section">
         <div class="card">
             <div class="card-body">
-                @if(auth()->user()->role !== 'vendor')
-                    <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
-                        <a href="{{ route('di.create') }}" class="btn btn-sm btn-primary">+ Tambah</a>
+                <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
+                    @if(auth()->user()->role !== 'vendor')
+                        {{-- <a href="{{ route('di.create') }}" class="btn btn-sm btn-primary">+ Tambah</a> --}}
+                        <a href="{{ route('di.upload') }}" class="btn btn-sm btn-outline-success">
+                            <i class="bi bi-upload"></i> Upload CSV
+                        </a>
+                    @endif
 
-                        <a href="{{ route('di.upload') }}" class="btn btn-sm btn-success">Upload CSV</a>
-                    </div>
-                @endif
+                    <form action="{{ route('di.index') }}" method="GET" class="d-flex gap-2">
+
+                        <select name="bulan" class="form-select form-select-sm" style="width: 120px"
+                            onchange="this.form.submit()">
+                            @foreach($bulanList as $bln)
+                                <option value="{{ $bln }}" {{ $bln == $bulan ? 'selected' : '' }}>
+                                    {{ \Carbon\Carbon::create()->locale('id')->month($bln)->translatedFormat('F') }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        <select name="tahun" class="form-select form-select-sm" style="width: 100px"
+                            onchange="this.form.submit()">
+                            @foreach ($tahunList as $th)
+                                <option value="{{ $th }}" {{ $tahun == $th ? 'selected' : '' }}>
+                                    {{ $th }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </form>
+                </div>
 
                 @if (session('error'))
                     <div class="alert alert-danger alert-dismissible fade show">
@@ -48,9 +70,9 @@
                             <th>∑ Plan</th>
                             <th>∑ Delivery</th>
                             <th>Balance</th>
-                            @if(auth()->user()->role !== 'vendor')
+                            {{-- @if(auth()->user()->role !== 'vendor')
                                 <th>Aksi</th>
-                            @endif
+                            @endif --}}
                         </tr>
                     </thead>
                     <tbody>
@@ -63,22 +85,24 @@
                                 <td>{{ $d->qty_plan }}</td>
                                 <td>{{ $d->qty_delivery }}</td>
                                 <td>{{ $d->balance }}</td>
-                                @if(auth()->user()->role !== 'vendor')
+                                {{-- @if(auth()->user()->role !== 'vendor')
                                     <td>
                                         <div class="d-flex gap-2">
-                                            <a href="{{ route('di.edit', $d->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                                            <a href="{{ route('di.edit', $d->id) }}" class="btn btn-outline-warning btn-sm">
+                                                <i class="bi bi-pencil-fill"></i>
+                                            </a>
                                             <form action="{{ route('di.delete', $d->id) }}" method="POST" style="display:inline;">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger"
+                                                <button type="submit" class="btn btn-sm btn-outline-danger"
                                                     onclick="return confirm('Yakin mau hapus data ini?')">
-                                                    Hapus
+                                                    <i class="bi bi-trash-fill"></i>
                                                 </button>
                                             </form>
 
                                         </div>
                                     </td>
-                                @endif
+                                @endif --}}
                             </tr>
                         @endforeach
                     </tbody>
