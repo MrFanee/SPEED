@@ -183,15 +183,17 @@
 
     <!-- Bar Chart -->
     @if(auth()->user()->role !== 'vendor')
-      <form method="GET" action="{{ route('dashboard') }}" class="mb-3 d-flex gap-2">
-        <input type="date" name="tanggal" value="{{ request('tanggal') ?? date('Y-m-d') }}"
-          class="form-control form-control-sm" style="width: 180px" onchange="this.form.submit()">
-      </form>
-
       <div class="col-12">
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title text-center fw-bold">Vendor Performance {{ $formattedTanggal }}</h5>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h5 class="card-title text-start fw-bold mb-0">Vendor Performance {{ $formattedTanggal }}</h5>
+
+              <form method="GET" action="{{ route('dashboard') }}" class="mb-2 mt-2">
+                <input type="date" name="tanggal" value="{{ request('tanggal') ?? date('Y-m-d') }}"
+                  class="form-control form-control-sm" style="width: 120px" onchange="this.form.submit()">
+              </form>
+            </div>
             <canvas id="vendorChart"></canvas>
           </div>
         </div>
@@ -202,9 +204,29 @@
     <div class="col-12">
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title text-center fw-bold">
-            Monitoring 2 Days Stock periode {{ \Carbon\Carbon::now()->translatedFormat('F Y') }}
-          </h5>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="card-title text-start fw-bold">
+              Monitoring 2 Days Stock periode {{ \Carbon\Carbon::now()->locale('id')->translatedFormat('F Y') }}
+            </h5>
+
+            <form method="GET" action="{{ route('dashboard') }}" class="d-flex gap-2">
+              <select name="bulan" class="form-select w-auto" onchange="this.form.submit()">
+                @foreach ($bulanList as $bln)
+                  <option value="{{ $bln }}" {{ $bln == $bulan ? 'selected' : '' }}>
+                    {{ \Carbon\Carbon::create()->locale('id')->month($bln)->translatedFormat('F') }}
+                  </option>
+                @endforeach
+              </select>
+
+              <select name="tahun" class="form-select w-auto" onchange="this.form.submit()">
+                @foreach ($tahunList as $th)
+                  <option value="{{ $th }}" {{ $th == $tahun ? 'selected' : '' }}>
+                    {{ $th }}
+                  </option>
+                @endforeach
+              </select>
+            </form>
+          </div>
           <canvas id="monthlyResumeChart" style="height:250px;"></canvas>
         </div>
       </div>
@@ -352,8 +374,8 @@
                   const raw = this.getLabelForValue(value); // contoh: 2025-11-12
                   const date = new Date(raw);
                   const day = date.getDate();
-                  const month = date.toLocaleString('en-US', { month: 'short' });
-                  return `${day}-${month}`; // hasil: 12-Nov
+                  const month = date.toLocaleString('id-ID', { month: 'short' });
+                  return `${day}-${month}`; 
                 }
               }
             },

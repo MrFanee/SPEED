@@ -41,9 +41,9 @@
           <thead class="text-center">
             <tr>
               <th>#</th>
-              <th>Part Name</th>
-              <th>Part Number</th>
               <th>Item Code</th>
+              <th>Part Number</th>
+              <th>Part Name</th>
               <th>Aksi</th>
             </tr>
           </thead>

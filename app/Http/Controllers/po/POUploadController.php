@@ -40,6 +40,7 @@ class POUploadController extends Controller
 
         $imported = 0;
         $skipped = 0;
+        $failures = [];
 
         foreach (array_slice($rows, 1) as $row) {
             if (count($row) !== 8) {
@@ -76,7 +77,6 @@ class POUploadController extends Controller
                     ],
                     [
                         'period' => $period,
-                        'po_number' => $po_number,
                         'purchase_group' => $purchase_group,
                         'qty_po' => $qty_po,
                         'qty_outstanding' => $qty_outstanding,
@@ -85,25 +85,28 @@ class POUploadController extends Controller
                 );
                 $imported++;
             } else {
+                $failures[] = [
+                    'period' => $period,
+                    'po_number' => $po_number,
+                    'purchase_group' => $purchase_group,
+                    'kode_vendor' => $kode_vendor,
+                    'item_code' => $item_code,
+                    'qty_po' => $qty_po,
+                    'qty_outstanding' => $qty_outstanding,
+                    'raw_date' => $rawDate,
+                    'error_message' => $part ? 'Vendor tidak ditemukan' : ($vendor ? 'Part tidak ditemukan' : 'Part & vendor tidak ditemukan')
+                ];
                 $skipped++;
-
-                UploadFailure::create([
-                    'module' => 'master_po',
-                    'raw_data' => [
-                        'period' => $period,
-                        'po_number' => $po_number,
-                        'purchase_group' => $purchase_group,
-                        'kode_vendor' => $kode_vendor,
-                        'item_code' => $item_code,
-                        'qty_po' => $qty_po,
-                        'qty_outstanding' => $qty_outstanding,
-                        'delivery_date' => $rawDate,
-                    ],
-                    'error_message' => $part ? 'Vendor tidak ditemukan' : ($vendor ? 'Part tidak ditemukan' : 'Part & Vendor tidak ditemukan'),
-                    'status' => 'pending',
-                    'uploaded_by' => Auth::id(),
-                ]);
             }
+        }
+
+        if (!empty($failures)) {
+            UploadFailure::create([
+                'module' => 'master_po',
+                'raw_data' => json_encode($failures),
+                'error_message' => "$skipped record gagal diupload",
+                'uploaded_by' => Auth::id(),
+            ]);
         }
 
         return redirect()

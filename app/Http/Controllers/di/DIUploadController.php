@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\DI;
 use App\PO;
 use App\Part;
+use App\UploadFailure;
+use Illuminate\Support\Facades\Auth;
 
 class DIUploadController extends Controller
 {
@@ -38,6 +40,7 @@ class DIUploadController extends Controller
 
         $imported = 0;
         $skipped = 0;
+        $failures = [];
 
         foreach (array_slice($rows, 1) as $row) {
             if (count($row) !== 6) {
@@ -78,8 +81,28 @@ class DIUploadController extends Controller
                 );
                 $imported++;
             } else {
+                $failures[] = [
+                    'raw_date' => $rawDate,
+                    'item_code' => $item_code,
+                    'part_name' => $part_name,
+                    'po_number' => $po_number,
+                    'qty_plan' => $qty_plan,
+                    'qty_delivery' => $qty_delivery,
+                    'error_message' => $po ? 'Part tidak ditemukan'
+                              : ($part ? 'PO tidak ditemukan'
+                              : 'PO & Part tidak ditemukan'),
+                ];
                 $skipped++;
             }
+        }
+
+        if (!empty($failures)) {
+            UploadFailure::create([
+                'module' => 'master_di',
+                'raw_data' => json_encode($failures),
+                'error_message' => "$skipped record gagal",
+                'uploaded_by' => Auth::id(),
+            ]);
         }
 
         return redirect()

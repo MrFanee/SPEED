@@ -33,6 +33,7 @@ class ReportVendorController extends Controller
                 'master_stock.wip',
                 'master_stock.fg'
             )
+            ->orderBy('vendors.nickname', 'asc')
             ->whereDate('master_stock.tanggal', $tanggalPilih)
             ->get();
 

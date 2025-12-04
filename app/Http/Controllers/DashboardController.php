@@ -4,23 +4,40 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $tanggalHariIni = date('Y-m-d');
-        $tanggalKemarin = date('Y-m-d', strtotime('-1 day'));
-        $tanggal = $request->tanggal ?? now()->toDateString();
+        $tanggal = request('tanggal') ?? date('Y-m-d');
 
-        $formattedTanggal = \Carbon\Carbon::parse($tanggal)
-            ->format('d F Y');
+        \Carbon\Carbon::setLocale('id');
+
+        $formattedTanggal = \Carbon\Carbon::parse($tanggal)->translatedFormat('d M Y');
+        $tanggalHariIni = $tanggal;
+        $tanggalKemarin = date('Y-m-d', strtotime($tanggal . ' -1 day'));
+
+        $tahunList = DB::table('master_stock')
+            ->select(DB::raw('YEAR(tanggal) as tahun'))
+            ->distinct()
+            ->orderBy('tahun', 'desc')
+            ->pluck('tahun');
+
+        $tahun = $request->get('tahun', $tahunList->first());
+
+        $bulanList = DB::table('master_stock')
+            ->select(DB::raw('MONTH(tanggal) as bulan'))
+            ->whereYear('tanggal', $tahun)
+            ->distinct()
+            ->orderBy('bulan', 'desc')
+            ->pluck('bulan');
+
+        $bulan = $request->get('bulan', $bulanList->first());
 
         $cardData = $this->getCardData($tanggalHariIni);
-
         $chartData = $this->getChartData($tanggalHariIni, $tanggalKemarin);
-
-        $monthlyResume = $this->getMonthlyResume();
+        $monthlyResume = $this->getMonthlyResume($bulan, $tahun);
 
         $lastUpdates = DB::table('vendors')
             ->leftJoin('master_stock', 'vendors.id', '=', 'master_stock.vendor_id')
@@ -37,7 +54,7 @@ class DashboardController extends Controller
 
         $lastUpdates = $lastUpdates->get();
 
-        return view('dashboard', compact('cardData', 'chartData', 'lastUpdates', 'monthlyResume', 'formattedTanggal'));
+        return view('dashboard', compact('cardData', 'chartData', 'lastUpdates', 'monthlyResume', 'formattedTanggal', 'tahunList', 'tahun', 'bulanList', 'bulan'));
     }
 
     private function getCardData($tanggal)
@@ -182,10 +199,10 @@ class DashboardController extends Controller
         return $chartData;
     }
 
-    private function getMonthlyResume()
+    private function getMonthlyResume($bulan, $tahun)
     {
-        $start = date('Y-m-01');
-        $end = date('Y-m-t');
+        $start = date("$tahun-$bulan-01");
+        $end   = date("Y-m-t", strtotime($start));
 
         $data = DB::table('master_stock')
             ->select(

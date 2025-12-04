@@ -17,7 +17,7 @@
         {{-- MASTER DATA --}}
         @if($role == 'admin' || $role == 'staff')
             <li class="nav-item">
-                <a class="nav-link {{ request()->is('vendor*') || request()->is('part*') || request()->is('twodays*') || request()->is('po*') || request()->is('di*') ? '' : 'collapsed' }}"
+                <a class="nav-link {{ request()->is('vendor*') || request()->is('part*') || request()->is('twodays*') || request()->is('po*') || request()->is('di*') || request()->is('upload_failure*') ? '' : 'collapsed'}}"
                     data-bs-target="#masterdata-nav" data-bs-toggle="collapse" href="#">
                     <i class="bi bi-database"></i>
                     <span>Master Data</span>
@@ -25,8 +25,7 @@
                 </a>
 
                 <ul id="masterdata-nav"
-                    class="nav-content collapse {{ request()->is('vendor*') || request()->is('part*') || request()->is('twodays*') || request()->is('po*') || request()->is('di*') ? 'show' : '' }}"
-                    data-bs-parent="#sidebar-nav">
+                    class="nav-content collapse {{ request()->is('vendor*') || request()->is('part*') || request()->is('twodays*') || request()->is('po*') || request()->is('di*') || request()->is('upload_failure*') ? 'show' : '' }}"
 
                     @if($role == 'admin')
                         <li>

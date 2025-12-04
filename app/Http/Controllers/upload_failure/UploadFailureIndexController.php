@@ -5,14 +5,14 @@ namespace App\Http\Controllers\upload_failure;
 use App\Http\Controllers\Controller;
 
 use App\UploadFailure;
-use Illuminate\Support\Facades\DB;
 use App\PO;
+use App\DI;
 use App\Part;
 use App\Vendor;
 
 class UploadFailureIndexController extends Controller
 {
-    // list baris gagal
+    // list file gagal
     public function index()
     {
         $failures = UploadFailure::orderBy('created_at', 'desc')->paginate(20);
@@ -24,81 +24,93 @@ class UploadFailureIndexController extends Controller
     public function show($id)
     {
         $failure = UploadFailure::findOrFail($id);
+        $rows = json_decode($failure->raw_data, true);
+        $headers = [
+            'raw_date'      => 'Delv. Date',
+            'item_code'     => 'Item Code',
+            'part_name'     => 'Part Name',
+            'vendor_code'   => 'Kode Vendor',
+            'vendor_name'   => 'Vendor Name',
+            'po_number'     => 'PO Number',
+            'qty_plan'      => 'Qty. Plan',
+            'qty_delivery'  => 'Qty. Delv.',
+            'purchase_group' => 'Purch. Group',
+            'qty_po'        => 'Qty. PO',
+            'qty_outstanding' => 'OS PO',
+            'error_message' => 'Reason',
+        ];
 
-        return view('upload_failure.show', compact('failure'));
+        return view('upload_failure.show', compact('failure', 'rows', 'headers'));
     }
 
     // upload ulang
     public function retry($id)
     {
         $failure = UploadFailure::findOrFail($id);
-        $data = $failure->raw_data;
+        $rows = json_decode($failure->raw_data, true);
 
-        try {
-            DB::beginTransaction();
+        $stillFails = [];
 
-            if ($failure->module === 'master_po') {
+        foreach ($rows as $data) {
 
-                $part = Part::where('item_code', $data['item_code'])->first();
+            if ($failure->module == 'master_po') {
+
                 $vendor = Vendor::where('kode_vendor', $data['kode_vendor'])->first();
+                $part = Part::where('item_code', $data['item_code'])->first();
 
-                if (! $part || ! $vendor) {
-                    return back()->with('error', 'Part atau vendor masih belum ada. Silakan lengkapi dulu.');
+                if ($vendor && $part) {
+                    PO::updateOrCreate(
+                        [
+                            'po_number' => $data['po_number'],
+                            'vendor_id' => $vendor->id,
+                            'part_id' => $part->id
+                        ],
+                        [
+                            'period' => $data['period'],
+                            'purchase_group' => $data['purchase_group'],
+                            'qty_po' => $data['qty_po'],
+                            'qty_outstanding' => $data['qty_outstanding'],
+                            'delivery_date' => $data['raw_date'],
+                        ]
+                    );
+                } else {
+                    $stillFails[] = $data;
                 }
-
-                $delivery_date = null;
-                if ($data['raw_date'] && preg_match('/\d{2}\/\d{2}\/\d{4}/', $data['raw_date'])) {
-                    $delivery_date = \Carbon\Carbon::createFromFormat('d/m/Y', $data['raw_date'])->format('Y-m-d');
-                }
-
-                PO::updateOrCreate(
-                    [
-                        'po_number' => $data['po_number'],
-                        'vendor_id' => $vendor->id,
-                        'part_id' => $part->id
-                    ],
-                    [
-                        'period' => $data['period'],
-                        'purchase_group' => $data['purchase_group'],
-                        'qty_po' => $data['qty_po'],
-                        'qty_outstanding' => $data['qty_outstanding'],
-                        'delivery_date' => $delivery_date
-                    ]
-                );
             }
 
-            // hapus data gagal kalau berhasil
-            $failure->delete();
+            if ($failure->module == 'master_di') {
 
-            if ($failure->module === 'master_di') {
-                DB::table('master_di')->insert([
-                    'part_id' => $data['part_id'],
-                    'vendor_id' => $data['vendor_id'],
-                    'do_number' => $data['do_number'],
-                    'qty' => $data['qty'],
-                    'tanggal' => $data['tanggal'],
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                $po = PO::where('po_number', $data['po_number'])->first();
+                $part = Part::where('item_code', $data['item_code'])->first();
+
+                if ($po && $part) {
+                    DI::updateOrCreate(
+                        [
+                            'po_id' => $po->id,
+                            'part_id' => $part->id
+                        ],
+                        [
+                            'delivery_date' => $data['raw_date'],
+                            'part_name' => $data['part_name'],
+                            'qty_plan' => $data['qty_plan'],
+                            'qty_delivery' => $data['qty_delivery'],
+                        ]
+                    );
+                } else {
+                    $stillFails[] = $data;
+                }
             }
-
-            $failure->status = 'success';
-            $failure->error_message = null;
-            $failure->save();
-
-            DB::commit();
-
-            return redirect()->route('upload_failure.index')->with('success', 'Data berhasil diupload ulang.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            // update error_message baru
-            $failure->status = 'retry_failed';
-            $failure->error_message = $e->getMessage();
-            $failure->save();
-
-            return redirect()->back()
-                ->with('error', 'Gagal upload ulang: ' . $e->getMessage());
         }
+
+        if (empty($stillFails)) {
+            $failure->delete();
+        } else {
+            $failure->raw_data = json_encode($stillFails);
+            $failure->error_message = count($stillFails) . " data masih gagal";
+            $failure->save();
+        }
+
+        return redirect()->route('upload_failure.index')
+            ->with('success', 'Reupload selesai.');
     }
 }
