@@ -371,7 +371,7 @@
                 maxRotation: 45,
                 minRotation: 45,
                 callback: function (value, index, ticks) {
-                  const raw = this.getLabelForValue(value); // contoh: 2025-11-12
+                  const raw = this.getLabelForValue(value); 
                   const date = new Date(raw);
                   const day = date.getDate();
                   const month = date.toLocaleString('id-ID', { month: 'short' });

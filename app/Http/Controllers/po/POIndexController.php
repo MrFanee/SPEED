@@ -18,7 +18,10 @@ class POIndexController extends Controller
             ->orderBy('tahun', 'desc')
             ->pluck('tahun');
 
-        $tahun = $request->get('tahun', $tahunList->first());
+        $tahun = $request->get('tahun');
+        if (!$tahun) {
+            $tahun = PO::max(DB::raw('YEAR(delivery_date)'));
+        }
 
         $bulanList = DB::table('po_table')
             ->select(DB::raw('MONTH(delivery_date) as bulan'))
@@ -27,7 +30,11 @@ class POIndexController extends Controller
             ->orderBy('bulan', 'desc')
             ->pluck('bulan');
 
-        $bulan = $request->get('bulan', $bulanList->first());
+        $bulan = $request->get('bulan');
+        if (!$bulan) {
+            $bulan = PO::whereYear('delivery_date', $tahun)
+                ->max(DB::raw('MONTH(delivery_date)'));
+        }
 
         $po = PO::with('vendor', 'part')
             ->whereMonth('delivery_date', $bulan)
@@ -40,7 +47,12 @@ class POIndexController extends Controller
 
         $po = $po->get();
 
-        return view('po.index', compact('po', 
-        'bulan', 'bulanList', 'tahunList','tahun'));
+        return view('po.index', compact(
+            'po',
+            'bulan',
+            'bulanList',
+            'tahunList',
+            'tahun'
+        ));
     }
 }

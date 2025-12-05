@@ -13,9 +13,11 @@ class StockIndexController extends Controller
         $tanggal = request()->tanggal ?? date('Y-m-d');
         $query   = request('query');
 
-        $stock = DB::table('master_stock')
-            ->whereDate('tanggal', $tanggal)
-            ->leftJoin('parts', 'master_stock.part_id', '=', 'parts.id')
+        $stock = DB::table('parts')
+            ->leftJoin('master_stock', function ($join) use ($tanggal) {
+                $join->on('parts.id', '=', 'master_stock.part_id')
+                    ->whereDate('master_stock.tanggal', $tanggal);
+            })
             ->leftJoin('vendors', 'master_stock.vendor_id', '=', 'vendors.id')
             ->leftJoin('master_2hk', 'parts.id', '=', 'master_2hk.part_id')
             ->leftJoin('po_table', function ($join) {
@@ -30,10 +32,18 @@ class StockIndexController extends Controller
                     ->whereYear('master_di.delivery_date', date('Y'));
             })
             ->select(
-                'master_stock.*',
-                'vendors.nickname',
+                'parts.id',
                 'parts.item_code',
                 'parts.part_name',
+                'vendors.nickname',
+                'master_stock.tanggal',
+                'master_stock.fg',
+                'master_stock.wip',
+                'master_stock.rm',
+                'master_stock.judgement',
+                'master_stock.kategori_problem',
+                'master_stock.detail_problem',
+
                 DB::raw('SUM(po_table.qty_po) as qty_po'),
                 DB::raw('SUM(po_table.qty_outstanding) as qty_outstanding'),
                 DB::raw('SUM(master_di.qty_plan) as qty_plan'),
@@ -41,8 +51,19 @@ class StockIndexController extends Controller
                 DB::raw('SUM(master_di.balance) as balance'),
                 DB::raw('MAX(master_2hk.std_stock) as std_stock')
             )
-
-            ->groupBy('master_stock.id');
+            ->groupBy(
+                'parts.id',
+                'parts.item_code',
+                'parts.part_name',
+                'vendors.nickname',
+                'master_stock.tanggal',
+                'master_stock.fg',
+                'master_stock.wip',
+                'master_stock.rm',
+                'master_stock.judgement',
+                'master_stock.kategori_problem',
+                'master_stock.detail_problem'
+            );
 
         if (Auth::user()->role === 'vendor') {
             $stock->where('master_stock.vendor_id', Auth::user()->vendor_id);

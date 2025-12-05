@@ -25,7 +25,6 @@
                     @endif
 
                     <form action="{{ route('di.index') }}" method="GET" class="d-flex gap-2">
-
                         <select name="bulan" class="form-select form-select-sm" style="width: 120px"
                             onchange="this.form.submit()">
                             @foreach($bulanList as $bln)
