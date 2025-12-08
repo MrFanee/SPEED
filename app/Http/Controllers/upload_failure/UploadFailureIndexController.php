@@ -80,8 +80,11 @@ class UploadFailureIndexController extends Controller
 
             if ($failure->module == 'master_di') {
 
-                $po = PO::where('po_number', $data['po_number'])->first();
                 $part = Part::where('item_code', $data['item_code'])->first();
+
+                $po = PO::where('po_number', $data['po_number'])
+                    ->where('part_id', $part->id)
+                    ->first();
 
                 if ($po && $part) {
                     DI::updateOrCreate(
