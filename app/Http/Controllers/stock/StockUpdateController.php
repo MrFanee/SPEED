@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\stock;
 
-use App\Stock;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -12,16 +11,22 @@ class StockUpdateController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            // Ambil data sebelum update
             $stock = DB::table('master_stock')
                 ->leftJoin('parts', 'master_stock.part_id', '=', 'parts.id')
                 ->leftJoin('master_2hk', 'parts.id', '=', 'master_2hk.part_id')
-                ->leftJoin('po_table', 'parts.id', '=', 'po_table.part_id')
+                ->leftJoin(
+                    DB::raw('(SELECT part_id, SUM(qty_po) AS qty_po 
+                              FROM po_table 
+                              GROUP BY part_id) AS po_sum'),
+                    'parts.id',
+                    '=',
+                    'po_sum.part_id'
+                )
                 ->where('master_stock.id', $id)
                 ->select(
                     'master_stock.*',
                     'master_2hk.std_stock',
-                    'po_table.qty_po'
+                    'po_sum.qty_po'
                 )
                 ->first();
 
@@ -32,7 +37,7 @@ class StockUpdateController extends Controller
             $field = $request->input('field');
             $value = $request->input('value');
 
-            //  UPDATE FIELD
+            // Update field
             if ($field && in_array($field, ['rm', 'wip', 'fg', 'kategori_problem', 'detail_problem'])) {
                 DB::table('master_stock')
                     ->where('id', $id)
@@ -43,32 +48,39 @@ class StockUpdateController extends Controller
                     ]);
             }
 
-            // HITUNG JUDGEMENT 
-            if (in_array($field, ['rm', 'wip', 'fg'])) {
+            // Hitung judgement 
+            if (in_array($field, ['rm', 'wip', 'fg', 'kategori_problem', 'detail_problem'])) {
+
                 $updatedStock = DB::table('master_stock')
                     ->leftJoin('parts', 'master_stock.part_id', '=', 'parts.id')
                     ->leftJoin('master_2hk', 'parts.id', '=', 'master_2hk.part_id')
-                    ->leftJoin('po_table', 'parts.id', '=', 'po_table.part_id')
+                    ->leftJoin(
+                        DB::raw('(SELECT part_id, SUM(qty_po) AS qty_po 
+                                  FROM po_table 
+                                  GROUP BY part_id) AS po_sum'),
+                        'parts.id',
+                        '=',
+                        'po_sum.part_id'
+                    )
                     ->where('master_stock.id', $id)
                     ->select(
                         'master_stock.*',
                         'master_2hk.std_stock',
-                        'po_table.qty_po'
+                        'po_sum.qty_po'
                     )
                     ->first();
 
                 $qty_po = (float)($updatedStock->qty_po ?? 0);
-                $fg = (float)($updatedStock->fg ?? 0);
-                $std = (float)($updatedStock->std_stock ?? 0);
+                $fg     = (float)($updatedStock->fg ?? 0);
+                $std    = (float)($updatedStock->std_stock ?? 0);
 
-                if ($qty_po > 0 && $fg >= $std) {
-                    $judgement = 'OK';
-                } elseif ($qty_po > 0 && $fg < $std) {
-                    $judgement = 'NG';
-                } elseif ($qty_po <= 0) {
+                // RULE judgement
+                if ($qty_po == 0) {
                     $judgement = 'NO PO';
+                } elseif ($qty_po > 0 && $fg >= $std) {
+                    $judgement = 'OK';
                 } else {
-                    $judgement = $stock->judgement ?? '-';
+                    $judgement = 'NG';
                 }
 
                 // Update judgement

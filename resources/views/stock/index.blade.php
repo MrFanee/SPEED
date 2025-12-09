@@ -50,19 +50,19 @@
             <div class="card-body text-center">
                 <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
                     {{-- @if ($isToday) --}}
-                        @if(auth()->user()->role !== 'vendor')
-                            <form action="{{ route('stock.create') }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="tanggal" value="{{ $tanggal }}">
-                                <button type="submit" class="btn btn-outline-primary btn-sm">
-                                    <i class="bi bi-plus-circle-dotted"></i> Tambah
-                                </button>
-                            </form>
-                        @endif
+                    @if(auth()->user()->role !== 'vendor')
+                        <form action="{{ route('stock.create') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="tanggal" value="{{ $tanggal }}">
+                            <button type="submit" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-plus-circle-dotted"></i> Tambah
+                            </button>
+                        </form>
+                    @endif
 
-                        <a href="{{ route('stock.upload') }}" class="btn btn-outline-success btn-sm">
-                            <i class="bi bi-upload"></i> Upload CSV
-                        </a>
+                    <a href="{{ route('stock.upload') }}" class="btn btn-outline-success btn-sm">
+                        <i class="bi bi-upload"></i> Upload CSV
+                    </a>
                     {{-- @endif --}}
                 </div>
 
@@ -103,11 +103,13 @@
                                     <td>{{ $s->nickname }}</td>
                                     <td>{{ $s->item_code }}</td>
                                     <td class="text-start">{{ $s->part_name }}</td>
-                                    <td>{{ $s->qty_po ?? '-'}}</td>
-                                    <td>{{ $s->qty_outstanding ?? '-'}}</td>
-                                    <td>{{ $s->qty_plan ?? '-'}}</td>
-                                    <td>{{ $s->qty_delivery ?? '-'}}</td>
-                                    <td>{{ $s->balance ?? '-'}}</td>
+                                    <td data-field="qty_po" data-po="{{ $s->qty_po ?? 0 }}">
+                                        {{ $s->qty_po ?? 0 }}
+                                    </td>
+                                    <td>{{ $s->qty_outstanding ?? '0'}}</td>
+                                    <td>{{ $s->qty_plan ?? '0'}}</td>
+                                    <td>{{ $s->qty_delivery ?? '0'}}</td>
+                                    <td>{{ $s->balance ?? '0'}}</td>
                                     <td @if ($isToday) contenteditable="true" class="editable" @endif data-field="rm">
                                         {{ $s->rm }}
                                     </td>
@@ -117,7 +119,7 @@
                                     <td @if ($isToday) contenteditable="true" class="editable" @endif data-field="fg">
                                         {{ $s->fg }}
                                     </td>
-                                    <td>{{ $s->std_stock ?? '-'}}</td>
+                                    <td data-field="std_stock">{{ $s->std_stock ?? '0'}}</td>
                                     <td>
                                         @if ($s->judgement == 'OK')
                                             <span class="badge bg-success">{{ $s->judgement }}</span>
@@ -171,7 +173,7 @@
                     const fgCell = row.querySelector('[data-field="fg"]');
                     const stdCell = row.querySelector('[data-field="std_stock"]');
 
-                    let jumlahPO = parseFloat(poCell?.textContent.trim()) || 0;
+                    let jumlahPO = parseFloat(poCell?.dataset.po) || 0;
                     let fg = parseFloat(fgCell?.textContent.trim()) || 0;
                     let stdStock = parseFloat(stdCell?.textContent.trim()) || 0;
 
@@ -217,7 +219,7 @@
                     if (detailCell) detailCell.style.border = '';
 
                     if (judgement === 'NG') {
-                        const kategoriVal = kategoriCell?.textContent.trim();
+                        const kategoriVal = kategoriCell?.querySelector('select')?.value.trim() || '';
                         const detailVal = detailCell?.textContent.trim();
 
                         if (!kategoriVal || !detailVal) {
@@ -367,12 +369,14 @@
                                     this.style.backgroundColor = '#d4edda';
                                     setTimeout(() => this.style.backgroundColor = '', 800);
 
-                                    if (data.judgement) {
-                                        updateJudgementBadge(row, data.judgement);
-                                        row.dataset.judgement = data.judgement;
+                                    let finalJudgement = data.judgement;
+                                    if (['qty_po', 'fg', 'std_stock'].includes(field) && !data.judgement) {
+                                        const newJudgement = recalcJudgement(row);
+                                        updateJudgementBadge(row, newJudgement);
+                                        row.dataset.judgement = newJudgement;
                                         highlightProblemFields(row);
 
-                                        if (data.judgement !== 'NG') resetProblemFields(row);
+                                        if (newJudgement !== 'NG') resetProblemFields(row);
                                     }
                                 }
                             });

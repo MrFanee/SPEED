@@ -58,11 +58,22 @@ class DIUploadController extends Controller
             $part = Part::where('item_code', $item_code)->first();
 
             $delivery_date = null;
-            if ($rawDate && preg_match('/\d{2}\/\d{2}\/\d{4}/', $rawDate)) {
+
+            $delivery_date = null;
+
+            if ($rawDate && trim($rawDate) !== '') {
+                $clean = trim($rawDate);
+
                 try {
-                    $delivery_date = \Carbon\Carbon::createFromFormat('d/m/Y', $rawDate)->format('Y-m-d');
+                    $date = \Carbon\Carbon::createFromFormat('d/m/Y', $clean);
+                    $delivery_date = $date ? $date->format('Y-m-d') : null;
                 } catch (\Exception $e) {
-                    $delivery_date = null;
+                    try {
+                        $date = \Carbon\Carbon::parse($clean);
+                        $delivery_date = $date->format('Y-m-d');
+                    } catch (\Exception $e2) {
+                        $delivery_date = null;
+                    }
                 }
             }
 
@@ -70,10 +81,10 @@ class DIUploadController extends Controller
                 DI::updateOrCreate(
                     [
                         'po_id' => $po->id,
-                        'part_id' => $part->id
+                        'part_id' => $part->id,
+                        'delivery_date' => $delivery_date,
                     ],
                     [
-                        'delivery_date' => $delivery_date,
                         'part_name' => $part_name,
                         'qty_plan' => $qty_plan,
                         'qty_delivery' => $qty_delivery
@@ -89,8 +100,8 @@ class DIUploadController extends Controller
                     'qty_plan' => $qty_plan,
                     'qty_delivery' => $qty_delivery,
                     'error_message' => $po ? 'Part tidak ditemukan'
-                              : ($part ? 'PO tidak ditemukan'
-                              : 'PO & Part tidak ditemukan'),
+                        : ($part ? 'PO tidak ditemukan'
+                            : 'PO & Part tidak ditemukan'),
                 ];
                 $skipped++;
             }

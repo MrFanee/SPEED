@@ -90,6 +90,7 @@ class StockIndexController extends Controller
                     ->orWhere('master_2hk.std_stock', 'like', "%$query%");
             });
         }
+        $stock->whereNotNull('vendors.id');
 
         $stock = $stock->get();
 
