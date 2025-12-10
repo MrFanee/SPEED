@@ -99,7 +99,7 @@
                         </thead>
                         <tbody>
                             @forelse ($stock as $s)
-                                <tr data-id="{{ $s->id }}" data-judgement="{{ $s->judgement }}">
+                                <tr data-id="{{ $s->stock_id }}" data-judgement="{{ $s->judgement }}">
                                     <td>{{ $s->nickname }}</td>
                                     <td>{{ $s->item_code }}</td>
                                     <td class="text-start">{{ $s->part_name }}</td>
@@ -131,15 +131,15 @@
                                             <span class="badge bg-secondary">{{ $s->judgement }}</span>
                                         @endif
                                     </td>
-                                    <td data-field="kategori_problem" class="@if ($isToday) editable @endif">
-                                        <select class="kategori-problem" data-id="{{ $s->id }}" @if (!$isToday) disabled @endif>
+                                    <td class="@if ($isToday) editable @endif">
+                                        <select class="kategori-problem" data-field="kategori_problem" data-id="{{ $s->stock_id }}"
+                                            @if (!$isToday) disabled @endif>
                                             <option value="">- Pilih -</option>
                                             <option value="Man" {{ $s->kategori_problem == 'Man' ? 'selected' : '' }}>Man</option>
                                             <option value="Material" {{ $s->kategori_problem == 'Material' ? 'selected' : '' }}>
                                                 Material</option>
                                             <option value="Machine" {{ $s->kategori_problem == 'Machine' ? 'selected' : '' }}>
-                                                Machine
-                                            </option>
+                                                Machine</option>
                                             <option value="Method" {{ $s->kategori_problem == 'Method' ? 'selected' : '' }}>Method
                                             </option>
                                         </select>
@@ -351,7 +351,12 @@
                         const row = this.closest('tr');
                         const id = row.dataset.id;
                         const field = this.dataset.field;
-                        const newValue = this.textContent.trim();
+
+                        const newValue = this.tagName === 'SELECT'
+                            ? this.value
+                            : Number(this.textContent.trim()) || 0;
+                            
+                        const newJudgement = recalcJudgement(row);
 
                         highlightProblemFields(row);
 
@@ -361,7 +366,7 @@
                                 'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
                             },
-                            body: JSON.stringify({ field, value: newValue })
+                            body: JSON.stringify({ field, value: newValue, judgement: newJudgement })
                         })
                             .then(res => res.json())
                             .then(data => {
@@ -384,13 +389,11 @@
                 });
 
                 // Event untuk dropdown kategori
-                document.addEventListener('change', function (e) {
-                    if (e.target.matches('select.kategori-problem')) {
-                        const row = e.target.closest('tr');
-                        const id = e.target.dataset.id;
-                        const value = e.target.value;
-
-                        highlightProblemFields(row);
+                document.querySelectorAll('select[data-field="kategori_problem"]').forEach(sel => {
+                    sel.addEventListener('change', function () {
+                        const id = this.dataset.id;
+                        const field = "kategori_problem";
+                        const value = this.value;
 
                         fetch(`/stock/update/${id}`, {
                             method: 'POST',
@@ -398,9 +401,9 @@
                                 'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
                             },
-                            body: JSON.stringify({ field: 'kategori_problem', value })
+                            body: JSON.stringify({ field, value })
                         });
-                    }
+                    });
                 });
             });
         </script>
