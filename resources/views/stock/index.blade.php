@@ -131,8 +131,8 @@
                                             <span class="badge bg-secondary">{{ $s->judgement }}</span>
                                         @endif
                                     </td>
-                                    <td class="@if ($isToday) editable @endif">
-                                        <select class="kategori-problem" data-field="kategori_problem" data-id="{{ $s->stock_id }}"
+                                    <td >
+                                        <select class="@if ($isToday) editable @endif" data-field="kategori_problem" data-id="{{ $s->stock_id }}"
                                             @if (!$isToday) disabled @endif>
                                             <option value="">- Pilih -</option>
                                             <option value="Man" {{ $s->kategori_problem == 'Man' ? 'selected' : '' }}>Man</option>
@@ -269,8 +269,11 @@
                     for (const row of rows) {
                         const j = row.dataset.judgement;
                         if (j === 'NG') {
-                            const kategoriVal = row.querySelector('[data-field="kategori_problem"]')?.textContent.trim();
-                            const detailVal = row.querySelector('[data-field="detail_problem"]')?.textContent.trim();
+                            const detailCell = row.querySelector('[data-field="detail_problem"]');
+                            const detailVal = detailCell?.innerText.trim() || '';
+
+                            const kategoriSelect = row.querySelector('select[data-field="kategori_problem"]');
+                            const kategoriVal = kategoriSelect?.value.trim() || '';
                             if (!kategoriVal || !detailVal) return row;
                         }
                     }
@@ -290,8 +293,8 @@
                             e.preventDefault();
                             this.blur();
 
-                            cell.style.backgroundColor = '#f8d7da';
-                            setTimeout(() => cell.style.backgroundColor = '', 400);
+                            this.style.backgroundColor = '#f8d7da';
+                            setTimeout(() => this.style.backgroundColor = '', 400);
                             return;
                         }
                     });
@@ -352,9 +355,15 @@
                         const id = row.dataset.id;
                         const field = this.dataset.field;
 
-                        const newValue = this.tagName === 'SELECT'
-                            ? this.value
-                            : Number(this.textContent.trim()) || 0;
+                        let newValue;
+
+                        if (this.tagName === 'SELECT') {
+                            newValue = this.value;
+                        } else if (this.dataset.field === 'detail_problem') {
+                            newValue = this.textContent.trim();
+                        } else {
+                            newValue = Number(this.textContent.trim()) || 0;
+                        }
                             
                         const newJudgement = recalcJudgement(row);
 

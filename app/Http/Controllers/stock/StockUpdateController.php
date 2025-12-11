@@ -11,8 +11,6 @@ class StockUpdateController extends Controller
     public function update(Request $request, $id)
     {
         try {
-
-            // --- AMBIL DATA SEKALI ---
             $stock = DB::table('master_stock')
                 ->leftJoin('parts', 'master_stock.part_id', '=', 'parts.id')
                 ->leftJoin('master_2hk', 'parts.id', '=', 'master_2hk.part_id')
@@ -36,7 +34,9 @@ class StockUpdateController extends Controller
 
             // --- UPDATE FIELD ---
             if (in_array($field, ['rm', 'wip', 'fg', 'kategori_problem', 'detail_problem'])) {
-                DB::table('master_stock')->where('id', $id)->update([
+                DB::table('master_stock')
+                ->where('id', $id)
+                ->update([
                     $field => $value,
                     'updated_at' => now(),
                     'vendor_updated_at' => now()
@@ -58,7 +58,7 @@ class StockUpdateController extends Controller
                 ->select('master_stock.*', 'master_2hk.std_stock', 'po_sum.qty_po')
                 ->first();
 
-            // --- HITUNG JUDGEMENT SELALU ---
+            // --- HITUNG JUDGEMENT ---
             $qty_po = (float)($updatedStock->qty_po ?? 0);
             $fg     = (float)($updatedStock->fg ?? 0);
             $std    = (float)($updatedStock->std_stock ?? 0);
@@ -67,12 +67,15 @@ class StockUpdateController extends Controller
                 $judgement = 'NO PO';
             } elseif ($qty_po > 0 && $fg >= $std) {
                 $judgement = 'OK';
-            } else {
+            } elseif ($qty_po > 0 && $fg < $std) {
                 $judgement = 'NG';
+            } else {
+                $judgement = '-';
             }
 
-            // --- PASTIKAN JUDGEMENT SELALU DIUPDATE ---
-            DB::table('master_stock')->where('id', $id)->update([
+            DB::table('master_stock')
+            ->where('id', $id)
+            ->update([
                 'judgement' => $judgement,
                 'vendor_updated_at' => now()
             ]);
