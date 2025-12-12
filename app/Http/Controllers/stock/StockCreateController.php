@@ -14,6 +14,7 @@ class StockCreateController extends Controller
         // Cek apakah tanggal itu sudah ada data
         $already = DB::table('master_stock')
             ->whereDate('tanggal', $tanggal)
+            // ->exists();
             ->leftJoin('parts', 'master_stock.part_id', '=', 'parts.id')
             ->leftJoin('vendors', 'master_stock.vendor_id', '=', 'vendors.id')
             ->leftJoin('master_2hk', 'parts.id', '=', 'master_2hk.part_id')
@@ -30,13 +31,13 @@ class StockCreateController extends Controller
             })
             ->update([
                 'judgement' => DB::raw("
-            CASE
-                WHEN qty_po = 0 THEN 'NO PO'
-                WHEN fg >= std_stock THEN 'OK'
-                WHEN fg < std_stock THEN 'NG'
-                ELSE '-'
-            END
-        ")
+                    CASE
+                        WHEN qty_po = 0 THEN 'NO PO'
+                        WHEN fg >= std_stock THEN 'OK'
+                        WHEN fg < std_stock THEN 'NG'
+                        ELSE '-'
+                    END
+                ")
             ]);
         if ($already) {
             return back()->with('success', "2 Days Stock untuk tanggal $tanggal sudah ada!");
@@ -61,6 +62,41 @@ class StockCreateController extends Controller
             $new['vendor_updated_at'] = null;
 
             DB::table('master_stock')->insert($new);
+        }
+
+        $allParts = DB::table('parts')->get();
+
+        foreach ($allParts as $p) {
+            $exists = DB::table('master_stock')
+                ->where('part_id', $p->id)
+                ->whereDate('tanggal', $tanggal)
+                ->exists();
+
+            if (!$exists) {
+                $po = DB::table('po_table')
+                    ->where('part_id', $p->id)
+                    ->whereMonth('delivery_date', date('m'))
+                    ->whereYear('delivery_date', date('Y'))
+                    ->first();
+
+                if ($po) {
+                    $vendor_id = $po->vendor_id;
+                } else {
+                    continue;
+                }
+
+                DB::table('master_stock')->insert([
+                    'part_id' => $p->id,
+                    'vendor_id' => $vendor_id,
+                    'tanggal' => $tanggal,
+                    'fg' => 0,
+                    'wip' => 0,
+                    'rm' => 0,
+                    'judgement' => '-',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
         }
 
         return back()->with('success', "2 Days Stock untuk tanggal $tanggal berhasil dibuat!");

@@ -12,6 +12,7 @@ class DIIndexController extends Controller
 {
     public function index(Request $request)
     {
+        
         $tahunList = DB::table('master_di')
             ->select(DB::raw('YEAR(delivery_date) as tahun'))
             ->distinct()
@@ -44,17 +45,13 @@ class DIIndexController extends Controller
             ->leftJoin('vendors', 'po_table.vendor_id', '=', 'vendors.id')
             ->select(
                 'master_di.id',
+                'master_di.delivery_date',
                 'parts.item_code',
                 'parts.part_name',
                 'po_table.po_number',
                 'master_di.qty_plan',
                 'master_di.qty_delivery',
                 'master_di.balance'
-                // DB::raw('SUM(po_table.qty_po) as qty_po'),
-                // DB::raw('SUM(po_table.qty_outstanding) as qty_outstanding'),
-                // DB::raw('SUM(master_di.qty_plan) as qty_plan'),
-                // DB::raw('SUM(master_di.qty_delivery) as qty_delivery'),
-                // DB::raw('SUM(master_di.balance) as balance')
             )
             ->whereMonth('master_di.delivery_date', $bulan)
             ->whereYear('master_di.delivery_date', $tahun);

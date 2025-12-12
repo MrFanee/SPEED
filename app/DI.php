@@ -8,7 +8,7 @@ class DI extends Model
 {
     protected $table = 'master_di';
     protected $primaryKey = 'id';
-    protected $fillable = ['qty_plan', 'qty_delivery', 'po_id', 'part_id', 'balance'];
+    protected $fillable = ['delivery_date', 'qty_plan', 'qty_delivery', 'po_id', 'part_id', 'balance'];
 
     public function po()
     {

@@ -57,19 +57,27 @@
                                 {{-- <td>{{ $f->user->username ?? '-' }}</td> --}}
                                 <td>{{ $f->created_at }}</td>
                                 <td>
-                                    <a href="{{ route('upload_failure.show', $f->id) }}"
-                                        class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-info-circle"></i> Detail
+                                    <a href="{{ route('upload_failure.show', $f->id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye-fill"></i> 
                                     </a>
 
                                     @if($f->status !== 'success')
                                         <form action="{{ route('upload_failure.retry', $f->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             <button class="btn btn-sm btn-outline-success">
-                                                <i class="bi bi-upload"></i> Reupload
+                                                <i class="bi bi-upload"></i>
                                             </button>
                                         </form>
                                     @endif
+
+                                    <form action="{{ route('upload_failure.delete', $f->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Yakin mau hapus data ini?')">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
+                                    </form>
                                 </td>
                         @empty
                                 <tr>

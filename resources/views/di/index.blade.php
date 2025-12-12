@@ -63,11 +63,12 @@
                     <thead class="text-center">
                         <tr>
                             <th>#</th>
+                            <th>Delv. Date</th>
                             <th>Item Code</th>
                             <th>Part Name</th>
                             <th>PO</th>
-                            <th>∑ Plan</th>
-                            <th>∑ Delivery</th>
+                            <th>Plan</th>
+                            <th>Delivery</th>
                             <th>Balance</th>
                             {{-- @if(auth()->user()->role !== 'vendor')
                                 <th>Aksi</th>
@@ -78,6 +79,7 @@
                         @foreach ($di as $d)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
+                                <td>{{ $d->delivery_date }}</td>
                                 <td>{{ $d->item_code }}</td>
                                 <td>{{ $d->part_name }}</td>
                                 <td>{{ $d->po_number }}</td>

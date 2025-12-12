@@ -113,39 +113,37 @@ class StockIndexController extends Controller
 
         $stock = $stock->get();
 
-        foreach ($stock as $s) {
+        // foreach ($stock as $s) {
+        //     if (!$s->stock_id) {
+        //         $newID = DB::table('master_stock')->insertGetId([
+        //             'part_id'         => $s->id,
+        //             'vendor_id'       => $s->vendor_id,
+        //             'tanggal'         => $tanggal,
+        //             'fg'              => 0,
+        //             'wip'             => 0,
+        //             'rm'              => 0,
+        //             'judgement'       => '-',
+        //             'kategori_problem' => null,
+        //             'detail_problem'  => null,
+        //             'created_at'      => now(),
+        //             'updated_at'      => now()
+        //         ]);
 
-            if (!$s->stock_id) {
+        //         $s->stock_id = $newID;
+        //         $s->fg = 0;
+        //         $s->wip = 0;
+        //         $s->rm = 0;
+        //         $s->judgement = '-';
+        //     }
 
-                $newID = DB::table('master_stock')->insertGetId([
-                    'part_id'         => $s->id,
-                    'vendor_id'       => $s->vendor_id,
-                    'tanggal'         => $tanggal,
-                    'fg'              => 0,
-                    'wip'             => 0,
-                    'rm'              => 0,
-                    'judgement'       => '-',
-                    'kategori_problem' => null,
-                    'detail_problem'  => null,
-                    'created_at'      => now(),
-                    'updated_at'      => now()
-                ]);
-
-                $s->stock_id = $newID;
-                $s->fg = 0;
-                $s->wip = 0;
-                $s->rm = 0;
-                $s->judgement = '-';
-            }
-
-            $newJudge = $this->calcJudgement($s);
-            $s->judgement = $newJudge;
-            if ($s->stock_id) {
-                DB::table('master_stock')
-                    ->where('id', $s->stock_id)
-                    ->update(['judgement' => $newJudge]);
-            }
-        }
+        //     $newJudge = $this->calcJudgement($s);
+        //     $s->judgement = $newJudge;
+        //     if ($s->stock_id) {
+        //         DB::table('master_stock')
+        //             ->where('id', $s->stock_id)
+        //             ->update(['judgement' => $newJudge]);
+        //     }
+        // }
 
         return view('stock.index', compact('tanggal', 'stock', 'query'));
     }
