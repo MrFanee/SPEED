@@ -40,7 +40,7 @@
                 <div class="card mb-3 mt-3">
                     <div class="card-body">
                         <h6 class="text-center mt-2 mb-2 fw-bold">
-                            ACHIEVEMENT 2 DAYS STOCK – {{ $vendorName }} periode
+                            ACHIEVEMENT 2 DAYS STOCK – {{ $vendorName }} Periode
                             {{ \Carbon\Carbon::create()->locale('id')->month($bulan)->year($tahun)->translatedFormat('F Y') }}
                         </h6>
                         <canvas id="monthlyChart" height="100"></canvas>

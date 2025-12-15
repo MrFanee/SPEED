@@ -96,6 +96,18 @@
                                 <th>Kategori Problem</th>
                                 <th>Detail Problem</th>
                             </tr>
+
+                            <tr class="small">
+                                @foreach (range(0,14) as $i)
+                                    <th style="padding: 1px;">
+                                        <button class="btn btn-sm filter-btn" onclick="toggleFilterInput({{ $i }})">
+                                            <i class="bi bi-filter"></i>
+                                        </button>
+                                        <input type="text" class="form-control form-control-sm filter-input" 
+                                            onkeyup="applyFilters()" style="display:none; font-size: 10px;" data-col="{{ $i }}">
+                                    </th>
+                                @endforeach
+                            </tr>
                         </thead>
                         <tbody>
                             @forelse ($stock as $s)
@@ -106,10 +118,14 @@
                                     <td data-field="qty_po" data-po="{{ $s->qty_po ?? 0 }}">
                                         {{ $s->qty_po ?? 0 }}
                                     </td>
-                                    <td>{{ $s->qty_outstanding ?? '0'}}</td>
+                                    <td class="{{ ($s->qty_outstanding ?? 0) > 0 ? 'text-danger fw-bold' : '' }}">
+                                        {{ $s->qty_outstanding ?? 0 }}
+                                    </td>
                                     <td>{{ $s->qty_plan ?? '0'}}</td>
                                     <td>{{ $s->qty_delivery ?? '0'}}</td>
-                                    <td>{{ $s->balance ?? '0'}}</td>
+                                    <td class="{{ ($s->balance ?? 0) < 0 ? 'text-danger fw-bold' : '' }}">
+                                        {{ $s->balance ?? 0 }}
+                                    </td>
                                     <td @if ($isToday) contenteditable="true" class="editable" @endif data-field="rm">
                                         {{ $s->rm }}
                                     </td>
@@ -417,6 +433,44 @@
             });
         </script>
     @endif
+
+    <script>
+        function toggleFilterInput(colIndex) {
+            const input = document.querySelector(`.filter-input[data-col='${colIndex}']`);
+            if (input.style.display === 'none') {
+                input.style.display = 'block';
+                input.focus();
+
+                // event blur
+                input.onblur = () => {
+                    if (!input.value) { 
+                        input.style.display = 'none';
+                        applyFilters();
+                    }
+                };
+            } else {
+                input.style.display = 'none';
+                input.value = '';
+                applyFilters();
+            }
+        }
+
+        function applyFilters() {
+            const table = document.querySelector('table');
+            const filters = Array.from(document.querySelectorAll('.filter-input'))
+                                .map(input => input.value.toLowerCase());
+
+            table.querySelectorAll('tbody tr').forEach(row => {
+                let show = true;
+                filters.forEach((val, i) => {
+                    if (val && !row.cells[i].innerText.toLowerCase().includes(val)) {
+                        show = false;
+                    }
+                });
+                row.style.display = show ? '' : 'none';
+            });
+        }
+        </script>
 
     <script>
         const input = document.getElementById('searchInput');

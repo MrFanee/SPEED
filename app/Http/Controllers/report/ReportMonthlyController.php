@@ -11,6 +11,8 @@ class ReportMonthlyController extends Controller
 {
     public function index(Request $request)
     {
+        $user = Auth::user();
+
         $vendorList = DB::table('vendors')
             ->orderBy('nickname')
             ->pluck('nickname');
@@ -34,9 +36,18 @@ class ReportMonthlyController extends Controller
 
         $bulan = $request->get('bulan', $bulanList->first());
 
-        $vendorName = DB::table('vendors')
-            ->where('nickname', $vendor)
-            ->value('vendor_name');
+        if ($user->role === 'vendor') {
+            $vendor = DB::table('vendors')
+                ->where('id', $user->vendor_id)
+                ->value('nickname');
+            $vendorName = DB::table('vendors')
+                ->where('id', $user->vendor_id)
+                ->value('vendor_name');
+        } else {
+            $vendorName = DB::table('vendors')
+                ->where('nickname', $vendor)
+                ->value('vendor_name');
+        }
 
         $data = DB::table('master_stock')
             ->join('vendors', 'master_stock.vendor_id', '=', 'vendors.id')
@@ -48,6 +59,7 @@ class ReportMonthlyController extends Controller
                 'master_stock.part_id',
                 'po_table.qty_po',
                 'master_stock.judgement',
+                'master_di.qty_plan',
                 'master_di.balance',
                 'master_stock.kategori_problem',
                 'master_stock.rm',
@@ -57,12 +69,10 @@ class ReportMonthlyController extends Controller
             ->whereYear('master_stock.tanggal', $tahun)
             ->whereMonth('master_stock.tanggal', $bulan);
 
-        if ($vendor) {
+        if ($user->role === 'vendor') {
+            $data->where('master_stock.vendor_id', $user->vendor_id);
+        } else {
             $data->where('vendors.nickname', $vendor);
-        }
-
-        if (Auth::user()->role === 'vendor') {
-            $data->where('master_stock.vendor_id', Auth::user()->vendor_id);
         }
 
         $data = $data->get();
@@ -103,6 +113,8 @@ class ReportMonthlyController extends Controller
         $report = [];
 
         foreach ($grouped as $tanggal => $records) {
+            $records = collect($records);
+
             $tanggalSebelumnya = DB::table('master_stock')
                 ->where('tanggal', '<', $tanggal)
                 ->max('tanggal');
@@ -113,7 +125,7 @@ class ReportMonthlyController extends Controller
                 $dataSebelumnya = DB::table('master_stock')
                     ->select('vendor_id', 'part_id', 'rm', 'wip', 'fg')
                     ->whereDate('tanggal', $tanggalSebelumnya)
-                    ->where('vendor_id', function ($q) use ($vendor) {
+                    ->where('vendor_id', $user->role === 'vendor' ? $user->vendor_id : function ($q) use ($vendor) {
                         $q->from('vendors')->select('id')->where('nickname', $vendor);
                     })
                     ->get();
@@ -158,6 +170,7 @@ class ReportMonthlyController extends Controller
                 return [
                     'qty_po' => $rows->sum('qty_po'),
                     'judgement' => $rows->first()->judgement,
+                    'qty_plan' => $rows->sum('qty_plan'),
                     'balance' => $rows->sum('balance'),
                     'kategori_problem' => $rows->first()->kategori_problem,
                 ];
@@ -166,8 +179,9 @@ class ReportMonthlyController extends Controller
             $total_item = $perPart->where('qty_po', '>', 0)->count();
             $stok_ok = $perPart->where('qty_po', '>', 0)->where('judgement', 'OK')->count();
             $stok_ng = $perPart->where('qty_po', '>', 0)->where('judgement', 'NG')->count();
-            $on_schedule = $perPart->where('balance', '>=', 0)->count();
-
+            $on_schedule = $perPart->where('qty_plan', '>', 0)
+                ->where('balance', '>=', 0)
+                ->count();
             $material = $perPart->where('kategori_problem', 'Material')->count();
             $man = $perPart->where('kategori_problem', 'Man')->count();
             $machine = $perPart->where('kategori_problem', 'Machine')->count();

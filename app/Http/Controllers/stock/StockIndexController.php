@@ -37,28 +37,39 @@ class StockIndexController extends Controller
 
             ->leftJoin('master_2hk', 'parts.id', '=', 'master_2hk.part_id')
 
-            ->leftJoin('po_table', function ($join) {
-                $join->on('parts.id', '=', 'po_table.part_id')
-                    ->whereMonth('po_table.delivery_date', date('m'))
-                    ->whereYear('po_table.delivery_date', date('Y'));
-            })
+            ->leftJoin(DB::raw("(
+                SELECT part_id,
+                    vendor_id,
+                    SUM(qty_po) AS qty_po,
+                    SUM(qty_outstanding) AS qty_outstanding
+                FROM po_table
+                WHERE MONTH(delivery_date) = MONTH(CURDATE())
+                AND YEAR(delivery_date) = YEAR(CURDATE())
+                GROUP BY part_id, vendor_id
+            ) po"), 'parts.id', '=', 'po.part_id')
 
             ->leftJoin('vendors', function ($join) {
-                $join->on('vendors.id', '=', DB::raw('COALESCE(ms.vendor_id, po_table.vendor_id)'));
+                $join->on('vendors.id', '=', DB::raw('COALESCE(ms.vendor_id, po.vendor_id)'));
             })
 
-            ->leftJoin('master_di', function ($join) {
-                $join->on('po_table.id', '=', 'master_di.po_id')
-                    ->whereMonth('master_di.delivery_date', date('m'))
-                    ->whereYear('master_di.delivery_date', date('Y'));
-            })
+            ->leftJoin(DB::raw("(
+                SELECT po_table.part_id,
+                    SUM(master_di.qty_plan)     AS qty_plan,
+                    SUM(master_di.qty_delivery) AS qty_delivery,
+                    SUM(master_di.balance)      AS balance
+                FROM master_di
+                JOIN po_table ON master_di.po_id = po_table.id
+                WHERE MONTH(master_di.delivery_date) = MONTH(CURDATE())
+                AND YEAR(master_di.delivery_date) = YEAR(CURDATE())
+                GROUP BY po_table.part_id
+            ) di"), 'parts.id', '=', 'di.part_id')
 
             ->select(
                 'parts.id',
                 'parts.item_code',
                 'parts.part_name',
 
-                DB::raw('COALESCE(ms.vendor_id, po_table.vendor_id) as vendor_id'),
+                DB::raw('COALESCE(ms.vendor_id, po.vendor_id) as vendor_id'),
                 'vendors.nickname',
 
                 'ms.id as stock_id',
@@ -70,18 +81,18 @@ class StockIndexController extends Controller
                 'ms.kategori_problem',
                 'ms.detail_problem',
 
-                DB::raw('SUM(po_table.qty_po) as qty_po'),
-                DB::raw('SUM(po_table.qty_outstanding) as qty_outstanding'),
-                DB::raw('SUM(master_di.qty_plan) as qty_plan'),
-                DB::raw('SUM(master_di.qty_delivery) as qty_delivery'),
-                DB::raw('SUM(master_di.balance) as balance'),
+                DB::raw('MAX(COALESCE(po.qty_po, 0)) as qty_po'),
+                DB::raw('MAX(COALESCE(po.qty_outstanding, 0)) as qty_outstanding'),
+                DB::raw('MAX(COALESCE(di.qty_plan, 0)) as qty_plan'),
+                DB::raw('MAX(COALESCE(di.qty_delivery, 0)) as qty_delivery'),
+                DB::raw('MAX(COALESCE(di.balance, 0)) as balance'),
                 DB::raw('MAX(master_2hk.std_stock) as std_stock')
             )
             ->groupBy(
                 'parts.id',
                 'parts.item_code',
                 'parts.part_name',
-                DB::raw('COALESCE(ms.vendor_id, po_table.vendor_id)'),
+                DB::raw('COALESCE(ms.vendor_id, po.vendor_id)'),
                 'vendors.nickname',
                 'ms.id',
                 'ms.tanggal',
@@ -106,10 +117,10 @@ class StockIndexController extends Controller
                     ->orWhere('ms.judgement', 'like', "%$query%")
                     ->orWhere('ms.kategori_problem', 'like', "%$query%")
                     ->orWhere('ms.detail_problem', 'like', "%$query%")
-                    ->orWhere('po_table.qty_po', 'like', "%$query%");
+                    ->orWhere('po.qty_po', 'like', "%$query%");
             });
         }
-        $stock->whereNotNull(DB::raw('COALESCE(ms.vendor_id, po_table.vendor_id)'));
+        $stock->whereNotNull(DB::raw('COALESCE(ms.vendor_id, po.vendor_id)'));
 
         $stock = $stock->get();
 

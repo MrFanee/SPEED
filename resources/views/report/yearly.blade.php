@@ -32,7 +32,7 @@
                 <div class="card mb-3 mt-3">
                     <div class="card-body">
                         <h6 class="text-center mt-2 mb-2 fw-bold">
-                            ACHIEVEMENT 2 DAYS STOCK – {{ $vendorName }} periode {{ $tahun }}
+                            ACHIEVEMENT 2 DAYS STOCK – {{ $vendorName }} Periode {{ $tahun }}
                         </h6>
                         <canvas id="yearlyChart" height="100"></canvas>
                     </div>
