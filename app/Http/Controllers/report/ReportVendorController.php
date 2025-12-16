@@ -28,6 +28,7 @@ class ReportVendorController extends Controller
                 'po_table.qty_po',
                 'master_stock.judgement',
                 'master_di.balance',
+                'master_di.qty_plan',
                 'master_stock.kategori_problem',
                 'master_stock.rm',
                 'master_stock.wip',
@@ -156,6 +157,7 @@ class ReportVendorController extends Controller
                     'qty_po' => $rows->sum('qty_po'),
                     'judgement' => $rows->first()->judgement,
                     'balance' => $rows->sum('balance'),
+                    'qty_plan' => $rows->sum('qty_plan'),
                     'kategori_problem' => $rows->first()->kategori_problem,
                 ];
             });
@@ -163,7 +165,9 @@ class ReportVendorController extends Controller
             $total_item = $perPart->where('qty_po', '>', 0)->count();
             $stok_ok = $perPart->where('qty_po', '>', 0)->where('judgement', 'OK')->count();
             $stok_ng = $perPart->where('qty_po', '>', 0)->where('judgement', 'NG')->count();
-            $on_schedule = $perPart->where('balance', '>=', 0)->count();
+            $on_schedule = $perPart->where('qty_plan', '>', 0)
+                ->where('balance', '>=', 0)
+                ->count();
             $material = $perPart->where('kategori_problem', 'Material')->count();
             $man = $perPart->where('kategori_problem', 'Man')->count();
             $machine = $perPart->where('kategori_problem', 'Machine')->count();
