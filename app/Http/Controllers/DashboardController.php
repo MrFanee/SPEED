@@ -69,8 +69,7 @@ class DashboardController extends Controller
                 'master_stock.judgement',
                 'master_stock.kategori_problem',
                 'master_di.balance',
-                'master_di.qty_plan',
-                // 'po_table.qty_po'
+                'master_di.qty_plan'
             )
             ->whereDate('master_stock.tanggal', $tanggal);
 
@@ -97,7 +96,7 @@ class DashboardController extends Controller
             return [
                 'judgement' => $rows->first()->judgement,
                 'balance' => $rows->sum('balance'),
-                // 'qty_plan' => $rows->$rows->first()->qty_plan,
+                'qty_plan' => $rows->sum('qty_plan'),
                 'kategori_problem' => $rows->first()->kategori_problem,
                 // 'qty_po' => $rows->first()->qty_po
             ];
@@ -107,7 +106,9 @@ class DashboardController extends Controller
             'total_item' => $perPart->count(),
             'total_ng' => $perPart->where('judgement', 'NG')->count(),
             'total_ok' => $perPart->where('judgement', 'OK')->count(),
-            'total_on_schedule' => $perPart->where('balance', '>=', 0)->count(),
+            'total_on_schedule' => $perPart->where('qty_plan', '>', 0)
+                ->where('balance', '>=', 0)
+                ->count(),
             'total_material' => $perPart->where('kategori_problem', 'Material')->count(),
             'total_man' => $perPart->where('kategori_problem', 'Man')->count(),
             'total_machine' => $perPart->where('kategori_problem', 'Machine')->count(),
