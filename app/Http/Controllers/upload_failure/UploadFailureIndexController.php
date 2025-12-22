@@ -82,11 +82,16 @@ class UploadFailureIndexController extends Controller
 
                 $part = Part::where('item_code', $data['item_code'])->first();
 
+                if (!$part) {
+                    $stillFails[] = $data;
+                    continue;
+                }
+                
                 $po = PO::where('po_number', $data['po_number'])
                     ->where('part_id', $part->id)
                     ->first();
 
-                if ($po && $part) {
+                if ($po) {
                     DI::updateOrCreate(
                         [
                             'po_id' => $po->id,

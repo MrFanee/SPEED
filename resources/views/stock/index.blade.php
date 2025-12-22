@@ -78,7 +78,7 @@
                     <table class="table table-bordered table-striped small table-responsive"
                         style="font-size: 9px; position: relative;">
                         <thead class="text-center"
-                            style="position: sticky; top: 0; z-index: 1000 !important; background-color: white;">
+                            style="position: sticky; top: 0; z-index: 1000 !important;">
                             <tr>
                                 <th>Vendor</th>
                                 <th>Item Code</th>
@@ -88,13 +88,13 @@
                                 <th>∑ Plan</th>
                                 <th>∑ Delv.</th>
                                 <th>Balance</th>
-                                <th>RM</th>
-                                <th>WIP</th>
-                                <th>FG</th>
+                                <th style="background-color: rgba(0,128,0,0.25);">RM</th>
+                                <th style="background-color: rgba(0,128,0,0.25);">WIP</th>
+                                <th style="background-color: rgba(0,128,0,0.25);">FG</th>
                                 <th>Std. 2HK</th>
                                 <th>Judge.</th>
-                                <th>Kategori Problem</th>
-                                <th>Detail Problem</th>
+                                <th style="background-color: rgba(0,128,0,0.25);">Kategori Problem</th>
+                                <th style="background-color: rgba(0,128,0,0.25);">Detail Problem</th>
                             </tr>
 
                             <tr class="small">

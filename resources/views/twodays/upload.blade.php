@@ -38,7 +38,7 @@
           <button type="submit" class="btn btn-sm btn-outline-success">
             <i class="bi bi-upload"></i> Upload
           </button>
-          <a href="{{ route('twodays.index') }}" class="btn btn-sm btn-outline-econdary">Kembali</a>
+          <a href="{{ route('twodays.index') }}" class="btn btn-sm btn-outline-secondary">Batal</a>
         </form>
       </div>
     </div>

@@ -28,7 +28,7 @@
             @error('item_code')
               <div class="text-danger mb-1">{{ $message }}</div>
             @enderror
-            <textarea class="form-control" id="item_code" name="item_code" rows="3">{{ $parts->item_code }}</textarea>
+            <input type="text" class="form-control" id="item_code" name="item_code" value="{{ $parts->item_code }}">
           </div>
 
           <div class="mb-3">
