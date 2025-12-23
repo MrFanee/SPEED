@@ -78,7 +78,7 @@
                     <table class="table table-bordered table-striped small table-responsive"
                         style="font-size: 9px; position: relative;">
                         <thead class="text-center"
-                            style="position: sticky; top: 0; z-index: 1000 !important;">
+                            style="position: sticky; top: 0; z-index: 1000 !important; background-color: white;">
                             <tr>
                                 <th>Vendor</th>
                                 <th>Item Code</th>

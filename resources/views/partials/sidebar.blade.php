@@ -4,7 +4,7 @@
 
 <aside id="sidebar" class="sidebar">
 
-    <ul class="sidebar-nav" id="sidebar-nav">
+    <ul class="sidebar-nav d-flex flex-column h-100" id="sidebar-nav">
 
         <li class="nav-item">
             <a class="nav-link {{ request()->is('dashboard*') ? 'active' : 'collapsed' }}"
@@ -32,7 +32,7 @@
                             <a href="{{ route('user.index') }}" class="{{ request()->is('user*') ? 'active' : '' }}">
                                 <i class="bi bi-circle"></i><span>User</span>
                             </a>
-                        </li>
+                        </li>                            
                     @endif
 
                     <li>
@@ -147,7 +147,7 @@
             </ul>
         </li>
 
-        <li class="nav-item">
+        <li class="nav-item mt-auto">
             <a class="nav-link {{ request()->is('logout*') ? 'active' : 'collapsed' }}" href="{{ route('logout') }}">
                 <i class="bi bi-box-arrow-in-right"></i>
                 <span>Logout</span>

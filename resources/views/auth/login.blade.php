@@ -13,57 +13,68 @@
     <div class="container-fluid">
         <div class="row min-vh-100">
 
+            <!-- LEFT SIDE -->
             <div class="col-md-7 d-none d-md-flex text-white align-items-center justify-content-center flex-column"
-                style="background-color: #91C8E4;">
-                <h2 class="fw-bold">SPEED</h2>
-                <p class="mt-2">Stock Procurement Efficiency and Evaluation Dashboard</p>
-                <!-- nanti bisa taruh gambar di sini -->
+                style="background: linear-gradient(135deg, #6fb1fc, #91C8E4);">
+                <h1 class="fw-bold mb-2">SPEED</h1>
+                <p class="opacity-75 text-center px-5">
+                    Stock Procurement Efficiency and Evaluation Dashboard
+                </p>
             </div>
 
+            <!-- RIGHT SIDE -->
             <div class="col-md-5 d-flex align-items-center justify-content-center">
 
-                <div class="w-75">
-                    <h3 class="fw-bold mb-1">Login</h3>
-                    <p class="text-secondary small mb-3">Masukkan username dan password!</p>
+                <div class="card shadow border-0 rounded-4 w-75">
+                    <div class="card-body p-4">
 
-                    @if(session('error'))
-                        <div class="alert alert-danger">{{ session('error') }}</div>
-                    @endif
+                        <h4 class="fw-bold mb-1 text-center">Welcome 👋</h4>
+                        <p class="text-secondary small text-center mb-4">
+                            Silakan masukkan username dan password
+                        </p>
 
-                    <form action="{{ route('login.submit') }}" method="POST">
-                        @csrf
+                        @if(session('error'))
+                            <div class="alert alert-danger py-2 small">
+                                {{ session('error') }}
+                            </div>
+                        @endif
 
-                        <div class="mb-3">
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
-                                <input type="text" name="username" class="form-control" placeholder="Username"
-                                    value="{{ old('username') }}">
+                        <form action="{{ route('login.submit') }}" method="POST">
+                            @csrf
+
+                            <div class="mb-3">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white">
+                                        <i class="bi bi-person-fill text-primary"></i>
+                                    </span>
+                                    <input type="text" name="username" class="form-control" placeholder="Username"
+                                        value="{{ old('username') }}">
+                                </div>
+
+                                @error('username')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
 
-                            @error('username')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
+                            <div class="mb-3">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white">
+                                        <i class="bi bi-lock-fill text-primary"></i>
+                                    </span>
+                                    <input type="password" name="password" class="form-control" placeholder="Password">
+                                </div>
 
-                            @if ($errors->has('loginError'))
-                                <small class="text-danger">{{ $errors->first('loginError') }}</small>
-                            @endif
-                        </div>
-
-                        <div class="mb-3">
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-                                <input type="password" name="password" class="form-control" placeholder="Password">
+                                @error('password')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
 
-                            @error('password')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
+                            <button type="submit" class="btn btn-primary w-100 rounded-pill">
+                                <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                            </button>
+                        </form>
 
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="bi bi-box-arrow-in-right me-1"></i> Login
-                        </button>
-                    </form>
+                    </div>
                 </div>
 
             </div>
