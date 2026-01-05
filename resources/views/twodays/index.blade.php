@@ -45,8 +45,8 @@
           <thead class="text-center">
             <tr>
               <th>#</th>
-              <th>Part Name</th>
               <th>Item Code</th>
+              <th>Part Name</th>
               <th>Standar Stok</th>
               <th>Aksi</th>
             </tr>

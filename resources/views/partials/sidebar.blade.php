@@ -96,7 +96,7 @@
 
                     <li>
                         <a href="{{ route('di.index') }}" class="{{ request()->is('di*') ? 'active' : '' }}">
-                            <i class="bi bi-circle"></i><span>Master DI vs PO</span>
+                            <i class="bi bi-circle"></i><span>Master DI vs GR</span>
                         </a>
                     </li>
                 </ul>

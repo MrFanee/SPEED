@@ -33,7 +33,11 @@ class DashboardController extends Controller
             ->orderBy('bulan', 'desc')
             ->pluck('bulan');
 
-        $bulan = $request->get('bulan', $bulanList->first());
+        $bulan = $request->get('bulan');
+
+        if (!$bulan) {
+            $bulan = $bulanList->first();
+        }
 
         $cardData = $this->getCardData($tanggalHariIni);
         $chartData = $this->getChartData($tanggalHariIni, $tanggalKemarin);
@@ -202,8 +206,8 @@ class DashboardController extends Controller
 
     private function getMonthlyResume($bulan, $tahun)
     {
-        $start = date("$tahun-$bulan-01");
-        $end   = date("Y-m-t", strtotime($start));
+        $start = "$tahun-$bulan-01";
+        $end   = date('Y-m-t', strtotime($start));
 
         $data = DB::table('master_stock')
             ->select(

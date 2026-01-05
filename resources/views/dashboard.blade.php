@@ -15,7 +15,8 @@
           <div class="row">
             <!-- Total Item -->
             <div class="col-lg-3 col-md-6 col-sm-6 p-1">
-              <div class="card info-card sales-card" style="transition: transform .2s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+              <div class="card info-card sales-card" style="transition: transform .2s"
+                onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
                 <div class="card-body">
                   <h5 class="card-title" style="font-size: 15px;">Total Item</h5>
                   <div class="d-flex align-items-center">
@@ -32,7 +33,8 @@
 
             <!-- Total Item NG -->
             <div class="col-lg-3 col-md-6 col-sm-6 p-1">
-              <div class="card info-card revenue-card" style="transition: transform .2s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+              <div class="card info-card revenue-card" style="transition: transform .2s"
+                onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
                 <div class="card-body">
                   <h5 class="card-title" style="font-size: 15px;">Total Item NG</h5>
                   <div class="d-flex align-items-center">
@@ -49,7 +51,8 @@
 
             <!-- Total Item OK -->
             <div class="col-lg-3 col-md-6 col-sm-6 p-1">
-              <div class="card info-card customers-card" style="transition: transform .2s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+              <div class="card info-card customers-card" style="transition: transform .2s"
+                onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
                 <div class="card-body">
                   <h5 class="card-title" style="font-size: 15px;">Total Item OK</h5>
                   <div class="d-flex align-items-center">
@@ -66,7 +69,8 @@
 
             <!-- Total On Schedule -->
             <div class="col-lg-3 col-md-6 col-sm-6 p-1">
-              <div class="card info-card sales-card" style="transition: transform .2s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+              <div class="card info-card sales-card" style="transition: transform .2s"
+                onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
                 <div class="card-body">
                   <h5 class="card-title" style="font-size: 15px;">On Schedule</h5>
                   <div class="d-flex align-items-center">
@@ -83,7 +87,8 @@
 
             <!-- Material -->
             <div class="col-lg-3 col-md-6 col-sm-6 p-1">
-              <div class="card info-card revenue-card" style="transition: transform .2s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+              <div class="card info-card revenue-card" style="transition: transform .2s"
+                onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
                 <div class="card-body">
                   <h5 class="card-title" style="font-size: 15px;">Material</h5>
                   <div class="d-flex align-items-center">
@@ -100,7 +105,8 @@
 
             <!-- Man -->
             <div class="col-lg-3 col-md-6 col-sm-6 p-1">
-              <div class="card info-card customers-card" style="transition: transform .2s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+              <div class="card info-card customers-card" style="transition: transform .2s"
+                onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
                 <div class="card-body">
                   <h5 class="card-title" style="font-size: 15px;">Man</h5>
                   <div class="d-flex align-items-center">
@@ -117,7 +123,8 @@
 
             <!-- Machine -->
             <div class="col-lg-3 col-md-6 col-sm-6 p-1">
-              <div class="card info-card sales-card" style="transition: transform .2s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+              <div class="card info-card sales-card" style="transition: transform .2s"
+                onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
                 <div class="card-body">
                   <h5 class="card-title" style="font-size: 15px;">Machine</h5>
                   <div class="d-flex align-items-center">
@@ -134,7 +141,8 @@
 
             <!-- Method -->
             <div class="col-lg-3 col-md-6 col-sm-6 p-1">
-              <div class="card info-card revenue-card" style="transition: transform .2s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+              <div class="card info-card revenue-card" style="transition: transform .2s"
+                onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
                 <div class="card-body">
                   <h5 class="card-title" style="font-size: 15px;">Method</h5>
                   <div class="d-flex align-items-center">
@@ -206,7 +214,8 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h5 class="card-title text-start fw-bold">
-              Monitoring 2 Days Stock periode {{ \Carbon\Carbon::now()->locale('id')->translatedFormat('F Y') }}
+              Monitoring 2 Days Stock periode
+              {{ \Carbon\Carbon::create($tahun, $bulan, 1)->locale('id')->translatedFormat('F Y') }}
             </h5>
 
             <form method="GET" action="{{ route('dashboard') }}" class="d-flex gap-2">
