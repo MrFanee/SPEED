@@ -23,6 +23,9 @@ class StockIndexController extends Controller
     public function index()
     {
         $tanggal = request()->tanggal ?? date('Y-m-d');
+        $bulan = date('m', strtotime($tanggal));
+        $tahun = date('Y', strtotime($tanggal));
+
         $query   = request('query');
 
         $stock = DB::table('parts')
@@ -43,8 +46,8 @@ class StockIndexController extends Controller
                     SUM(qty_po) AS qty_po,
                     SUM(qty_outstanding) AS qty_outstanding
                 FROM po_table
-                WHERE MONTH(delivery_date) = MONTH(CURDATE())
-                AND YEAR(delivery_date) = YEAR(CURDATE())
+                WHERE MONTH(delivery_date) = $bulan
+                AND YEAR(delivery_date) = $tahun
                 GROUP BY part_id, vendor_id
             ) po"), 'parts.id', '=', 'po.part_id')
 
@@ -54,15 +57,19 @@ class StockIndexController extends Controller
 
             ->leftJoin(DB::raw("(
                 SELECT po_table.part_id,
-                    SUM(master_di.qty_plan)     AS qty_plan,
+                    SUM(master_di.qty_plan) AS qty_plan,
                     SUM(master_di.qty_delivery) AS qty_delivery,
-                    SUM(master_di.balance)      AS balance
+                    SUM(master_di.balance) AS balance,
+                    po_table.vendor_id
                 FROM master_di
                 JOIN po_table ON master_di.po_id = po_table.id
-                WHERE MONTH(master_di.delivery_date) = MONTH(CURDATE())
-                AND YEAR(master_di.delivery_date) = YEAR(CURDATE())
-                GROUP BY po_table.part_id
-            ) di"), 'parts.id', '=', 'di.part_id')
+                WHERE MONTH(master_di.delivery_date) = $bulan
+                AND YEAR(master_di.delivery_date) = $tahun
+                GROUP BY po_table.part_id, po_table.vendor_id
+            ) di"), function ($join) {
+                $join->on('parts.id', '=', 'di.part_id')
+                    ->on(DB::raw('COALESCE(ms.vendor_id, po.vendor_id)'), '=', 'di.vendor_id');
+            })
 
             ->select(
                 'parts.id',
@@ -156,6 +163,7 @@ class StockIndexController extends Controller
         //     }
         // }
 
+        
         return view('stock.index', compact('tanggal', 'stock', 'query'));
     }
 }

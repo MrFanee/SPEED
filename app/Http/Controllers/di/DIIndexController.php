@@ -41,7 +41,7 @@ class DIIndexController extends Controller
 
         $di = DB::table('master_di')
             ->leftJoin('po_table', 'master_di.po_id', '=', 'po_table.id')
-            ->leftJoin('parts', 'po_table.part_id', '=', 'parts.id')
+            ->leftJoin('parts', 'master_di.part_id', '=', 'parts.id')
             ->leftJoin('vendors', 'po_table.vendor_id', '=', 'vendors.id')
             ->select(
                 'master_di.id',

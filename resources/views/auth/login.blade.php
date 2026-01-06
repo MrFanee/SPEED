@@ -14,12 +14,22 @@
         <div class="row min-vh-100">
 
             <!-- LEFT SIDE -->
-            <div class="col-md-7 d-none d-md-flex text-white align-items-center justify-content-center flex-column"
-                style="background: linear-gradient(135deg, #6fb1fc, #91C8E4);">
-                <h1 class="fw-bold mb-2">SPEED</h1>
-                <p class="opacity-75 text-center px-5">
-                    Stock Procurement Efficiency and Evaluation Dashboard
-                </p>
+           <div class="col-md-7 d-none d-md-flex text-white align-items-center justify-content-center flex-column position-relative"
+                style="
+                    background-image: url('{{ asset('images/tch cikarang.jpg') }}');
+                    background-size: cover;
+                    background-position: center;
+                ">
+
+                <div class="position-absolute top-0 start-0 w-100 h-100"
+                    style="background: rgba(0,0,0,0.35);"></div>
+
+                <div class="position-relative text-center">
+                    <h1 class="fw-bold mb-2">SPEED</h1>
+                    <p class="opacity-75 px-5">
+                        Stock Procurement Efficiency and Evaluation Dashboard
+                    </p>
+                </div>
             </div>
 
             <!-- RIGHT SIDE -->

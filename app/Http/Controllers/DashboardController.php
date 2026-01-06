@@ -57,8 +57,11 @@ class DashboardController extends Controller
         }
 
         $lastUpdates = $lastUpdates->get();
+        $lastMasterDI = DB::table('master_di')->max('updated_at');
+        $lastMasterPO = DB::table('po_table')->max('updated_at');
 
-        return view('dashboard', compact('cardData', 'chartData', 'lastUpdates', 'monthlyResume', 'formattedTanggal', 'tahunList', 'tahun', 'bulanList', 'bulan'));
+        return view('dashboard', compact('cardData', 'chartData', 'lastUpdates', 'monthlyResume', 
+        'formattedTanggal', 'tahunList', 'tahun', 'bulanList', 'bulan', 'lastMasterDI', 'lastMasterPO'));
     }
 
     private function getCardData($tanggal)
