@@ -56,19 +56,20 @@ class StockIndexController extends Controller
             })
 
             ->leftJoin(DB::raw("(
-                SELECT po_table.part_id,
-                    SUM(master_di.qty_plan) AS qty_plan,
-                    SUM(master_di.qty_delivery) AS qty_delivery,
-                    SUM(master_di.balance) AS balance,
-                    po_table.vendor_id
-                FROM master_di
-                JOIN po_table ON master_di.po_id = po_table.id
-                WHERE MONTH(master_di.delivery_date) = $bulan
-                AND YEAR(master_di.delivery_date) = $tahun
-                GROUP BY po_table.part_id, po_table.vendor_id
-            ) di"), function ($join) {
-                $join->on('parts.id', '=', 'di.part_id')
-                    ->on(DB::raw('COALESCE(ms.vendor_id, po.vendor_id)'), '=', 'di.vendor_id');
+                    SELECT 
+                        po_table.part_id,
+                        po_table.vendor_id,
+                        SUM(master_di.qty_plan) AS qty_plan,
+                        SUM(master_di.qty_delivery) AS qty_delivery,
+                        SUM(master_di.balance) AS balance
+                    FROM master_di
+                    JOIN po_table ON master_di.po_id = po_table.id
+                    WHERE MONTH(master_di.delivery_date) = $bulan
+                    AND YEAR(master_di.delivery_date) = $tahun
+                    GROUP BY po_table.part_id, po_table.vendor_id
+                ) di"), function ($join) {
+                $join->on('parts.id', '=', 'di.part_id');
+                $join->on(DB::raw('COALESCE(ms.vendor_id, po.vendor_id)'), '=', 'di.vendor_id');
             })
 
             ->select(
@@ -163,7 +164,7 @@ class StockIndexController extends Controller
         //     }
         // }
 
-        
+
         return view('stock.index', compact('tanggal', 'stock', 'query'));
     }
 }

@@ -16,7 +16,7 @@
             <!-- LEFT SIDE -->
            <div class="col-md-7 d-none d-md-flex text-white align-items-center justify-content-center flex-column position-relative"
                 style="
-                    background-image: url('{{ asset('images/tch cikarang.jpg') }}');
+                    background-image: url('{{ asset('images/tch.jpeg') }}');
                     background-size: cover;
                     background-position: center;
                 ">
