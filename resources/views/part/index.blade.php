@@ -20,7 +20,9 @@
           <a href="{{ route('part.create') }}" class="btn btn-sm btn-outline-primary mb-3">
             <i class="bi bi-plus-circle-dotted"></i> Tambah
           </a>
-          {{-- <a href="{{ route('po.upload') }}" class="btn btn-sm btn-success">Upload CSV</a> --}}
+          <a href="{{ route('part.upload') }}" class="btn btn-sm btn-outline-success">
+              <i class="bi bi-upload"></i> Upload CSV
+          </a>
         </div>
 
         @if (session('error'))

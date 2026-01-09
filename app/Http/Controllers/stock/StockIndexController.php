@@ -56,18 +56,18 @@ class StockIndexController extends Controller
             })
 
             ->leftJoin(DB::raw("(
-                    SELECT 
-                        po_table.part_id,
-                        po_table.vendor_id,
-                        SUM(master_di.qty_plan) AS qty_plan,
-                        SUM(master_di.qty_delivery) AS qty_delivery,
-                        SUM(master_di.balance) AS balance
-                    FROM master_di
-                    JOIN po_table ON master_di.po_id = po_table.id
-                    WHERE MONTH(master_di.delivery_date) = $bulan
-                    AND YEAR(master_di.delivery_date) = $tahun
-                    GROUP BY po_table.part_id, po_table.vendor_id
-                ) di"), function ($join) {
+                SELECT 
+                    p.part_id,
+                    p.vendor_id,
+                    SUM(d.qty_plan) AS qty_plan,
+                    SUM(d.qty_delivery) AS qty_delivery,
+                    SUM(d.balance) AS balance
+                FROM master_di d
+                JOIN po_table p ON d.po_id = p.id
+                WHERE MONTH(d.delivery_date) = $bulan
+                AND YEAR(d.delivery_date) = $tahun
+                GROUP BY p.part_id, p.vendor_id
+            ) di"), function ($join) {
                 $join->on('parts.id', '=', 'di.part_id');
                 $join->on(DB::raw('COALESCE(ms.vendor_id, po.vendor_id)'), '=', 'di.vendor_id');
             })
@@ -128,42 +128,10 @@ class StockIndexController extends Controller
                     ->orWhere('po.qty_po', 'like', "%$query%");
             });
         }
+
         $stock->whereNotNull(DB::raw('COALESCE(ms.vendor_id, po.vendor_id)'));
 
         $stock = $stock->get();
-
-        // foreach ($stock as $s) {
-        //     if (!$s->stock_id) {
-        //         $newID = DB::table('master_stock')->insertGetId([
-        //             'part_id'         => $s->id,
-        //             'vendor_id'       => $s->vendor_id,
-        //             'tanggal'         => $tanggal,
-        //             'fg'              => 0,
-        //             'wip'             => 0,
-        //             'rm'              => 0,
-        //             'judgement'       => '-',
-        //             'kategori_problem' => null,
-        //             'detail_problem'  => null,
-        //             'created_at'      => now(),
-        //             'updated_at'      => now()
-        //         ]);
-
-        //         $s->stock_id = $newID;
-        //         $s->fg = 0;
-        //         $s->wip = 0;
-        //         $s->rm = 0;
-        //         $s->judgement = '-';
-        //     }
-
-        //     $newJudge = $this->calcJudgement($s);
-        //     $s->judgement = $newJudge;
-        //     if ($s->stock_id) {
-        //         DB::table('master_stock')
-        //             ->where('id', $s->stock_id)
-        //             ->update(['judgement' => $newJudge]);
-        //     }
-        // }
-
 
         return view('stock.index', compact('tanggal', 'stock', 'query'));
     }

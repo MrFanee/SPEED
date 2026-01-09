@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Http\Controllers\twodays;
+namespace App\Http\Controllers\part;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Twodays;
 use App\Part;
 
-class TwodaysUploadController extends Controller
+
+class PartUploadController extends Controller
 {
     public function form()
     {
-        return view('twodays.upload');
+        return view('part.upload');
     }
 
     public function upload(Request $request)
@@ -31,7 +31,7 @@ class TwodaysUploadController extends Controller
         $path = $file->getRealPath();
         $rows = array_map('str_getcsv', file($path));
 
-        if (count($rows) < 2) {
+        if (count($rows) <= 1) {
             return back()->with('error', 'File CSV kosong atau tidak valid!');
         }
 
@@ -44,17 +44,20 @@ class TwodaysUploadController extends Controller
             }
 
             $item_code = trim($row[0]);
-            $part_name = trim($row[1]);
-            $std_stock = trim($row[2]);
+            $part_number = trim($row[1]);
+            $part_name = trim($row[2]);
+            
 
             $part = Part::where('item_code', $item_code)->first();
 
             if ($part) {
-                Twodays::updateOrCreate(
-                    ['part_id' => $part->id],
+                Part::updateOrCreate(
+                    [
+                        'item_code' => $part->item_code
+                    ],
                     [
                         'part_name' => $part_name,
-                        'std_stock' => $std_stock
+                        'part_number' => $part_number
                     ]
                 );
                 $imported++;
@@ -64,7 +67,7 @@ class TwodaysUploadController extends Controller
         }
 
         return redirect()
-            ->route('twodays.index')
+            ->route('part.index')
             ->with('success', "Upload selesai. $imported data berhasil diimpor, $skipped dilewati.");
     }
 }

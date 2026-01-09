@@ -11,6 +11,7 @@ use App\Http\Controllers\vendor\VendorUpdateController;
 use App\Http\Controllers\vendor\VendorDestroyController;
 use App\Http\Controllers\part\PartIndexController;
 use App\Http\Controllers\part\PartCreateController;
+use App\Http\Controllers\part\PartUploadController;
 use App\Http\Controllers\part\PartStoreController;
 use App\Http\Controllers\part\PartEditController;
 use App\Http\Controllers\part\PartUpdateController;
@@ -75,6 +76,8 @@ Route::middleware(['auth'])->group(function () {
     // Part routes
     Route::get('/part/view', [PartIndexController::class, 'index'])->name('part.index');
     Route::get('/part/create', [PartCreateController::class, 'create'])->name('part.create');
+    Route::get('/part/upload', [PartUploadController::class, 'form'])->name('part.upload.form');
+    Route::post('/part/upload', [PartUploadController::class, 'upload'])->name('part.upload');
     Route::post('/part/store', [PartStoreController::class, 'store'])->name('part.store');
     Route::get('/part/edit/{id}', [PartEditController::class, 'edit'])->name('part.edit');
     Route::put('/part/update/{id}', [PartUpdateController::class, 'update'])->name('part.update');
