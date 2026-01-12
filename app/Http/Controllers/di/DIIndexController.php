@@ -51,7 +51,9 @@ class DIIndexController extends Controller
                 'po_table.po_number',
                 'master_di.qty_plan',
                 'master_di.qty_delivery',
-                'master_di.balance'
+                'master_di.balance',
+                'master_di.qty_delay',
+                'master_di.qty_manifest'
             )
             ->whereMonth('master_di.delivery_date', $bulan)
             ->whereYear('master_di.delivery_date', $tahun);

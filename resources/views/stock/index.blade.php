@@ -84,7 +84,7 @@
                                 <th>Item Code</th>
                                 <th>Part</th>
                                 <th>PO</th>
-                                <th>OS PO</th>
+                                {{-- <th>OS PO</th> --}}
                                 <th>∑ Plan</th>
                                 <th>∑ Delv.</th>
                                 <th>Balance</th>
@@ -92,6 +92,8 @@
                                 <th style="background-color: rgba(0,128,0,0.25);">WIP</th>
                                 <th style="background-color: rgba(0,128,0,0.25);">FG</th>
                                 <th>Std. 2HK</th>
+                                <th>Delay</th>
+                                <th>H</th>
                                 <th>Judge.</th>
                                 <th style="background-color: rgba(0,128,0,0.25);">Kategori Problem</th>
                                 <th style="background-color: rgba(0,128,0,0.25);">Detail Problem</th>
@@ -118,9 +120,9 @@
                                     <td data-field="qty_po" data-po="{{ $s->qty_po ?? 0 }}">
                                         {{ $s->qty_po ?? 0 }}
                                     </td>
-                                    <td class="{{ ($s->qty_outstanding ?? 0) > 0 ? 'text-danger fw-bold' : '' }}">
+                                    {{-- <td class="{{ ($s->qty_outstanding ?? 0) > 0 ? 'text-danger fw-bold' : '' }}">
                                         {{ $s->qty_outstanding ?? 0 }}
-                                    </td>
+                                    </td> --}}
                                     <td>{{ $s->qty_plan ?? '0'}}</td>
                                     <td>{{ $s->qty_delivery ?? '0'}}</td>
                                     <td class="{{ ($s->balance ?? 0) < 0 ? 'text-danger fw-bold' : '' }}">
@@ -136,6 +138,8 @@
                                         {{ $s->fg }}
                                     </td>
                                     <td data-field="std_stock">{{ $s->std_stock ?? '0'}}</td>
+                                    <td>{{ $s->qty_delay ?? '0'}}</td>
+                                    <td>{{ $s->qty_manifest ?? '0'}}</td>
                                     <td>
                                         @if ($s->judgement == 'OK')
                                             <span class="badge bg-success">{{ $s->judgement }}</span>

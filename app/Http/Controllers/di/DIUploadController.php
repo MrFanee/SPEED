@@ -43,7 +43,7 @@ class DIUploadController extends Controller
         $failures = [];
 
         foreach (array_slice($rows, 1) as $row) {
-            if (count($row) !== 6) {
+            if (count($row) !== 7) {
                 return back()->with('error', "Jumlah kolom tidak sesuai!");
             }
 
@@ -53,6 +53,7 @@ class DIUploadController extends Controller
             $po_number = trim($row[3]);
             $qty_plan = trim($row[4]);
             $qty_delivery = trim($row[5]);
+            $qty_manifest = trim($row[6] ?? 0);
 
             $po = PO::where('po_number', $po_number)->first();
             $part = Part::where('item_code', $item_code)->first();
@@ -87,7 +88,8 @@ class DIUploadController extends Controller
                     [
                         'part_name' => $part_name,
                         'qty_plan' => $qty_plan,
-                        'qty_delivery' => $qty_delivery
+                        'qty_delivery' => $qty_delivery,
+                        'qty_manifest' => $qty_manifest
                     ]
                 );
                 $imported++;
@@ -99,6 +101,7 @@ class DIUploadController extends Controller
                     'po_number' => $po_number,
                     'qty_plan' => $qty_plan,
                     'qty_delivery' => $qty_delivery,
+                    'qty_manifest' => $qty_manifest,
                     'error_message' => $po ? 'Part tidak ditemukan'
                         : ($part ? 'PO tidak ditemukan'
                             : 'PO & Part tidak ditemukan'),

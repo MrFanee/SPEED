@@ -36,6 +36,7 @@ class DIStoreController extends Controller
             'part_id' => $request->part_id,
             'qty_plan' => $request->qty_plan,
             'qty_delivery' => $request->qty_delivery,
+            'qty_manifest' => $request->qty_manifest
         ]);
 
         return redirect()->route('di.index')->with('success', 'DI berhasil ditambahkan!');

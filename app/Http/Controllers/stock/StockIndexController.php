@@ -61,7 +61,9 @@ class StockIndexController extends Controller
                     p.vendor_id,
                     SUM(d.qty_plan) AS qty_plan,
                     SUM(d.qty_delivery) AS qty_delivery,
-                    SUM(d.balance) AS balance
+                    SUM(d.balance) AS balance,
+                    SUM(d.qty_delay) AS qty_delay,
+                    SUM(d.qty_manifest) AS qty_manifest
                 FROM master_di d
                 JOIN po_table p ON d.po_id = p.id
                 WHERE MONTH(d.delivery_date) = $bulan
@@ -89,13 +91,16 @@ class StockIndexController extends Controller
                 'ms.kategori_problem',
                 'ms.detail_problem',
 
-                DB::raw('MAX(COALESCE(po.qty_po, 0)) as qty_po'),
-                DB::raw('MAX(COALESCE(po.qty_outstanding, 0)) as qty_outstanding'),
-                DB::raw('MAX(COALESCE(di.qty_plan, 0)) as qty_plan'),
-                DB::raw('MAX(COALESCE(di.qty_delivery, 0)) as qty_delivery'),
-                DB::raw('MAX(COALESCE(di.balance, 0)) as balance'),
+                DB::raw('COALESCE(po.qty_po, 0) as qty_po'),
+                DB::raw('COALESCE(po.qty_outstanding, 0) as qty_outstanding'),
+                DB::raw('COALESCE(di.qty_plan, 0) as qty_plan'),
+                DB::raw('COALESCE(di.qty_delivery, 0) as qty_delivery'),
+                DB::raw('COALESCE(di.balance, 0) as balance'),
+                DB::raw('COALESCE(di.qty_delay, 0) as qty_delay'),
+                DB::raw('COALESCE(di.qty_manifest, 0) as qty_manifest'),
                 DB::raw('MAX(master_2hk.std_stock) as std_stock')
             )
+            
             ->groupBy(
                 'parts.id',
                 'parts.item_code',
@@ -109,7 +114,14 @@ class StockIndexController extends Controller
                 'ms.rm',
                 'ms.judgement',
                 'ms.kategori_problem',
-                'ms.detail_problem'
+                'ms.detail_problem',
+                'po.qty_po',
+                'po.qty_outstanding',
+                'di.qty_plan',
+                'di.qty_delivery',
+                'di.balance',
+                'di.qty_delay',
+                'di.qty_manifest'
             )
             ->orderBy('vendors.nickname', 'asc');
 

@@ -68,8 +68,10 @@
                             <th>Part Name</th>
                             <th>PO</th>
                             <th>Plan</th>
-                            <th>Delivery</th>
+                            <th>Delv.</th>
                             <th>Balance</th>
+                            <th>Delay</th>
+                            <th>H</th>
                             {{-- @if(auth()->user()->role !== 'vendor')
                                 <th>Aksi</th>
                             @endif --}}
@@ -86,6 +88,8 @@
                                 <td>{{ $d->qty_plan }}</td>
                                 <td>{{ $d->qty_delivery }}</td>
                                 <td>{{ $d->balance }}</td>
+                                <td>{{ $d->qty_delay }}</td>
+                                <td>{{ $d->qty_manifest }}</td>
                                 {{-- @if(auth()->user()->role !== 'vendor')
                                     <td>
                                         <div class="d-flex gap-2">
