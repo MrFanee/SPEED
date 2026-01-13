@@ -212,7 +212,7 @@
 
                 // --- update badge ---
                 function updateJudgementBadge(row, judgement) {
-                    const badgeCell = row.querySelector('td:nth-child(13)');
+                    const badgeCell = row.querySelector('td:nth-child(14)');
                     const oldBadge = badgeCell.querySelector('.badge');
 
                     let newBadge = document.createElement('span');
@@ -474,7 +474,7 @@
                 row.style.display = show ? '' : 'none';
             });
         }
-        </script>
+    </script>
 
     <script>
         const input = document.getElementById('searchInput');

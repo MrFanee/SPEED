@@ -47,7 +47,7 @@
                     </div>
                 </div>
 
-                <table class="table table-bordered table-striped small" style="font-size: 12px;">
+                <table class="table table-bordered table-striped small" style="font-size: 10px;">
                     <thead class="text-center">
                         <tr>
                             <th>Tanggal</th>

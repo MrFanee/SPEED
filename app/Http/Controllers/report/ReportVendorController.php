@@ -12,30 +12,76 @@ class ReportVendorController extends Controller
     {
         $tanggalPilih = $request->get('tanggal_pilih', date('Y-m-d'));
 
+        $tanggal = request()->tanggal ?? date('Y-m-d');
+        $kemarin = date('Y-m-d', strtotime($tanggal . ' -1 day'));
+        $bulan = date('m', strtotime($tanggal));
+        $tahun = date('Y', strtotime($tanggal));
         if (!strtotime($tanggalPilih)) {
             $tanggalPilih = date('Y-m-d');
         }
 
-        $data = DB::table('master_stock')
-            ->join('vendors', 'master_stock.vendor_id', '=', 'vendors.id')
-            ->join('parts', 'master_stock.part_id', '=', 'parts.id')
-            ->leftJoin('po_table', 'po_table.part_id', '=', 'parts.id')
-            ->leftJoin('master_di', 'po_table.id', '=', 'master_di.po_id')
+        $data = DB::table('parts')
+            ->leftJoin(DB::raw("(
+                    SELECT id, part_id, vendor_id, tanggal, fg, wip, rm, judgement, kategori_problem, detail_problem
+                    FROM master_stock
+                    WHERE tanggal = '$tanggal'
+                ) AS ms
+            "), function ($join) {
+                $join->on('parts.id', '=', 'ms.part_id');
+            })
+
+            ->leftJoin('master_2hk', 'parts.id', '=', 'master_2hk.part_id')
+
+            ->leftJoin(DB::raw("(
+                SELECT part_id,
+                    vendor_id,
+                    SUM(qty_po) AS qty_po,
+                    SUM(qty_outstanding) AS qty_outstanding
+                FROM po_table
+                WHERE MONTH(delivery_date) = $bulan
+                AND YEAR(delivery_date) = $tahun
+                GROUP BY part_id, vendor_id
+            ) po"), 'parts.id', '=', 'po.part_id')
+
+            ->leftJoin('vendors', function ($join) {
+                $join->on('vendors.id', '=', DB::raw('COALESCE(ms.vendor_id, po.vendor_id)'));
+            })
+
+            ->leftJoin(DB::raw("(
+                SELECT 
+                    d.part_id,
+                    p.vendor_id,
+                    SUM(d.qty_plan) AS qty_plan,
+                    SUM(d.qty_delivery) AS qty_delivery,
+                    SUM(d.balance) AS balance,
+                    SUM(d.qty_delay) AS qty_delay,
+                    SUM(d.qty_manifest) AS qty_manifest
+                FROM master_di d
+                JOIN po_table p ON d.po_id = p.id
+                WHERE MONTH(d.delivery_date) = $bulan
+                AND YEAR(d.delivery_date) = $tahun
+                AND DATE(d.delivery_date) <= '$kemarin'
+                GROUP BY d.part_id, p.vendor_id
+            ) di"), function ($join) {
+                $join->on('parts.id', '=', 'di.part_id');
+                $join->on(DB::raw('COALESCE(ms.vendor_id, po.vendor_id)'), '=', 'di.vendor_id');
+            })
+            
             ->select(
-                'master_stock.part_id',
+                'ms.part_id',
                 'vendors.id as vendor_id',
                 'vendors.nickname',
-                'po_table.qty_po',
-                'master_stock.judgement',
-                'master_di.balance',
-                'master_di.qty_plan',
-                'master_stock.kategori_problem',
-                'master_stock.rm',
-                'master_stock.wip',
-                'master_stock.fg'
+                'po.qty_po',
+                'ms.judgement',
+                'di.balance',
+                'di.qty_plan',
+                'ms.kategori_problem',
+                'ms.rm',
+                'ms.wip',
+                'ms.fg'
             )
             ->orderBy('vendors.nickname', 'asc')
-            ->whereDate('master_stock.tanggal', $tanggalPilih)
+            ->whereDate('ms.tanggal', $tanggalPilih)
             ->get();
 
         if ($data->isEmpty()) {

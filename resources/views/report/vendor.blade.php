@@ -21,7 +21,7 @@
                     DAILY REPORT – 
                     {{ \Carbon\Carbon::parse($tanggalPilih)->locale('id')->translatedFormat('d F Y') }}
                 </div>
-                <table class="table table-bordered table-striped small mt-2 table" style="font-size: 12px;">
+                <table class="table table-bordered table-striped small mt-2 table" style="font-size: 10px;">
                     <thead class="text-center">
                         <tr>
                             <th>Vendor</th>

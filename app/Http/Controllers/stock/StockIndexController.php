@@ -23,6 +23,7 @@ class StockIndexController extends Controller
     public function index()
     {
         $tanggal = request()->tanggal ?? date('Y-m-d');
+        $kemarin = date('Y-m-d', strtotime($tanggal . ' -1 day'));
         $bulan = date('m', strtotime($tanggal));
         $tahun = date('Y', strtotime($tanggal));
 
@@ -57,7 +58,7 @@ class StockIndexController extends Controller
 
             ->leftJoin(DB::raw("(
                 SELECT 
-                    p.part_id,
+                    d.part_id,
                     p.vendor_id,
                     SUM(d.qty_plan) AS qty_plan,
                     SUM(d.qty_delivery) AS qty_delivery,
@@ -68,7 +69,8 @@ class StockIndexController extends Controller
                 JOIN po_table p ON d.po_id = p.id
                 WHERE MONTH(d.delivery_date) = $bulan
                 AND YEAR(d.delivery_date) = $tahun
-                GROUP BY p.part_id, p.vendor_id
+                AND DATE(d.delivery_date) <= '$kemarin'
+                GROUP BY d.part_id, p.vendor_id
             ) di"), function ($join) {
                 $join->on('parts.id', '=', 'di.part_id');
                 $join->on(DB::raw('COALESCE(ms.vendor_id, po.vendor_id)'), '=', 'di.vendor_id');
@@ -100,12 +102,13 @@ class StockIndexController extends Controller
                 DB::raw('COALESCE(di.qty_manifest, 0) as qty_manifest'),
                 DB::raw('MAX(master_2hk.std_stock) as std_stock')
             )
-            
+
             ->groupBy(
                 'parts.id',
                 'parts.item_code',
                 'parts.part_name',
-                DB::raw('COALESCE(ms.vendor_id, po.vendor_id)'),
+                'ms.vendor_id',
+                'po.vendor_id',
                 'vendors.nickname',
                 'ms.id',
                 'ms.tanggal',
