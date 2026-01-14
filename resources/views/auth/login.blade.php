@@ -27,7 +27,7 @@
                 <div class="position-relative text-center">
                     <h1 class="fw-bold mb-2">SPEED</h1>
                     <p class="opacity-75 px-5">
-                        Stock Procurement Efficiency and Evaluation Dashboard
+                        System Procurement Efficiency and Evaluation Dashboard
                     </p>
                 </div>
             </div>
@@ -43,9 +43,11 @@
                             Silakan masukkan username dan password
                         </p>
 
-                        @if(session('error'))
-                            <div class="alert alert-danger py-2 small">
-                                {{ session('error') }}
+                        @if ($errors->any())
+                            <div class="text-danger small mb-2 fw-bold">
+                                @foreach ($errors->all() as $error)
+                                    <div>{{ $error }}</div>
+                                @endforeach
                             </div>
                         @endif
 

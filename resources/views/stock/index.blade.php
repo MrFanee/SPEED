@@ -85,9 +85,9 @@
                                 <th>Part</th>
                                 <th>PO</th>
                                 {{-- <th>OS PO</th> --}}
-                                <th>∑ Plan</th>
-                                <th>∑ Delv.</th>
-                                <th>Balance</th>
+                                <th>Frek. DI</th>
+                                <th>Frek. Delv.</th>
+                                <th>%</th>
                                 <th style="background-color: rgba(0,128,0,0.25);">RM</th>
                                 <th style="background-color: rgba(0,128,0,0.25);">WIP</th>
                                 <th style="background-color: rgba(0,128,0,0.25);">FG</th>
@@ -140,7 +140,7 @@
                                     <td data-field="std_stock">{{ $s->std_stock ?? '0'}}</td>
                                     <td>{{ $s->qty_delay ?? '0'}}</td>
                                     <td>{{ $s->qty_manifest ?? '0'}}</td>
-                                    <td>
+                                    <td class="judgement-cell">
                                         @if ($s->judgement == 'OK')
                                             <span class="badge bg-success">{{ $s->judgement }}</span>
                                         @elseif ($s->judgement == 'NG')
@@ -212,7 +212,7 @@
 
                 // --- update badge ---
                 function updateJudgementBadge(row, judgement) {
-                    const badgeCell = row.querySelector('td:nth-child(14)');
+                    const badgeCell = row.querySelector('.judgement-cell');
                     const oldBadge = badgeCell.querySelector('.badge');
 
                     let newBadge = document.createElement('span');

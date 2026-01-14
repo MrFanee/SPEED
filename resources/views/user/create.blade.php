@@ -57,15 +57,17 @@
                         </select>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-3 d-none" id="vendor-wrapper">
                         <label for="vendor_id">Vendor</label>
+
                         @error('vendor_id')
                             <div class="text-danger mb-1">{{ $message }}</div>
                         @enderror
+
                         <select name="vendor_id" id="vendor_id" class="form-select">
                             <option value="">-- Pilih Vendor --</option>
-                            @foreach ($vendor as $vendor)
-                                <option value="{{ $vendor->id }}">{{ $vendor->vendor_name }}</option>
+                            @foreach ($vendor as $v)
+                                <option value="{{ $v->id }}">{{ $v->vendor_name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -77,4 +79,25 @@
             </div>
         </div>
     </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const roleSelect = document.getElementById('role');
+            const vendorWrapper = document.getElementById('vendor-wrapper');
+
+            function toggleVendor() {
+                if (roleSelect.value === 'vendor') {
+                    vendorWrapper.classList.remove('d-none');
+                } else {
+                    vendorWrapper.classList.add('d-none');
+                    document.getElementById('vendor_id').value = '';
+                }
+            }
+
+            roleSelect.addEventListener('change', toggleVendor);
+
+            toggleVendor();
+        });
+    </script>
+
 @endsection

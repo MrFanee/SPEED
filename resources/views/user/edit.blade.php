@@ -30,7 +30,8 @@
                             <div class="text-danger mb-1">{{ $message }}</div>
                         @enderror
 
-                        <input type="text" class="form-control" id="username" name="username" value="{{ $users->username }}">
+                        <input type="text" class="form-control" id="username" name="username"
+                            value="{{ $users->username }}">
                     </div>
 
                     <div class="mb-3">
@@ -39,15 +40,16 @@
                         @error('role')
                             <div class="text-danger mb-1">{{ $message }}</div>
                         @enderror
-                        
+
                         <select name="role" id="role" class="form-select">
                             <option value="admin" {{ old('role', $users->role) == 'admin' ? 'selected' : '' }}>Admin</option>
                             <option value="staff" {{ old('role', $users->role) == 'staff' ? 'selected' : '' }}>Staff</option>
-                            <option value="vendor" {{ old('role', $users->role) == 'vendor' ? 'selected' : '' }}>Vendor</option>
+                            <option value="vendor" {{ old('role', $users->role) == 'vendor' ? 'selected' : '' }}>Vendor
+                            </option>
                         </select>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-3 d-none" id="vendor-wrapper">
                         <label for="vendor_id">Vendor</label>
 
                         @error('vendor_id')
@@ -57,9 +59,8 @@
                         <select name="vendor_id" id="vendor_id" class="form-select">
                             <option value="">-- Pilih Vendor --</option>
                             @foreach ($vendorList as $vendor)
-                                <option value="{{ $vendor->id }}" 
-                                    {{ $users->vendor_id == $vendor->id ? 'selected' : '' }}>
-                                    {{ $vendor->vendor_name }} 
+                                <option value="{{ $vendor->id }}" {{ $users->vendor_id == $vendor->id ? 'selected' : '' }}>
+                                    {{ $vendor->vendor_name }}
                                 </option>
                             @endforeach
                         </select>
@@ -77,4 +78,27 @@
             </div>
         </div>
     </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const roleSelect = document.getElementById('role');
+            const vendorWrapper = document.getElementById('vendor-wrapper');
+            const vendorSelect = document.getElementById('vendor_id');
+
+            function toggleVendor() {
+                if (roleSelect.value === 'vendor') {
+                    vendorWrapper.classList.remove('d-none');
+                } else {
+                    vendorWrapper.classList.add('d-none');
+                    vendorSelect.value = ''; // auto kosongkan kalau bukan vendor
+                }
+            }
+
+            roleSelect.addEventListener('change', toggleVendor);
+
+            // penting: biar pas halaman edit dibuka langsung sesuai role user
+            toggleVendor();
+        });
+    </script>
+
 @endsection

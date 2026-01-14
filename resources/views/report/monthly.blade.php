@@ -24,7 +24,7 @@
                 @endforeach
             </select>
 
-            <select name="tahun" class="form-select w-auto" onchange="this.form.submit()">
+            <select name="tahun" class="form-select w-auto" onchange="onTahunChange(this)">
                 @foreach ($tahunList as $th)
                     <option value="{{ $th }}" {{ $th == $tahun ? 'selected' : '' }}>
                         {{ $th }}
@@ -199,6 +199,19 @@
                 }
             });
         });
+    </script>
+
+    <script>
+        function onTahunChange(el) {
+            const form = el.form;
+
+            const bulanSelect = form.querySelector('select[name="bulan"]');
+            if (bulanSelect) {
+                bulanSelect.disabled = true;
+            }
+
+            form.submit();
+        }
     </script>
 
 @endsection

@@ -33,6 +33,7 @@ class UserStoreController extends Controller
             'role' => $request->role,
             'vendor_id' => $request->vendor_id
         ]);
+        
         return redirect()->route('user.index')->with('success', 'User berhasil ditambahkan!');
     }
 }

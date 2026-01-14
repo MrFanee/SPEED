@@ -60,28 +60,63 @@ class DashboardController extends Controller
         $lastMasterDI = DB::table('master_di')->max('updated_at');
         $lastMasterPO = DB::table('po_table')->max('updated_at');
 
-        return view('dashboard', compact('cardData', 'chartData', 'lastUpdates', 'monthlyResume', 
-        'formattedTanggal', 'tahunList', 'tahun', 'bulanList', 'bulan', 'lastMasterDI', 'lastMasterPO'));
+        return view('dashboard', compact(
+            'cardData',
+            'chartData',
+            'lastUpdates',
+            'monthlyResume',
+            'formattedTanggal',
+            'tahunList',
+            'tahun',
+            'bulanList',
+            'bulan',
+            'lastMasterDI',
+            'lastMasterPO'
+        ));
     }
 
     private function getCardData($tanggal)
     {
-        $data = DB::table('master_stock')
-            ->join('vendors', 'master_stock.vendor_id', '=', 'vendors.id')
-            ->join('parts', 'master_stock.part_id', '=', 'parts.id')
-            ->leftJoin('po_table', 'po_table.part_id', '=', 'parts.id')
-            ->leftJoin('master_di', 'po_table.id', '=', 'master_di.po_id')
-            ->select(
-                'master_stock.part_id',
-                'master_stock.judgement',
-                'master_stock.kategori_problem',
-                'master_di.balance',
-                'master_di.qty_plan'
-            )
-            ->whereDate('master_stock.tanggal', $tanggal);
+        $kemarin = date('Y-m-d', strtotime($tanggal . ' -1 day'));
+        $bulan = date('m', strtotime($tanggal));
+        $tahun = date('Y', strtotime($tanggal));
+
+        $data = DB::table('parts')
+            ->leftJoin(DB::raw("(
+                SELECT id, part_id, vendor_id, tanggal, judgement, kategori_problem, fg, wip, rm
+                FROM master_stock
+                WHERE tanggal = '$tanggal'
+            ) AS ms"), 'parts.id', '=', 'ms.part_id')
+
+            ->leftJoin(DB::raw("(
+                SELECT d.part_id, p.vendor_id,
+                    SUM(d.qty_plan) AS qty_plan,
+                    SUM(d.balance) AS balance
+                FROM master_di d
+                JOIN po_table p ON d.po_id = p.id
+                WHERE MONTH(d.delivery_date) = $bulan
+                AND YEAR(d.delivery_date) = $tahun
+                AND DATE(d.delivery_date) <= '$kemarin'
+                GROUP BY d.part_id, p.vendor_id
+            ) AS di"), function ($join) {
+                $join->on('parts.id', '=', 'di.part_id')
+                    ->on(DB::raw('COALESCE(ms.vendor_id, di.vendor_id)'), '=', 'di.vendor_id');
+            })
+
+            ->leftJoin(DB::raw("(
+                SELECT part_id, SUM(qty_po) AS qty_po, vendor_id
+                FROM po_table
+                WHERE MONTH(delivery_date) = $bulan AND YEAR(delivery_date) = $tahun
+                GROUP BY part_id, vendor_id
+            ) AS po"), function ($join) {
+                $join->on('parts.id', '=', 'po.part_id')
+                    ->on(DB::raw('COALESCE(ms.vendor_id, po.vendor_id)'), '=', 'po.vendor_id');
+            })
+
+            ->select('ms.part_id', 'ms.judgement', 'po.qty_po', 'di.balance', 'di.qty_plan', 'ms.kategori_problem');
 
         if (Auth::user()->role === 'vendor') {
-            $data->where('master_stock.vendor_id', Auth::user()->vendor_id);
+            $data->where('ms.vendor_id', Auth::user()->vendor_id);
         }
 
         $data = $data->get();
@@ -102,24 +137,22 @@ class DashboardController extends Controller
         $perPart = $data->groupBy('part_id')->map(function ($rows) {
             return [
                 'judgement' => $rows->first()->judgement,
+                'qty_po' => $rows->first()->qty_po ?? 0, // ambil qty_po disini
                 'balance' => $rows->sum('balance'),
                 'qty_plan' => $rows->sum('qty_plan'),
                 'kategori_problem' => $rows->first()->kategori_problem,
-                // 'qty_po' => $rows->first()->qty_po
             ];
         });
 
         return [
-            'total_item' => $perPart->count(),
-            'total_ng' => $perPart->where('judgement', 'NG')->count(),
-            'total_ok' => $perPart->where('judgement', 'OK')->count(),
-            'total_on_schedule' => $perPart->where('qty_plan', '>', 0)
-                ->where('balance', '>=', 0)
-                ->count(),
+            'total_item' => $perPart->where('qty_po', '>', 0)->count(),
+            'total_ng' => $perPart->where('qty_po', '>', 0)->where('judgement', 'NG')->count(),
+            'total_ok' => $perPart->where('qty_po', '>', 0)->where('judgement', 'OK')->count(),
+            'total_on_schedule' => $perPart->where('qty_plan', '>', 0)->where('balance', '>=', 0)->count(),
             'total_material' => $perPart->where('kategori_problem', 'Material')->count(),
             'total_man' => $perPart->where('kategori_problem', 'Man')->count(),
             'total_machine' => $perPart->where('kategori_problem', 'Machine')->count(),
-            'total_method' => $perPart->where('kategori_problem', 'Method')->count()
+            'total_method' => $perPart->where('kategori_problem', 'Method')->count(),
         ];
     }
 

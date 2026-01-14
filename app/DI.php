@@ -20,7 +20,7 @@ class DI extends Model
         parent::boot();
 
         static::saving(function ($di) {
-            $di->balance = $di->qty_delivery - $di->qty_plan;
+            $di->balance = ($di->qty_delivery / $di->qty_plan)*100;
             $di->qty_delay = $di->qty_plan - $di->qty_delivery;
         });
     }

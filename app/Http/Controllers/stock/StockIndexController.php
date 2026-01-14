@@ -148,6 +148,9 @@ class StockIndexController extends Controller
 
         $stock = $stock->get();
 
+        foreach ($stock as $row) {
+            $row->judgement = $this->calcJudgement($row);
+        }
         return view('stock.index', compact('tanggal', 'stock', 'query'));
     }
 }

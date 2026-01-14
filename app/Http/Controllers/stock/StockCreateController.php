@@ -77,12 +77,20 @@ class StockCreateController extends Controller
                     ->where('part_id', $p->id)
                     ->whereMonth('delivery_date', date('m'))
                     ->whereYear('delivery_date', date('Y'))
-                    ->first();
+                    ->sum('qty_po');
+
+                $std = DB::table('master_2hk')->where('part_id', $p->id)->max('std_stock');
+
+                $fg = 0;
+
+                if ($po == 0) $judgement = 'NO PO';
+                elseif ($fg >= $std) $judgement = 'OK';
+                else $judgement = 'NG';
 
                 if ($po) {
                     $vendor_id = $po->vendor_id;
                 } else {
-                    continue;
+                    $vendor_id = null;
                 }
 
                 DB::table('master_stock')->insert([
@@ -92,7 +100,7 @@ class StockCreateController extends Controller
                     'fg' => 0,
                     'wip' => 0,
                     'rm' => 0,
-                    'judgement' => '-',
+                    'judgement' => $judgement,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

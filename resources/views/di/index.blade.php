@@ -67,9 +67,9 @@
                             <th>Item Code</th>
                             <th>Part Name</th>
                             <th>PO</th>
-                            <th>Plan</th>
+                            <th>DI</th>
                             <th>Delv.</th>
-                            <th>Balance</th>
+                            <th>%</th>
                             <th>Delay</th>
                             <th>H</th>
                             {{-- @if(auth()->user()->role !== 'vendor')

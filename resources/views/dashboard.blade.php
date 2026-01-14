@@ -165,31 +165,33 @@
             <div class="card-body d-flex flex-column p-2">
               <h5 class="card-title text-center fw-bold p-0">Last Update</h5>
               <div class="list-group flex-grow-1 overflow-auto" style="height:200px">
-                <div class="list-group-item">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <span class="mb-0 small">Data Master PO</span>
-                    @if ($lastMasterPO)
-                      @php $isTodayPO = \Carbon\Carbon::parse($lastMasterPO)->isToday(); @endphp
-                      <span class="badge rounded-pill {{ $isTodayPO ? 'bg-primary' : 'bg-danger' }}">
-                        {{ \Carbon\Carbon::parse($lastMasterPO)->format('d M H:i') }}
-                      </span>
-                    @else
-                      <span class="badge bg-secondary rounded-pill">No Update</span>
-                    @endif
-                  </div>
+                @if (auth()->user()->role !== 'vendor')
+                  <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="mb-0 small">Data Master PO</span>
+                      @if ($lastMasterPO)
+                        @php $isTodayPO = \Carbon\Carbon::parse($lastMasterPO)->isToday(); @endphp
+                        <span class="badge rounded-pill {{ $isTodayPO ? 'bg-primary' : 'bg-danger' }}">
+                          {{ \Carbon\Carbon::parse($lastMasterPO)->format('d M H:i') }}
+                        </span>
+                      @else
+                        <span class="badge bg-secondary rounded-pill">No Update</span>
+                      @endif
+                    </div>
 
-                  <div class="d-flex justify-content-between align-items-center mt-2">
-                    <span class="mb-0 small">Data Master DI</span>
-                    @if ($lastMasterDI)
-                      @php $isTodayDI = \Carbon\Carbon::parse($lastMasterDI)->isToday(); @endphp
-                      <span class="badge rounded-pill {{ $isTodayDI ? 'bg-primary' : 'bg-danger' }}">
-                        {{ \Carbon\Carbon::parse($lastMasterDI)->format('d M H:i') }}
-                      </span>
-                    @else
-                      <span class="badge bg-secondary rounded-pill">No Update</span>
-                    @endif
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                      <span class="mb-0 small">Data Master DI</span>
+                      @if ($lastMasterDI)
+                        @php $isTodayDI = \Carbon\Carbon::parse($lastMasterDI)->isToday(); @endphp
+                        <span class="badge rounded-pill {{ $isTodayDI ? 'bg-primary' : 'bg-danger' }}">
+                          {{ \Carbon\Carbon::parse($lastMasterDI)->format('d M H:i') }}
+                        </span>
+                      @else
+                        <span class="badge bg-secondary rounded-pill">No Update</span>
+                      @endif
+                    </div>
                   </div>
-                </div>
+                @endif
 
                 @foreach ($lastUpdates as $row)
                   <div class="list-group-item d-flex justify-content-between align-items-center">

@@ -55,7 +55,6 @@ class ReportMonthlyController extends Controller
             ->leftJoin(DB::raw("(
                     SELECT id, part_id, vendor_id, tanggal, fg, wip, rm, judgement, kategori_problem, detail_problem
                     FROM master_stock
-                    WHERE tanggal = '$tanggal'
                 ) AS ms
             "), function ($join) {
                 $join->on('parts.id', '=', 'ms.part_id');
