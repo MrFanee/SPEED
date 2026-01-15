@@ -21,10 +21,12 @@ class ReportVendorController extends Controller
         }
 
         $data = DB::table('parts')
+            ->leftJoin('master_2hk as std', 'parts.id', '=', 'std.part_id')
+
             ->leftJoin(DB::raw("(
                     SELECT id, part_id, vendor_id, tanggal, fg, wip, rm, judgement, kategori_problem, detail_problem
                     FROM master_stock
-                    WHERE tanggal = '$tanggal'
+                    WHERE tanggal = '$tanggalPilih'
                 ) AS ms
             "), function ($join) {
                 $join->on('parts.id', '=', 'ms.part_id');
@@ -66,7 +68,7 @@ class ReportVendorController extends Controller
                 $join->on('parts.id', '=', 'di.part_id');
                 $join->on(DB::raw('COALESCE(ms.vendor_id, po.vendor_id)'), '=', 'di.vendor_id');
             })
-            
+
             ->select(
                 'ms.part_id',
                 'vendors.id as vendor_id',
@@ -82,6 +84,8 @@ class ReportVendorController extends Controller
             )
             ->orderBy('vendors.nickname', 'asc')
             ->whereDate('ms.tanggal', $tanggalPilih)
+            ->whereNotNull('std.std_stock')
+            ->where('std.std_stock', '>', 0)
             ->get();
 
         if ($data->isEmpty()) {
@@ -207,6 +211,8 @@ class ReportVendorController extends Controller
                     'kategori_problem' => $rows->first()->kategori_problem,
                 ];
             });
+            $ng = $perPart->where('qty_po', '>', 0)->where('judgement', 'NG');
+
 
             $total_item = $perPart->where('qty_po', '>', 0)->count();
             $stok_ok = $perPart->where('qty_po', '>', 0)->where('judgement', 'OK')->count();
@@ -214,10 +220,10 @@ class ReportVendorController extends Controller
             $on_schedule = $perPart->where('qty_plan', '>', 0)
                 ->where('balance', '>=', 0)
                 ->count();
-            $material = $perPart->where('kategori_problem', 'Material')->count();
-            $man = $perPart->where('kategori_problem', 'Man')->count();
-            $machine = $perPart->where('kategori_problem', 'Machine')->count();
-            $method = $perPart->where('kategori_problem', 'Method')->count();
+            $material = $ng->where('kategori_problem', 'Material')->count();
+            $man = $ng->where('kategori_problem', 'Man')->count();
+            $machine = $ng->where('kategori_problem', 'Machine')->count();
+            $method = $ng->where('kategori_problem', 'Method')->count();
 
             $konsistensi = $total_item > 0 ? 100 : 0;
             $akurasi_stok = $total_item > 0 ? round(($stok_ok / $total_item) * 100, 2) : 0;

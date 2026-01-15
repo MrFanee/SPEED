@@ -50,8 +50,10 @@ class ReportYearlyController extends Controller
 
             $tanggal = request()->tanggal ?? date('Y-m-d');
             $kemarin = date('Y-m-d', strtotime($tanggal . ' -1 day'));
-            
+
             $data = DB::table('parts')
+                ->leftJoin('master_2hk as std', 'parts.id', '=', 'std.part_id')
+
                 ->leftJoin(DB::raw("(
                     SELECT id, part_id, vendor_id, tanggal, fg, wip, rm, judgement, kategori_problem, detail_problem
                     FROM master_stock
@@ -98,6 +100,7 @@ class ReportYearlyController extends Controller
                 })
 
                 ->select(
+                    'ms.tanggal as tgl',
                     'ms.part_id',
                     'vendors.id as vendor_id',
                     'vendors.nickname',
@@ -111,7 +114,9 @@ class ReportYearlyController extends Controller
                     'ms.fg'
                 )
                 ->whereYear('ms.tanggal', $tahun)
-                ->whereMonth('ms.tanggal', $bulan);
+                ->whereMonth('ms.tanggal', $bulan)
+                ->whereNotNull('std.std_stock')
+                ->where('std.std_stock', '>', 0);
 
             if ($user->role === 'vendor') {
                 $data->where('ms.vendor_id', $user->vendor_id);
@@ -191,6 +196,8 @@ class ReportYearlyController extends Controller
                         'kategori_problem' => $rows->first()->kategori_problem,
                     ];
                 });
+                $ng = $perPart->where('qty_po', '>', 0)->where('judgement', 'NG');
+
 
                 $total_item = $perPart->where('qty_po', '>', 0)->count();
                 $stok_ok = $perPart->where('qty_po', '>', 0)->where('judgement', 'OK')->count();
@@ -198,10 +205,10 @@ class ReportYearlyController extends Controller
                 $on_schedule = $perPart->where('qty_plan', '>', 0)
                     ->where('balance', '>=', 0)
                     ->count();
-                $material = $perPart->where('kategori_problem', 'Material')->count();
-                $man = $perPart->where('kategori_problem', 'Man')->count();
-                $machine = $perPart->where('kategori_problem', 'Machine')->count();
-                $method = $perPart->where('kategori_problem', 'Method')->count();
+                $material = $ng->where('kategori_problem', 'Material')->count();
+                $man = $ng->where('kategori_problem', 'Man')->count();
+                $machine = $ng->where('kategori_problem', 'Machine')->count();
+                $method = $ng->where('kategori_problem', 'Method')->count();
 
                 $report[] = [
                     'bulan' => $bulan,

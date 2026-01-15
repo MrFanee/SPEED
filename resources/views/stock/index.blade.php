@@ -45,6 +45,7 @@
         $isToday = ($tanggal == date('Y-m-d'));
     @endphp
 
+
     <section class="section">
         <div class="card">
             <div class="card-body text-center">
@@ -66,6 +67,7 @@
                     {{-- @endif --}}
                 </div>
 
+
                 <div style="max-height: 350px; overflow-y: auto; position: relative;">
                     @if(session('success'))
                         <div class="alert alert-success alert-dismissible fade show small d-inline-block float-end"
@@ -75,6 +77,10 @@
                         </div>
                     @endif
 
+                    <div id="notifProblem" class="d-none text-danger fw-bold mb-2" style="font-size: 12px; text-align: left;">
+                        Kolom Kategori & Detail Problem wajib diisi untuk baris NG!
+                    </div>
+                    
                     <table class="table table-bordered table-striped small table-responsive"
                         style="font-size: 9px; position: relative;">
                         <thead class="text-center"
@@ -283,6 +289,17 @@
                     });
                 }
 
+                function showNotif(msg) {
+                    const notif = document.getElementById('notifProblem');
+                    notif.textContent = msg;
+                    notif.classList.remove('d-none');
+                }
+
+                function hideNotif() {
+                    const notif = document.getElementById('notifProblem');
+                    notif.classList.add('d-none');
+                }
+
                 // --- cek baris NG dengan problem ga lengkap ---
                 function isTableLocked() {
                     const rows = document.querySelectorAll('tr[data-judgement]');
@@ -294,9 +311,14 @@
 
                             const kategoriSelect = row.querySelector('select[data-field="kategori_problem"]');
                             const kategoriVal = kategoriSelect?.value.trim() || '';
-                            if (!kategoriVal || !detailVal) return row;
+
+                            if (!kategoriVal || !detailVal) {
+                                showNotif('Kolom Kategori & Detail Problem wajib diisi untuk baris NG!');
+                                return row;
+                            }
                         }
                     }
+                    hideNotif();
                     return null;
                 }
 
@@ -312,7 +334,6 @@
                         if (lockedRow && (row !== lockedRow || !['kategori_problem', 'detail_problem'].includes(field))) {
                             e.preventDefault();
                             this.blur();
-
                             this.style.backgroundColor = '#f8d7da';
                             setTimeout(() => this.style.backgroundColor = '', 400);
                             return;
@@ -379,12 +400,12 @@
 
                         if (this.tagName === 'SELECT') {
                             newValue = this.value;
-                        } else if (this.dataset.field === 'detail_problem') {
+                        } else if (field === 'detail_problem') {
                             newValue = this.textContent.trim();
                         } else {
                             newValue = Number(this.textContent.trim()) || 0;
                         }
-                            
+
                         const newJudgement = recalcJudgement(row);
 
                         highlightProblemFields(row);
@@ -397,23 +418,16 @@
                             },
                             body: JSON.stringify({ field, value: newValue, judgement: newJudgement })
                         })
-                            .then(res => res.json())
-                            .then(data => {
-                                if (data.success) {
-                                    this.style.backgroundColor = '#d4edda';
-                                    setTimeout(() => this.style.backgroundColor = '', 800);
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                this.style.backgroundColor = '#d4edda';
+                                setTimeout(() => this.style.backgroundColor = '', 800);
 
-                                    let finalJudgement = data.judgement;
-                                    if (['qty_po', 'fg', 'std_stock'].includes(field) && !data.judgement) {
-                                        const newJudgement = recalcJudgement(row);
-                                        updateJudgementBadge(row, newJudgement);
-                                        row.dataset.judgement = newJudgement;
-                                        highlightProblemFields(row);
-
-                                        if (newJudgement !== 'NG') resetProblemFields(row);
-                                    }
-                                }
-                            });
+                                // cek notif lagi
+                                isTableLocked();
+                            }
+                        });
                     });
                 });
 

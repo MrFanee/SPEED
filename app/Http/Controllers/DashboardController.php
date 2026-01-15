@@ -82,6 +82,8 @@ class DashboardController extends Controller
         $tahun = date('Y', strtotime($tanggal));
 
         $data = DB::table('parts')
+            ->leftJoin('master_2hk as std', 'parts.id', '=', 'std.part_id')
+
             ->leftJoin(DB::raw("(
                 SELECT id, part_id, vendor_id, tanggal, judgement, kategori_problem, fg, wip, rm
                 FROM master_stock
@@ -114,6 +116,9 @@ class DashboardController extends Controller
             })
 
             ->select('ms.part_id', 'ms.judgement', 'po.qty_po', 'di.balance', 'di.qty_plan', 'ms.kategori_problem');
+        $data->whereNotNull('ms.part_id')
+            ->whereNotNull('std.std_stock')
+            ->where('std.std_stock', '>', 0);
 
         if (Auth::user()->role === 'vendor') {
             $data->where('ms.vendor_id', Auth::user()->vendor_id);
@@ -143,16 +148,17 @@ class DashboardController extends Controller
                 'kategori_problem' => $rows->first()->kategori_problem,
             ];
         });
+        $ng = $perPart->where('qty_po','>',0)->where('judgement','NG');
 
         return [
             'total_item' => $perPart->where('qty_po', '>', 0)->count(),
             'total_ng' => $perPart->where('qty_po', '>', 0)->where('judgement', 'NG')->count(),
             'total_ok' => $perPart->where('qty_po', '>', 0)->where('judgement', 'OK')->count(),
             'total_on_schedule' => $perPart->where('qty_plan', '>', 0)->where('balance', '>=', 0)->count(),
-            'total_material' => $perPart->where('kategori_problem', 'Material')->count(),
-            'total_man' => $perPart->where('kategori_problem', 'Man')->count(),
-            'total_machine' => $perPart->where('kategori_problem', 'Machine')->count(),
-            'total_method' => $perPart->where('kategori_problem', 'Method')->count(),
+            'total_material' => $ng->where('kategori_problem', 'Material')->count(),
+            'total_man' => $ng->where('kategori_problem', 'Man')->count(),
+            'total_machine' => $ng->where('kategori_problem', 'Machine')->count(),
+            'total_method' => $ng->where('kategori_problem', 'Method')->count(),
         ];
     }
 
