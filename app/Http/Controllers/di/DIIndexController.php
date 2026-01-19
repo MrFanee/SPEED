@@ -12,7 +12,7 @@ class DIIndexController extends Controller
 {
     public function index(Request $request)
     {
-        
+
         $tahunList = DB::table('master_di')
             ->select(DB::raw('YEAR(delivery_date) as tahun'))
             ->distinct()
@@ -50,16 +50,23 @@ class DIIndexController extends Controller
                 'parts.item_code',
                 'parts.part_name',
                 'po_table.po_number',
-                'master_di.qty_plan',
-                'master_di.qty_delivery',
+                DB::raw('SUM(master_di.qty_plan) as qty_plan'),
+                DB::raw('SUM(master_di.qty_delivery) as qty_delivery'),
                 'master_di.balance',
-                'master_di.qty_delay',
-                'master_di.qty_manifest'
+                DB::raw('SUM(master_di.qty_delay) as qty_delay'),
+                DB::raw('SUM(master_di.qty_manifest) as qty_manifest')
+
             )
             ->whereMonth('master_di.delivery_date', $bulan)
             ->whereYear('master_di.delivery_date', $tahun)
-            ->whereDate('master_di.delivery_date', '<=', $kemarin);
-
+            ->whereDate('master_di.delivery_date', '<=', $kemarin)
+            ->groupBy(
+                'master_di.id',
+                'master_di.delivery_date',
+                'parts.item_code',
+                'parts.part_name',
+                'po_table.po_number'
+            );
         if (Auth::user()->role === 'vendor') {
             $di->where('po_table.vendor_id', Auth::user()->vendor_id);
         }
