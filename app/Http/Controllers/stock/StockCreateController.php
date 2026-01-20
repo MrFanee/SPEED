@@ -61,25 +61,39 @@ class StockCreateController extends Controller
             $new['updated_at'] = now();
             $new['vendor_updated_at'] = null;
 
-            DB::table('master_stock')->insert($new);
+            $exists = DB::table('master_stock')
+                ->where('part_id', $new['part_id'])
+                ->where('vendor_id', $new['vendor_id'])
+                ->whereDate('tanggal', $tanggal)
+                ->exists();
+
+            if (!$exists) {
+                DB::table('master_stock')->insert($new);
+            }
         }
 
-        $allParts = DB::table('parts')->get();
+        $allParts = DB::table('po_table')
+            ->select('part_id', 'vendor_id')
+            ->whereMonth('delivery_date', date('m'))
+            ->whereYear('delivery_date', date('Y'))
+            ->groupBy('part_id', 'vendor_id')
+            ->get();
 
         foreach ($allParts as $p) {
             $exists = DB::table('master_stock')
-                ->where('part_id', $p->id)
+                ->where('part_id', $p->part_id)
+                ->where('vendor_id', $p->vendor_id)
                 ->whereDate('tanggal', $tanggal)
                 ->exists();
 
             if (!$exists) {
                 $po = DB::table('po_table')
-                    ->where('part_id', $p->id)
+                    ->where('part_id', $p->part_id)
                     ->whereMonth('delivery_date', date('m'))
                     ->whereYear('delivery_date', date('Y'))
                     ->sum('qty_po');
 
-                $std = DB::table('master_2hk')->where('part_id', $p->id)->max('std_stock');
+                $std = DB::table('master_2hk')->where('part_id', $p->part_id)->max('std_stock');
 
                 $fg = 0;
 
@@ -87,15 +101,9 @@ class StockCreateController extends Controller
                 elseif ($fg >= $std) $judgement = 'OK';
                 else $judgement = 'NG';
 
-                if ($po) {
-                    $vendor_id = $po->vendor_id;
-                } else {
-                    $vendor_id = null;
-                }
-
                 DB::table('master_stock')->insert([
-                    'part_id' => $p->id,
-                    'vendor_id' => $vendor_id,
+                    'part_id' => $p->part_id,
+                    'vendor_id' => $p->vendor_id,
                     'tanggal' => $tanggal,
                     'fg' => 0,
                     'wip' => 0,

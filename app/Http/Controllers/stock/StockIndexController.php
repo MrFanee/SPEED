@@ -20,70 +20,77 @@ class StockIndexController extends Controller
 
         return '-';
     }
+
     public function index()
     {
-        $tanggal = request()->tanggal ?? date('Y-m-d');
-        $kemarin = date('Y-m-d', strtotime($tanggal . ' -1 day'));
-        $bulan = date('m', strtotime($tanggal));
-        $tahun = date('Y', strtotime($tanggal));
+        $tanggal  = request()->tanggal ?? date('Y-m-d');
+        $kemarin  = date('Y-m-d', strtotime($tanggal . ' -1 day'));
+        $bulan    = date('m', strtotime($tanggal));
+        $tahun    = date('Y', strtotime($tanggal));
+        $query    = request('query');
 
-        $query   = request('query');
-
-        $stock = DB::table('parts')
-            ->leftJoin(DB::raw("(
-                    SELECT id, part_id, vendor_id, tanggal, fg, wip, rm, judgement, kategori_problem, detail_problem
-                    FROM master_stock
-                    WHERE tanggal = '$tanggal'
-                ) AS ms
-            "), function ($join) {
-                $join->on('parts.id', '=', 'ms.part_id');
+        $stock = DB::table('parts as p')
+            ->join(DB::raw("(
+                SELECT DISTINCT part_id, vendor_id FROM po_table
+                UNION
+                SELECT DISTINCT part_id, vendor_id FROM master_stock
+            ) pv"), function($join){
+                $join->on('p.id','=','pv.part_id');
             })
 
-            ->leftJoin('master_2hk', 'parts.id', '=', 'master_2hk.part_id')
+            ->leftJoin('vendors as v','v.id','=','pv.vendor_id')
+
+            ->leftJoin('master_stock as ms', function($join) use ($tanggal){
+                $join->on('ms.part_id','=','pv.part_id');
+                $join->on('ms.vendor_id','=','pv.vendor_id');
+                $join->where('ms.tanggal','=',$tanggal);
+            })
 
             ->leftJoin(DB::raw("(
-                SELECT part_id,
-                    vendor_id,
-                    SUM(qty_po) AS qty_po,
-                    SUM(qty_outstanding) AS qty_outstanding
+                SELECT part_id, MAX(std_stock) AS std_stock
+                FROM master_2hk
+                GROUP BY part_id
+            ) hk"), 'hk.part_id', '=', 'p.id')
+
+            ->leftJoin(DB::raw("(
+                SELECT part_id, vendor_id,
+                       SUM(qty_po) AS qty_po,
+                       SUM(qty_outstanding) AS qty_outstanding
                 FROM po_table
                 WHERE MONTH(delivery_date) = $bulan
-                AND YEAR(delivery_date) = $tahun
+                  AND YEAR(delivery_date) = $tahun
                 GROUP BY part_id, vendor_id
-            ) po"), 'parts.id', '=', 'po.part_id')
-
-            ->leftJoin('vendors', function ($join) {
-                $join->on('vendors.id', '=', DB::raw('COALESCE(ms.vendor_id, po.vendor_id)'));
+            ) po"), function($join){
+                $join->on('po.part_id','=','pv.part_id');
+                $join->on('po.vendor_id','=','pv.vendor_id');
             })
 
             ->leftJoin(DB::raw("(
-                SELECT 
-                    d.part_id,
-                    p.vendor_id,
-                    SUM(d.qty_plan) AS qty_plan,
-                    SUM(d.qty_delivery) AS qty_delivery,
-                    SUM(d.balance) AS balance,
-                    SUM(d.qty_delay) AS qty_delay,
-                    SUM(d.qty_manifest) AS qty_manifest
+                SELECT d.part_id, p.vendor_id,
+                       SUM(d.qty_plan) AS qty_plan,
+                       SUM(d.qty_delivery) AS qty_delivery,
+                       CASE WHEN SUM(d.qty_plan) > 0
+                           THEN ROUND(SUM(d.qty_delivery)/SUM(d.qty_plan)*100,1)
+                           ELSE 0 END AS balance,
+                       SUM(d.qty_delay) AS qty_delay,
+                       SUM(d.qty_manifest) AS qty_manifest
                 FROM master_di d
                 JOIN po_table p ON d.po_id = p.id
                 WHERE MONTH(d.delivery_date) = $bulan
-                AND YEAR(d.delivery_date) = $tahun
-                AND DATE(d.delivery_date) <= '$kemarin'
+                  AND YEAR(d.delivery_date) = $tahun
+                  AND DATE(d.delivery_date) <= '$kemarin'
                 GROUP BY d.part_id, p.vendor_id
-            ) di"), function ($join) {
-                $join->on('parts.id', '=', 'di.part_id');
-                $join->on(DB::raw('COALESCE(ms.vendor_id, po.vendor_id)'), '=', 'di.vendor_id');
+            ) di"), function($join){
+                $join->on('di.part_id','=','pv.part_id');
+                $join->on('di.vendor_id','=','pv.vendor_id');
             })
 
             ->select(
-                'parts.id',
-                'parts.item_code',
-                'parts.part_name',
-
-                DB::raw('COALESCE(ms.vendor_id, po.vendor_id) as vendor_id'),
-                'vendors.nickname',
-
+                'p.id',
+                'p.item_code',
+                'p.part_name',
+                'pv.vendor_id',
+                'v.nickname',
                 'ms.id as stock_id',
                 'ms.tanggal',
                 'ms.fg',
@@ -92,65 +99,45 @@ class StockIndexController extends Controller
                 'ms.judgement',
                 'ms.kategori_problem',
                 'ms.detail_problem',
-
-                DB::raw('COALESCE(po.qty_po, 0) as qty_po'),
-                DB::raw('COALESCE(po.qty_outstanding, 0) as qty_outstanding'),
-                DB::raw('COALESCE(di.qty_plan, 0) as qty_plan'),
-                DB::raw('COALESCE(di.qty_delivery, 0) as qty_delivery'),
-                DB::raw('COALESCE(di.balance, 0) as balance'),
-                DB::raw('COALESCE(di.qty_delay, 0) as qty_delay'),
-                DB::raw('COALESCE(di.qty_manifest, 0) as qty_manifest'),
-                DB::raw('MAX(master_2hk.std_stock) as std_stock')
+                DB::raw('COALESCE(po.qty_po,0) as qty_po'),
+                DB::raw('COALESCE(po.qty_outstanding,0) as qty_outstanding'),
+                DB::raw('COALESCE(di.qty_plan,0) as qty_plan'),
+                DB::raw('COALESCE(di.qty_delivery,0) as qty_delivery'),
+                DB::raw('COALESCE(di.balance,0) as balance'),
+                DB::raw('COALESCE(di.qty_delay,0) as qty_delay'),
+                DB::raw('COALESCE(di.qty_manifest,0) as qty_manifest'),
+                'hk.std_stock'
             )
-
-            ->groupBy(
-                'parts.id',
-                'parts.item_code',
-                'parts.part_name',
-                'ms.vendor_id',
-                'po.vendor_id',
-                'vendors.nickname',
-                'ms.id',
-                'ms.tanggal',
-                'ms.fg',
-                'ms.wip',
-                'ms.rm',
-                'ms.judgement',
-                'ms.kategori_problem',
-                'ms.detail_problem',
-                'po.qty_po',
-                'po.qty_outstanding',
-                'di.qty_plan',
-                'di.qty_delivery',
-                'di.balance',
-                'di.qty_delay',
-                'di.qty_manifest'
-            )
-            ->orderBy('vendors.nickname', 'asc');
+            ->orderBy('v.nickname','asc');
 
         if (Auth::user()->role === 'vendor') {
-            $stock->where('ms.vendor_id', Auth::user()->vendor_id);
+            $stock->where('pv.vendor_id', Auth::user()->vendor_id);
         }
 
         if ($query) {
-            $stock->where(function ($q) use ($query) {
-                $q->where('parts.item_code', 'like', "%$query%")
-                    ->orWhere('parts.part_name', 'like', "%$query%")
-                    ->orWhere('vendors.nickname', 'like', "%$query%")
-                    ->orWhere('ms.judgement', 'like', "%$query%")
-                    ->orWhere('ms.kategori_problem', 'like', "%$query%")
-                    ->orWhere('ms.detail_problem', 'like', "%$query%")
-                    ->orWhere('po.qty_po', 'like', "%$query%");
+            $stock->where(function($q) use ($query){
+                $q->where('p.item_code','like',"%$query%")
+                  ->orWhere('p.part_name','like',"%$query%")
+                  ->orWhere('v.nickname','like',"%$query%")
+                  ->orWhere('ms.judgement','like',"%$query%")
+                  ->orWhere('ms.kategori_problem','like',"%$query%")
+                  ->orWhere('ms.detail_problem','like',"%$query%");
             });
         }
 
-        $stock->whereNotNull(DB::raw('COALESCE(ms.vendor_id, po.vendor_id)'));
-
         $stock = $stock->get();
 
-        foreach ($stock as $row) {
+        foreach($stock as $row){
             $row->judgement = $this->calcJudgement($row);
         }
-        return view('stock.index', compact('tanggal', 'stock', 'query'));
+
+        $stock = $stock->map(function($row){
+            $row->balance = $row->qty_plan > 0
+                ? number_format(($row->qty_delivery / $row->qty_plan)*100,1) . '%'
+                : '0.0%';
+            return $row;
+        });
+
+        return view('stock.index', compact('tanggal','stock','query'));
     }
 }

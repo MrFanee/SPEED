@@ -154,7 +154,7 @@ class DashboardController extends Controller
             'total_item' => $perPart->where('qty_po', '>', 0)->count(),
             'total_ng' => $perPart->where('qty_po', '>', 0)->where('judgement', 'NG')->count(),
             'total_ok' => $perPart->where('qty_po', '>', 0)->where('judgement', 'OK')->count(),
-            'total_on_schedule' => $perPart->where('qty_plan', '>', 0)->where('balance', '>=', 0)->count(),
+            'total_on_schedule' => $perPart->where('qty_po', '>', 0)->where('qty_plan', '>', 0)->where('balance', '>', 0)->count(),
             'total_material' => $ng->where('kategori_problem', 'Material')->count(),
             'total_man' => $ng->where('kategori_problem', 'Man')->count(),
             'total_machine' => $ng->where('kategori_problem', 'Machine')->count(),

@@ -202,9 +202,10 @@ class ReportYearlyController extends Controller
                 $total_item = $perPart->where('qty_po', '>', 0)->count();
                 $stok_ok = $perPart->where('qty_po', '>', 0)->where('judgement', 'OK')->count();
                 $stok_ng = $perPart->where('qty_po', '>', 0)->where('judgement', 'NG')->count();
-                $on_schedule = $perPart->where('qty_plan', '>', 0)
-                    ->where('balance', '>=', 0)
-                    ->count();
+                $on_schedule = $perPart->where('qty_po', '>', 0)
+                ->where('qty_plan', '>', 0)
+                ->where('balance', '>', 0)
+                ->count();
                 $material = $ng->where('kategori_problem', 'Material')->count();
                 $man = $ng->where('kategori_problem', 'Man')->count();
                 $machine = $ng->where('kategori_problem', 'Machine')->count();

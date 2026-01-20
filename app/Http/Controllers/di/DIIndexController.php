@@ -45,33 +45,29 @@ class DIIndexController extends Controller
             ->leftJoin('parts', 'master_di.part_id', '=', 'parts.id')
             ->leftJoin('vendors', 'po_table.vendor_id', '=', 'vendors.id')
             ->select(
-                'master_di.id',
                 'master_di.delivery_date',
                 'parts.item_code',
                 'parts.part_name',
                 'po_table.po_number',
-                DB::raw('SUM(master_di.qty_plan) as qty_plan'),
-                DB::raw('SUM(master_di.qty_delivery) as qty_delivery'),
-                'master_di.balance',
-                DB::raw('SUM(master_di.qty_delay) as qty_delay'),
-                DB::raw('SUM(master_di.qty_manifest) as qty_manifest')
-
+                'master_di.qty_plan',
+                'master_di.qty_delivery',
+                'master_di.qty_delay',
+                'master_di.qty_manifest'
             )
             ->whereMonth('master_di.delivery_date', $bulan)
             ->whereYear('master_di.delivery_date', $tahun)
-            ->whereDate('master_di.delivery_date', '<=', $kemarin)
-            ->groupBy(
-                'master_di.id',
-                'master_di.delivery_date',
-                'parts.item_code',
-                'parts.part_name',
-                'po_table.po_number'
-            );
+            ->whereDate('master_di.delivery_date', '<=', $kemarin);
         if (Auth::user()->role === 'vendor') {
             $di->where('po_table.vendor_id', Auth::user()->vendor_id);
         }
 
         $di = $di->get();
+        $di = $di->map(function ($row) {
+            $row->balance = $row->qty_plan > 0
+                ? round(($row->qty_delivery / $row->qty_plan) * 100, 0).'%'
+                : '0%';
+            return $row;
+        });
 
         return view('di.index', compact(
             'di',
