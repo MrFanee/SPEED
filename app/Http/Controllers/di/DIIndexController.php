@@ -63,9 +63,17 @@ class DIIndexController extends Controller
 
         $di = $di->get();
         $di = $di->map(function ($row) {
-            $row->balance = $row->qty_plan > 0
-                ? round(($row->qty_delivery / $row->qty_plan) * 100, 0).'%'
-                : '0%';
+            if ($row->qty_plan > 0) {
+                if ($row->qty_delivery == 0) {
+                    $row->balance = '100%';
+                } else {
+                    $row->balance = round(($row->qty_delivery / $row->qty_plan) * 100, 0) . '%';
+                }
+            } else {
+                $row->balance = '0%';
+            }
+            $row->qty_delay = ($row->qty_delivery == 0 ? 0 : ($row->qty_delivery));
+
             return $row;
         });
 

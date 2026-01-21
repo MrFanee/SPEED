@@ -83,9 +83,8 @@ class ReportYearlyController extends Controller
                         SELECT 
                             d.part_id,
                             p.vendor_id,
-                            SUM(d.qty_plan) AS qty_plan,
-                            SUM(d.qty_delivery) AS qty_delivery,
-                            SUM(d.balance) AS balance,
+                            SUM(CASE WHEN d.qty_plan > 0 THEN 1 ELSE 0 END) AS qty_plan,
+                            SUM(CASE WHEN d.qty_delivery = 0 THEN 1 ELSE 0 END) AS qty_delivery,
                             SUM(d.qty_delay) AS qty_delay,
                             SUM(d.qty_manifest) AS qty_manifest
                         FROM master_di d
@@ -106,7 +105,7 @@ class ReportYearlyController extends Controller
                     'vendors.nickname',
                     'po.qty_po',
                     'ms.judgement',
-                    'di.balance',
+                    'di.qty_delivery',
                     'di.qty_plan',
                     'ms.kategori_problem',
                     'ms.rm',
@@ -192,7 +191,7 @@ class ReportYearlyController extends Controller
                         'qty_po' => $rows->sum('qty_po'),
                         'judgement' => $rows->first()->judgement,
                         'qty_plan' => $rows->sum('qty_plan'),
-                        'balance' => $rows->sum('balance'),
+                        'qty_delivery' => $rows->sum('qty_delivery'),
                         'kategori_problem' => $rows->first()->kategori_problem,
                     ];
                 });
@@ -203,9 +202,9 @@ class ReportYearlyController extends Controller
                 $stok_ok = $perPart->where('qty_po', '>', 0)->where('judgement', 'OK')->count();
                 $stok_ng = $perPart->where('qty_po', '>', 0)->where('judgement', 'NG')->count();
                 $on_schedule = $perPart->where('qty_po', '>', 0)
-                ->where('qty_plan', '>', 0)
-                ->where('balance', '>', 0)
-                ->count();
+                    ->where('qty_plan', '>', 0)
+                    ->filter(fn($item) => $item['qty_plan'] == $item['qty_delivery'])
+                    ->count();
                 $material = $ng->where('kategori_problem', 'Material')->count();
                 $man = $ng->where('kategori_problem', 'Man')->count();
                 $machine = $ng->where('kategori_problem', 'Machine')->count();

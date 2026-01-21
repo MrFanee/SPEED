@@ -68,7 +68,7 @@
                             <th>Part Name</th>
                             <th>PO</th>
                             <th>DI</th>
-                            <th>Delv.</th>
+                            <th>OS DI</th>
                             <th>%</th>
                             <th>Delay</th>
                             <th>H</th>

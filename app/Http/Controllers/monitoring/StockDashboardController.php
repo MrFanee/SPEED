@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\stock;
+namespace App\Http\Controllers\monitoring;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
-class StockIndexController extends Controller
+class StockDashboardController extends Controller
 {
     private function calcJudgement($row)
     {
@@ -29,6 +29,7 @@ class StockIndexController extends Controller
         $tahun    = date('Y', strtotime($tanggal));
         $query    = request('query');
 
+        // Ambil stock sama seperti StockIndexController
         $stock = DB::table('parts as p')
             ->join(DB::raw("(
                 SELECT DISTINCT part_id, vendor_id FROM po_table
@@ -37,21 +38,17 @@ class StockIndexController extends Controller
             ) pv"), function ($join) {
                 $join->on('p.id', '=', 'pv.part_id');
             })
-
             ->leftJoin('vendors as v', 'v.id', '=', 'pv.vendor_id')
-
             ->leftJoin('master_stock as ms', function ($join) use ($tanggal) {
                 $join->on('ms.part_id', '=', 'pv.part_id');
                 $join->on('ms.vendor_id', '=', 'pv.vendor_id');
                 $join->where('ms.tanggal', '=', $tanggal);
             })
-
             ->leftJoin(DB::raw("(
                 SELECT part_id, MAX(std_stock) AS std_stock
                 FROM master_2hk
                 GROUP BY part_id
             ) hk"), 'hk.part_id', '=', 'p.id')
-
             ->leftJoin(DB::raw("(
                 SELECT part_id, vendor_id,
                        SUM(qty_po) AS qty_po,
@@ -64,26 +61,23 @@ class StockIndexController extends Controller
                 $join->on('po.part_id', '=', 'pv.part_id');
                 $join->on('po.vendor_id', '=', 'pv.vendor_id');
             })
-
             ->leftJoin(DB::raw("(
                 SELECT d.part_id, p.vendor_id,
                     SUM(CASE WHEN d.qty_plan > 0 THEN 1 ELSE 0 END) AS qty_plan,
                     SUM(CASE WHEN d.qty_delivery = 0 THEN 1 ELSE 0 END) AS qty_delivery,
-                       CASE 
-                            WHEN SUM(CASE WHEN d.qty_plan > 0 THEN 1 ELSE 0 END) > 0
-                            THEN ROUND(
-                                    SUM(CASE WHEN d.qty_delivery > 0 THEN 1 ELSE 0 END) 
-                                    / 
-                                    SUM(CASE WHEN d.qty_plan = 0 THEN 1 ELSE 0 END) * 100
-                            ,1)
-                            ELSE 0 
-                        END AS balance,
-                        (
-                            SUM(CASE WHEN d.qty_plan > 0 THEN 1 ELSE 0 END)
-                            -
-                            SUM(CASE WHEN d.qty_delivery = 0 THEN 1 ELSE 0 END)
-                        ) AS qty_delay,
-                       SUM(d.qty_manifest) AS qty_manifest
+                    SUM(d.qty_manifest) AS qty_manifest,
+                    (
+                        SUM(CASE WHEN d.qty_plan > 0 THEN 1 ELSE 0 END)
+                        - SUM(CASE WHEN d.qty_delivery = 0 THEN 1 ELSE 0 END)
+                    ) AS qty_delay,
+                    CASE 
+                        WHEN SUM(CASE WHEN d.qty_plan > 0 THEN 1 ELSE 0 END) > 0
+                        THEN ROUND(
+                            SUM(CASE WHEN d.qty_delivery > 0 THEN 1 ELSE 0 END)
+                            / SUM(CASE WHEN d.qty_plan > 0 THEN 1 ELSE 0 END) * 100, 1
+                        )
+                        ELSE 0
+                    END AS balance
                 FROM master_di d
                 JOIN po_table p ON d.po_id = p.id
                 WHERE MONTH(d.delivery_date) = $bulan
@@ -94,7 +88,6 @@ class StockIndexController extends Controller
                 $join->on('di.part_id', '=', 'pv.part_id');
                 $join->on('di.vendor_id', '=', 'pv.vendor_id');
             })
-
             ->select(
                 'p.id',
                 'p.item_code',
@@ -127,27 +120,29 @@ class StockIndexController extends Controller
         if ($query) {
             $stock->where(function ($q) use ($query) {
                 $q->where('p.item_code', 'like', "%$query%")
-                    ->orWhere('p.part_name', 'like', "%$query%")
-                    ->orWhere('v.nickname', 'like', "%$query%")
-                    ->orWhere('ms.judgement', 'like', "%$query%")
-                    ->orWhere('ms.kategori_problem', 'like', "%$query%")
-                    ->orWhere('ms.detail_problem', 'like', "%$query%");
+                  ->orWhere('p.part_name', 'like', "%$query%")
+                  ->orWhere('v.nickname', 'like', "%$query%")
+                  ->orWhere('ms.judgement', 'like', "%$query%")
+                  ->orWhere('ms.kategori_problem', 'like', "%$query%")
+                  ->orWhere('ms.detail_problem', 'like', "%$query%");
             });
         }
 
-        $stock = $stock->get();
+        $allStock = $stock->get();
 
-        foreach ($stock as $row) {
+        foreach ($allStock as $row) {
             $row->judgement = $this->calcJudgement($row);
         }
 
-        $stock = $stock->map(function ($row) {
-            $row->balance = $row->qty_plan > 0
-                ? number_format(($row->qty_delivery / $row->qty_plan) * 100, 1) . '%'
-                : '0.0%';
-            return $row;
+        // Pie chart data: NG vs OK per vendor
+        $pieData = $allStock->groupBy('nickname')->map(function ($items) {
+            $ok  = $items->where('judgement', 'OK')->count();
+            $ng  = $items->where('judgement', 'NG')->count();
+            return ['OK' => $ok, 'NG' => $ng];
         });
 
-        return view('stock.index', compact('tanggal', 'stock', 'query'));
+        $stock = $allStock->where('judgement', 'NG')->values();
+
+        return view('monitoring.stock', compact('tanggal', 'stock', 'pieData', 'query'));
     }
 }
