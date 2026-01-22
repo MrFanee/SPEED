@@ -68,8 +68,13 @@
 
                     <div class="mb-3">
                         <label>Password Baru (opsional)</label>
-                        <input type="password" name="password" class="form-control"
-                            placeholder="Kosongkan jika tidak diubah">
+                        <div class="input-group">
+                            <input type="password" name="password" id="password" class="form-control"
+                                placeholder="Kosongkan jika tidak diubah">
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <button type="submit" class="btn btn-sm btn-outline-success">Update</button>
@@ -90,15 +95,29 @@
                     vendorWrapper.classList.remove('d-none');
                 } else {
                     vendorWrapper.classList.add('d-none');
-                    vendorSelect.value = ''; // auto kosongkan kalau bukan vendor
+                    vendorSelect.value = '';
                 }
             }
 
             roleSelect.addEventListener('change', toggleVendor);
 
-            // penting: biar pas halaman edit dibuka langsung sesuai role user
             toggleVendor();
         });
     </script>
+
+    <script>
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        const icon = togglePassword.querySelector('i');
+
+        togglePassword.addEventListener('click', function () {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+
+            icon.classList.toggle('bi-eye');
+            icon.classList.toggle('bi-eye-slash');
+        });
+    </script>
+
 
 @endsection

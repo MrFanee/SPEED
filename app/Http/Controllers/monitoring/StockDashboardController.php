@@ -29,7 +29,6 @@ class StockDashboardController extends Controller
         $tahun    = date('Y', strtotime($tanggal));
         $query    = request('query');
 
-        // Ambil stock sama seperti StockIndexController
         $stock = DB::table('parts as p')
             ->join(DB::raw("(
                 SELECT DISTINCT part_id, vendor_id FROM po_table
@@ -134,7 +133,6 @@ class StockDashboardController extends Controller
             $row->judgement = $this->calcJudgement($row);
         }
 
-        // Pie chart data: NG vs OK per vendor
         $pieData = $allStock->groupBy('nickname')->map(function ($items) {
             $ok  = $items->where('judgement', 'OK')->count();
             $ng  = $items->where('judgement', 'NG')->count();

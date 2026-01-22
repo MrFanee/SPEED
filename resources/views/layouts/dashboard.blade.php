@@ -9,7 +9,7 @@
     @stack('styles')
     <style>
         .dashboard-topbar {
-            background-color: #F5EFE7;
+            background-color: white;
             color: #213555;
             padding: 0.5rem 1rem;
             position: sticky;
@@ -61,6 +61,14 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     @stack('scripts')
+
+    <!-- ===== FOOTER ===== -->
+<footer class="bg-light text-center text-muted py-2 mt-4">
+    <div class="container">
+        &copy; Copyright <strong><span>TRIMITRA CHITRAHASTA</span></strong>. All Rights Reserved
+    </div>
+</footer>
+
 </body>
 
 </html>

@@ -7,7 +7,7 @@
 
             @foreach($pieData as $vendor => $data)
                 <div class="col-xl-1 col-lg-2 col-md-3 col-sm-4 col-6">
-                    <div class="fw-bold small text-truncate" title="{{ $vendor }}">
+                    <div class="fw-bold small text-truncate" style="color: #213555;" title="{{ $vendor }}">
                         {{ $vendor }}
                     </div>
                     <canvas id="chart-{{ $loop->index }}" height="110"></canvas>
@@ -37,22 +37,21 @@
                 <tbody>
                     @foreach($stock as $row)
                         <tr>
-                            <td>{{ $row->nickname }}</td>
+                            <td class="text-center">{{ $row->nickname }}</td>
                             <td>{{ $row->item_code }}</td>
                             <td>{{ $row->part_name }}</td>
-                            <td>{{ $row->rm }}</td>
-                            <td>{{ $row->wip }}</td>
-                            <td>{{ $row->fg }}</td>
-                            <td>{{ $row->std_stock }}</td>
+                            <td class="text-center">{{ $row->rm }}</td>
+                            <td class="text-center">{{ $row->wip }}</td>
+                            <td class="text-center">{{ $row->fg }}</td>
+                            <td class="text-center">{{ $row->std_stock }}</td>
                             <td
                                 class="fw-bold text-center text-white {{ $row->judgement == 'NG' ? 'bg-danger' : 'bg-success' }}">
                                 {{ $row->judgement }}
                             </td>
-                            <td 
-                                class="fw-bold text-center {{ $row->qty_delay > 0 ? 'bg-danger text-white' : 'text-dark' }}">
+                            <td class="fw-bold text-center {{ $row->qty_delay > 0 ? 'bg-danger text-white' : 'text-dark' }}">
                                 {{ $row->qty_delay }}
                             </td>
-                            <td>{{ $row->qty_manifest }}</td>
+                            <td class="text-center">{{ $row->qty_manifest }}</td>
                             <td>{{ $row->kategori_problem }}</td>
                             <td>{{ $row->detail_problem }}</td>
                         </tr>
@@ -64,6 +63,9 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+
     <script>
         @foreach($pieData as $vendor => $data)
             const ctx{{ $loop->index }} = document.getElementById('chart-{{ $loop->index }}');
@@ -73,7 +75,10 @@
                 data: {
                     labels: ['OK', 'NG'],
                     datasets: [{
-                        data: [{{ $data['OK'] }}, {{ $data['NG'] }}]
+                        data: [{{ $data['OK'] }}, {{ $data['NG'] }}],
+                        backgroundColor: ['#5CB338', '#FFC145'],
+                        borderColor: '#ffffff', 
+                        borderWidth: 0, 
                     }]
                 },
                 options: {
@@ -81,10 +86,22 @@
                     plugins: {
                         legend: {
                             display: false
+                        },
+                        datalabels: {
+                            color: '#fff',
+                            font: {
+                                weight: 'bold',
+                                size: 12
+                            },
+                            formatter: function (value, context) {
+                                return value; 
+                            }
                         }
                     }
-                }
+                },
+                plugins: [ChartDataLabels] // plugin untuk value
             });
         @endforeach
     </script>
+
 @endsection
