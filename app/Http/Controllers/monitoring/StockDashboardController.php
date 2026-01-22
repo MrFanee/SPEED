@@ -119,11 +119,11 @@ class StockDashboardController extends Controller
         if ($query) {
             $stock->where(function ($q) use ($query) {
                 $q->where('p.item_code', 'like', "%$query%")
-                  ->orWhere('p.part_name', 'like', "%$query%")
-                  ->orWhere('v.nickname', 'like', "%$query%")
-                  ->orWhere('ms.judgement', 'like', "%$query%")
-                  ->orWhere('ms.kategori_problem', 'like', "%$query%")
-                  ->orWhere('ms.detail_problem', 'like', "%$query%");
+                    ->orWhere('p.part_name', 'like', "%$query%")
+                    ->orWhere('v.nickname', 'like', "%$query%")
+                    ->orWhere('ms.judgement', 'like', "%$query%")
+                    ->orWhere('ms.kategori_problem', 'like', "%$query%")
+                    ->orWhere('ms.detail_problem', 'like', "%$query%");
             });
         }
 
@@ -139,7 +139,9 @@ class StockDashboardController extends Controller
             return ['OK' => $ok, 'NG' => $ng];
         });
 
-        $stock = $allStock->where('judgement', 'NG')->values();
+        $stock = $allStock->filter(function ($item) {
+            return $item->judgement === 'NG' || $item->qty_delay > 0 && $item->qty_po > 0;
+        })->values();
 
         return view('monitoring.stock', compact('tanggal', 'stock', 'pieData', 'query'));
     }

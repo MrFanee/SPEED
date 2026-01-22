@@ -16,7 +16,7 @@
 
         </div>
 
-        <div class="table-responsive" style="max-height: 75vh; overflow-y: auto;">
+        <div class="table-responsive table-wrapper" style="max-height: calc(100vh - 400px); overflow-y: auto;">
             <table class="table table-bordered table-striped table-hover" style="font-size: 10px;">
                 <thead class="text-center sticky-top">
                     <tr>

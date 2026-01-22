@@ -63,7 +63,7 @@
     @stack('scripts')
 
     <!-- ===== FOOTER ===== -->
-<footer class="bg-light text-center text-muted py-2 mt-4">
+<footer class="text-center text-muted py-2 mt-4">
     <div class="container">
         &copy; Copyright <strong><span>TRIMITRA CHITRAHASTA</span></strong>. All Rights Reserved
     </div>
