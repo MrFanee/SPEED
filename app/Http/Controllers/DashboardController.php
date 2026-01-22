@@ -92,8 +92,8 @@ class DashboardController extends Controller
 
             ->leftJoin(DB::raw("(
                 SELECT d.part_id, p.vendor_id,
-                    SUM(CASE WHEN d.qty_plan > 0 THEN 1 ELSE 0 END) AS qty_plan,
-                    SUM(CASE WHEN d.qty_delivery = 0 THEN 1 ELSE 0 END) AS qty_delivery
+                    SUM(CASE WHEN d.qty_plan > 0 THEN 1 ELSE 0 END) AS frek_plan,
+                    SUM(CASE WHEN d.qty_delivery = 0 THEN 1 ELSE 0 END) AS frek_closed
                 FROM master_di d
                 JOIN po_table p ON d.po_id = p.id
                 WHERE MONTH(d.delivery_date) = $bulan
@@ -115,7 +115,7 @@ class DashboardController extends Controller
                     ->on(DB::raw('COALESCE(ms.vendor_id, po.vendor_id)'), '=', 'po.vendor_id');
             })
 
-            ->select('ms.part_id', 'ms.judgement', 'po.qty_po', 'di.qty_delivery', 'di.qty_plan', 'ms.kategori_problem');
+            ->select('ms.part_id', 'ms.judgement', 'po.qty_po', 'di.frek_closed', 'di.frek_plan', 'ms.kategori_problem');
         $data->whereNotNull('ms.part_id')
             ->whereNotNull('std.std_stock')
             ->where('std.std_stock', '>', 0);
@@ -143,8 +143,8 @@ class DashboardController extends Controller
             return [
                 'judgement' => $rows->first()->judgement,
                 'qty_po' => $rows->first()->qty_po ?? 0, // ambil qty_po disini
-                'qty_plan' => $rows->sum('qty_plan'),
-                'qty_delivery' => $rows->sum('qty_delivery'),
+                'frek_plan' => $rows->sum('frek_plan'),
+                'frek_closed' => $rows->sum('frek_closed'),
                 'kategori_problem' => $rows->first()->kategori_problem,
             ];
         });
@@ -154,7 +154,10 @@ class DashboardController extends Controller
             'total_item' => $perPart->where('qty_po', '>', 0)->count(),
             'total_ng' => $perPart->where('qty_po', '>', 0)->where('judgement', 'NG')->count(),
             'total_ok' => $perPart->where('qty_po', '>', 0)->where('judgement', 'OK')->count(),
-            'total_on_schedule' => $perPart->where('qty_po', '>', 0)->where('qty_plan', '>', 0)->filter(fn ($item) => $item['qty_plan'] == $item['qty_delivery'])->count(),
+            'total_on_schedule' => $perPart->where('qty_po', '>', 0)
+                ->where('frek_plan', '>', 0)
+                ->filter(fn($item) => $item['frek_plan'] == $item['frek_closed'])
+                ->count(),
             'total_material' => $ng->where('kategori_problem', 'Material')->count(),
             'total_man' => $ng->where('kategori_problem', 'Man')->count(),
             'total_machine' => $ng->where('kategori_problem', 'Machine')->count(),

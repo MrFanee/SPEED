@@ -113,9 +113,9 @@ class StockDashboardController extends Controller
             )
             ->orderBy('v.nickname', 'asc');
 
-        if (Auth::user()->role === 'vendor') {
-            $stock->where('pv.vendor_id', Auth::user()->vendor_id);
-        }
+        // if (Auth::user()->role === 'vendor') {
+        //     $stock->where('pv.vendor_id', Auth::user()->vendor_id);
+        // }
 
         if ($query) {
             $stock->where(function ($q) use ($query) {

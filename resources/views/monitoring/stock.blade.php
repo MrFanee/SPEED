@@ -1,12 +1,8 @@
-@extends('layouts.main')
+@extends('layouts.dashboard')
 @section('title', 'Dashboard Stock Monitoring')
 
 @section('content')
     <div class="container-fluid mt-3">
-
-        <h4 class="mb-3">Stock Monitoring - {{ $tanggal }}</h4>
-
-        {{-- ===== PIE CHART SEMUA VENDOR ===== --}}
         <div class="row text-center g-2 mb-3" style="overflow-x:hidden;">
 
             @foreach($pieData as $vendor => $data)
@@ -20,7 +16,6 @@
 
         </div>
 
-        {{-- ===== TABEL NG ===== --}}
         <div class="table-responsive" style="max-height: 75vh; overflow-y: auto;">
             <table class="table table-bordered table-striped table-hover" style="font-size: 10px;">
                 <thead class="text-center sticky-top">
@@ -54,7 +49,7 @@
                                 {{ $row->judgement }}
                             </td>
                             <td 
-                                class="fw-bold text-center text-white {{ $row->qty_delay > 0 ? 'bg-danger' : 'text-dark' }}">
+                                class="fw-bold text-center {{ $row->qty_delay > 0 ? 'bg-danger text-white' : 'text-dark' }}">
                                 {{ $row->qty_delay }}
                             </td>
                             <td>{{ $row->qty_manifest }}</td>

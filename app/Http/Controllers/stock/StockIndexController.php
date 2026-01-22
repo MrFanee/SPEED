@@ -72,9 +72,9 @@ class StockIndexController extends Controller
                        CASE 
                             WHEN SUM(CASE WHEN d.qty_plan > 0 THEN 1 ELSE 0 END) > 0
                             THEN ROUND(
-                                    SUM(CASE WHEN d.qty_delivery > 0 THEN 1 ELSE 0 END) 
+                                    SUM(CASE WHEN d.qty_delivery = 0 THEN 1 ELSE 0 END) 
                                     / 
-                                    SUM(CASE WHEN d.qty_plan = 0 THEN 1 ELSE 0 END) * 100
+                                    SUM(CASE WHEN d.qty_plan > 0 THEN 1 ELSE 0 END) * 100
                             ,1)
                             ELSE 0 
                         END AS balance,

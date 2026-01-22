@@ -20,71 +20,76 @@ class ReportVendorController extends Controller
             $tanggalPilih = date('Y-m-d');
         }
 
-        $data = DB::table('parts')
-            ->leftJoin('master_2hk as std', 'parts.id', '=', 'std.part_id')
+        $data = DB::table(DB::raw("(
+                    SELECT DISTINCT part_id, vendor_id FROM po_table
+                    UNION
+                    SELECT DISTINCT part_id, vendor_id FROM master_stock
+                ) pv"))
 
-            ->leftJoin(DB::raw("(
-                    SELECT id, part_id, vendor_id, tanggal, fg, wip, rm, judgement, kategori_problem, detail_problem
-                    FROM master_stock
-                    WHERE tanggal = '$tanggalPilih'
-                ) AS ms
-            "), function ($join) {
-                $join->on('parts.id', '=', 'ms.part_id');
-            })
+                            ->join('parts as p', 'p.id', '=', 'pv.part_id')
 
-            ->leftJoin('master_2hk', 'parts.id', '=', 'master_2hk.part_id')
+                            ->leftJoin('vendors as v', 'v.id', '=', 'pv.vendor_id')
 
-            ->leftJoin(DB::raw("(
-                SELECT part_id,
-                    vendor_id,
-                    SUM(qty_po) AS qty_po,
-                    SUM(qty_outstanding) AS qty_outstanding
-                FROM po_table
-                WHERE MONTH(delivery_date) = $bulan
-                AND YEAR(delivery_date) = $tahun
-                GROUP BY part_id, vendor_id
-            ) po"), 'parts.id', '=', 'po.part_id')
+                            ->leftJoin('master_2hk as std', 'p.id', '=', 'std.part_id')
 
-            ->leftJoin('vendors', function ($join) {
-                $join->on('vendors.id', '=', DB::raw('COALESCE(ms.vendor_id, po.vendor_id)'));
+                            ->leftJoin(DB::raw("(
+                        SELECT id, part_id, vendor_id, tanggal, fg, wip, rm, judgement, kategori_problem, detail_problem
+                        FROM master_stock
+                        WHERE tanggal = '$tanggalPilih'
+                    ) ms
+                "), function ($join) {
+                $join->on('ms.part_id', '=', 'pv.part_id');
+                $join->on('ms.vendor_id', '=', 'pv.vendor_id');
             })
 
             ->leftJoin(DB::raw("(
-                SELECT 
-                    d.part_id,
-                    p.vendor_id,
-                    SUM(CASE WHEN d.qty_plan > 0 THEN 1 ELSE 0 END) AS qty_plan,
-                    SUM(CASE WHEN d.qty_delivery = 0 THEN 1 ELSE 0 END) AS qty_delivery,
-                    SUM(d.qty_delay) AS qty_delay,
-                    SUM(d.qty_manifest) AS qty_manifest
-                FROM master_di d
-                JOIN po_table p ON d.po_id = p.id
-                WHERE MONTH(d.delivery_date) = $bulan
-                AND YEAR(d.delivery_date) = $tahun
-                AND DATE(d.delivery_date) <= '$kemarin'
-                GROUP BY d.part_id, p.vendor_id
-            ) di"), function ($join) {
-                $join->on('parts.id', '=', 'di.part_id');
-                $join->on(DB::raw('COALESCE(ms.vendor_id, po.vendor_id)'), '=', 'di.vendor_id');
+                    SELECT part_id, vendor_id,
+                        SUM(qty_po) AS qty_po,
+                        SUM(qty_outstanding) AS qty_outstanding
+                    FROM po_table
+                    WHERE MONTH(delivery_date) = $bulan
+                    AND YEAR(delivery_date) = $tahun
+                    GROUP BY part_id, vendor_id
+                ) po"), function ($join) {
+                $join->on('po.part_id', '=', 'pv.part_id');
+                $join->on('po.vendor_id', '=', 'pv.vendor_id');
+            })
+
+            ->leftJoin(DB::raw("(
+                    SELECT 
+                        d.part_id,
+                        p.vendor_id,
+                        SUM(CASE WHEN d.qty_plan > 0 THEN 1 ELSE 0 END) AS frek_plan,
+                        SUM(CASE WHEN d.qty_delivery = 0 THEN 1 ELSE 0 END) AS frek_closed
+                    FROM master_di d
+                    JOIN po_table p ON d.po_id = p.id
+                    WHERE MONTH(d.delivery_date) = $bulan
+                    AND YEAR(d.delivery_date) = $tahun
+                    AND DATE(d.delivery_date) <= '$kemarin'
+                    GROUP BY d.part_id, p.vendor_id
+                ) di"), function ($join) {
+                $join->on('di.part_id', '=', 'pv.part_id');
+                $join->on('di.vendor_id', '=', 'pv.vendor_id');
             })
 
             ->select(
-                'ms.part_id',
-                'vendors.id as vendor_id',
-                'vendors.nickname',
+                'pv.part_id',
+                'pv.vendor_id',
+                'v.nickname',
                 'po.qty_po',
                 'ms.judgement',
-                'di.qty_delivery',
-                'di.qty_plan',
+                'di.frek_plan',
+                'di.frek_closed',
                 'ms.kategori_problem',
                 'ms.rm',
                 'ms.wip',
                 'ms.fg'
             )
-            ->orderBy('vendors.nickname', 'asc')
+
             ->whereDate('ms.tanggal', $tanggalPilih)
             ->whereNotNull('std.std_stock')
             ->where('std.std_stock', '>', 0)
+            ->orderBy('v.nickname', 'asc')
             ->get();
 
         if ($data->isEmpty()) {
@@ -205,8 +210,8 @@ class ReportVendorController extends Controller
                 return [
                     'qty_po' => $rows->sum('qty_po'),
                     'judgement' => $rows->first()->judgement,
-                    'qty_plan' => $rows->sum('qty_plan'),
-                    'qty_delivery' => $rows->sum('qty_delivery'),
+                    'frek_plan' => $rows->sum('frek_plan'),
+                    'frek_closed' => $rows->sum('frek_closed'),
                     'kategori_problem' => $rows->first()->kategori_problem,
                 ];
             });
@@ -217,8 +222,8 @@ class ReportVendorController extends Controller
             $stok_ok = $perPart->where('qty_po', '>', 0)->where('judgement', 'OK')->count();
             $stok_ng = $perPart->where('qty_po', '>', 0)->where('judgement', 'NG')->count();
             $on_schedule = $perPart->where('qty_po', '>', 0)
-                ->where('qty_plan', '>', 0)
-                ->filter(fn($item) => $item['qty_plan'] == $item['qty_delivery'])
+                ->where('frek_plan', '>', 0)
+                ->filter(fn($item) => $item['frek_plan'] == $item['frek_closed'])
                 ->count();
             $material = $ng->where('kategori_problem', 'Material')->count();
             $man = $ng->where('kategori_problem', 'Man')->count();
