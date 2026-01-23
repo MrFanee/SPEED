@@ -25,7 +25,7 @@
                 </a>
 
                 <ul id="masterdata-nav"
-                    class="nav-content collapse {{ request()->is('vendor*') || request()->is('part*') || request()->is('twodays*') || request()->is('po*') || request()->is('di*') || request()->is('upload_failure*') ? 'show' : '' }}"
+                    class="nav-content collapse {{ request()->is('user*') || request()->is('vendor*') || request()->is('part*') || request()->is('twodays*') || request()->is('po*') || request()->is('di*') || request()->is('upload_failure*') ? 'show' : '' }}"
 
                     @if($role == 'admin')
                         <li>

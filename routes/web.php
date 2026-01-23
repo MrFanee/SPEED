@@ -54,11 +54,6 @@ use App\Http\Controllers\upload_failure\UploadFailureIndexController;
 use App\Http\Controllers\upload_failure\UploadFailureDestroyController;
 use App\Http\Controllers\monitoring\StockDashboardController;
 
-
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
 Route::get('/', [AuthController::class, 'showLoginForm'])->name('login');
 
 Route::get('/monitoring/stock', [StockDashboardController::class, 'index'])->name('monitoring.stock');
