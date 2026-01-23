@@ -18,7 +18,7 @@
 
         <div class="table-responsive table-wrapper" style="max-height: calc(100vh - 400px); overflow-y: auto;">
             <table class="table table-bordered table-striped table-hover" style="font-size: 10px;">
-                <thead class="text-center sticky-top">
+                <thead class="text-center sticky-top bg-light">
                     <tr>
                         <th>Vendor</th>
                         <th>Item Code</th>
@@ -63,8 +63,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script
-        src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
     <script>
         @foreach($pieData as $vendor => $data)

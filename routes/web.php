@@ -55,12 +55,12 @@ use App\Http\Controllers\upload_failure\UploadFailureDestroyController;
 use App\Http\Controllers\monitoring\StockDashboardController;
 
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
 Route::get('/monitoring/stock', [StockDashboardController::class, 'index'])->name('monitoring.stock');
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::get('/', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 

@@ -15,10 +15,10 @@ class StockDashboardController extends Controller
         $std    = $row->std_stock ?? 0;
 
         if ($qty_po == 0) return 'NO PO';
-        if ($fg < $std) return 'NG';
-        if ($fg >= $std) return 'OK';
+        if ($fg < $std && $std > 0) return 'NG';
+        if ($fg >= $std && $std > 0) return 'OK';
 
-        return '-';
+        return 'NG';
     }
 
     public function index()

@@ -106,7 +106,7 @@
                             </tr>
 
                             <tr class="small">
-                                @foreach (range(0,14) as $i)
+                                @foreach (range(0,15) as $i)
                                     <th style="padding: 1px;">
                                         <button class="btn btn-sm filter-btn" onclick="toggleFilterInput({{ $i }})">
                                             <i class="bi bi-filter"></i>
@@ -206,9 +206,9 @@
                     let judgement = "-";
                     if (jumlahPO === 0) {
                         judgement = "NO PO";
-                    } else if (jumlahPO > 0 && fg >= stdStock) {
+                    } else if (jumlahPO > 0 && stdStock > 0 && fg >= stdStock) {
                         judgement = "OK";
-                    } else if (jumlahPO > 0 && fg < stdStock) {
+                    } else if (jumlahPO > 0 && stdStock > 0 && fg < stdStock) {
                         judgement = "NG";
                     }
 
