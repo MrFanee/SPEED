@@ -46,28 +46,23 @@ class PartUploadController extends Controller
             $item_code = trim($row[0]);
             $part_number = trim($row[1]);
             $part_name = trim($row[2]);
-            
+
 
             $part = Part::where('item_code', $item_code)->first();
 
-            if ($part) {
-                Part::updateOrCreate(
-                    [
-                        'item_code' => $part->item_code
-                    ],
-                    [
-                        'part_name' => $part_name,
-                        'part_number' => $part_number
-                    ]
-                );
-                $imported++;
-            } else {
-                $skipped++;
-            }
+            Part::updateOrCreate(
+                ['item_code' => $item_code],
+                [
+                    'part_name'   => $part_name,
+                    'part_number' => $part_number
+                ]
+            );
+
+            $imported++;
         }
 
         return redirect()
             ->route('part.index')
-            ->with('success', "Upload selesai. $imported data berhasil diimpor, $skipped dilewati.");
+            ->with('success', "Upload selesai. $imported data berhasil diimpor.");
     }
 }

@@ -60,8 +60,6 @@ class DIUploadController extends Controller
 
             $delivery_date = null;
 
-            $delivery_date = null;
-
             if ($rawDate && trim($rawDate) !== '') {
                 $clean = trim($rawDate);
 
