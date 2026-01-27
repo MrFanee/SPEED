@@ -50,7 +50,6 @@
         <div class="card">
             <div class="card-body text-center">
                 <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
-                    {{-- @if ($isToday) --}}
                     @if(auth()->user()->role !== 'vendor')
                         <form action="{{ route('stock.create') }}" method="POST">
                             @csrf
@@ -59,12 +58,11 @@
                                 <i class="bi bi-plus-circle-dotted"></i> Tambah
                             </button>
                         </form>
-                    @endif
 
-                    <a href="{{ route('stock.upload') }}" class="btn btn-outline-success btn-sm">
-                        <i class="bi bi-upload"></i> Upload CSV
-                    </a>
-                    {{-- @endif --}}
+                        <a href="{{ route('stock.upload') }}" class="btn btn-outline-success btn-sm">
+                            <i class="bi bi-upload"></i> Upload CSV
+                        </a>
+                    @endif
                 </div>
 
 
@@ -77,7 +75,7 @@
                         </div>
                     @endif
 
-                    <div id="notifProblem" class="d-none text-danger fw-bold mb-2" style="font-size: 12px; text-align: left;">
+                    <div id="notifProblem" class="d-none text-danger fw-bold mb-2 sticky-top bg-white" style="font-size: 12px; text-align: left;">
                         Kolom Kategori & Detail Problem wajib diisi untuk baris NG!
                     </div>
                     

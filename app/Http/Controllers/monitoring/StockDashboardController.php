@@ -112,10 +112,6 @@ class StockDashboardController extends Controller
             )
             ->orderBy('v.nickname', 'asc');
 
-        // if (Auth::user()->role === 'vendor') {
-        //     $stock->where('pv.vendor_id', Auth::user()->vendor_id);
-        // }
-
         if ($query) {
             $stock->where(function ($q) use ($query) {
                 $q->where('p.item_code', 'like', "%$query%")
@@ -139,10 +135,32 @@ class StockDashboardController extends Controller
             return ['OK' => $ok, 'NG' => $ng];
         });
 
+        $barData = [];
+
+        foreach ($allStock as $row) {
+            if ($row->qty_po <= 0) {
+                continue;
+            }
+            $vendor = $row->nickname;
+
+            if (!isset($barData[$vendor])) {
+                $barData[$vendor] = [
+                    'delay' => 0,
+                    'normal' => 0
+                ];
+            }
+
+            if ($row->qty_delay > 0) {
+                $barData[$vendor]['delay']++;
+            } else {
+                $barData[$vendor]['normal']++;
+            }
+        }
+
         $stock = $allStock->filter(function ($item) {
             return $item->judgement === 'NG' || $item->qty_delay > 0 && $item->qty_po > 0;
         })->values();
 
-        return view('monitoring.stock', compact('tanggal', 'stock', 'pieData', 'query'));
+        return view('monitoring.stock', compact('tanggal', 'stock', 'pieData', 'barData', 'query'));
     }
 }

@@ -3,16 +3,35 @@
 
 @section('content')
     <div class="container-fluid mt-3">
-        <div class="row text-center g-2 mb-3" style="overflow-x:hidden;">
+        <div class="row mb-3">
 
-            @foreach($pieData as $vendor => $data)
-                <div class="col-xl-1 col-lg-2 col-md-3 col-sm-4 col-6">
-                    <div class="fw-bold small text-truncate" style="color: #213555;" title="{{ $vendor }}">
-                        {{ $vendor }}
-                    </div>
-                    <canvas id="chart-{{ $loop->index }}" height="110"></canvas>
+            {{-- KIRI : PIE --}}
+            <div class="col-xl-6 col-lg-6 col-md-12">
+                <div class="row text-center g-2" style="overflow-x:hidden;">
+                    @foreach($pieData as $vendor => $data)
+                        <div class="col-xl-1 col-lg-2 col-md-3 col-sm-4 col-6">
+                            <div class="fw-bold small text-truncate" style="color: #213555;" title="{{ $vendor }}">
+                                {{ $vendor }}
+                            </div>
+                            <canvas id="chart-{{ $loop->index }}" height="110"></canvas>
+                        </div>
+                    @endforeach
                 </div>
-            @endforeach
+            </div>
+
+            {{-- KANAN : BAR --}}
+            <div class="col-xl-6 col-lg-6 col-md-12">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="fw-bold text-center mb-2" style="color:#213555;">
+                            DI Delay
+                        </div>
+                        <div style="flex:1; min-height:180px;">
+                            <canvas id="barVendorChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         </div>
 
@@ -63,7 +82,8 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
     <script>
         @foreach($pieData as $vendor => $data)
@@ -76,8 +96,8 @@
                     datasets: [{
                         data: [{{ $data['OK'] }}, {{ $data['NG'] }}],
                         backgroundColor: ['#5CB338', '#FFC145'],
-                        borderColor: '#ffffff', 
-                        borderWidth: 0, 
+                        borderColor: '#ffffff',
+                        borderWidth: 0,
                     }]
                 },
                 options: {
@@ -93,7 +113,7 @@
                                 size: 12
                             },
                             formatter: function (value, context) {
-                                return value; 
+                                return value;
                             }
                         }
                     }
@@ -101,6 +121,85 @@
                 plugins: [ChartDataLabels] // plugin untuk value
             });
         @endforeach
+    </script>
+
+    <script>
+            const barLabels = [
+            @foreach($barData as $vendor => $data)
+                "{{ $vendor }}",
+            @endforeach
+            ];
+
+        const delayData = [
+            @foreach($barData as $vendor => $data)
+                {{ $data['delay'] }},
+            @endforeach
+            ];
+
+        const normalData = [
+            @foreach($barData as $vendor => $data)
+                {{ $data['normal'] }},
+            @endforeach
+            ];
+
+        const barCtx = document.getElementById('barVendorChart');
+
+        new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: barLabels,
+                datasets: [
+                    {
+                        label: 'Delay',
+                        data: delayData,
+                        backgroundColor: '#FB4141'
+                    },
+                    {
+                        label: 'Closed',
+                        data: normalData,
+                        backgroundColor: '#ECE852'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'end',
+                        color: 'grey',
+                        font: {
+                            weight: 'bold',
+                            size: 10
+                        },
+                        formatter: function (value) {
+                            return value > 0 ? value : '';
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            autoSkip: false,
+                            maxRotation: 60,
+                            minRotation: 60,
+                            font: { size: 10 }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+
     </script>
 
 @endsection
