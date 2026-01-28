@@ -35,7 +35,7 @@
                         </select>
 
                         <select name="tahun" class="form-select form-select-sm" style="width: 100px"
-                            onchange="this.form.submit()">
+                            onchange="onTahunChange(this)">
                             @foreach ($tahunList as $th)
                                 <option value="{{ $th }}" {{ $tahun == $th ? 'selected' : '' }}>
                                     {{ $th }}
@@ -124,5 +124,18 @@
                 new simpleDatatables.DataTable(table);
             }
         });
+    </script>
+
+    <script>
+        function onTahunChange(el) {
+            const form = el.form;
+
+            const bulanSelect = form.querySelector('select[name="bulan"]');
+            if (bulanSelect) {
+                bulanSelect.disabled = true;
+            }
+
+            form.submit();
+        }
     </script>
 @endsection

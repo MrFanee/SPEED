@@ -26,7 +26,8 @@
 
                     <form action="{{ route('po.index') }}" method="GET" class="d-flex gap-2">
 
-                        <select name="bulan" class="form-select form-select-sm" style="width: 120px" onchange="this.form.submit()">
+                        <select name="bulan" class="form-select form-select-sm" id="bulanSelect" style="width: 120px"
+                            onchange="this.form.submit()">
                             @foreach($bulanList as $bln)
                                 <option value="{{ $bln }}" {{ $bln == $bulan ? 'selected' : '' }}>
                                     {{ \Carbon\Carbon::create()->locale('id')->month($bln)->translatedFormat('F') }}
@@ -34,7 +35,8 @@
                             @endforeach
                         </select>
 
-                        <select name="tahun" class="form-select form-select-sm" style="width: 100px" onchange="this.form.submit()">
+                        <select name="tahun" class="form-select form-select-sm" id="tahunSelect" style="width: 100px"
+                            onchange="onTahunChange(this)">
                             @foreach ($tahunList as $th)
                                 <option value="{{ $th }}" {{ $tahun == $th ? 'selected' : '' }}>
                                     {{ $th }}
@@ -121,4 +123,18 @@
             }
         });
     </script>
+
+    <script>
+        function onTahunChange(el) {
+            const form = el.form;
+
+            const bulanSelect = form.querySelector('select[name="bulan"]');
+            if (bulanSelect) {
+                bulanSelect.disabled = true;
+            }
+
+            form.submit();
+        }
+    </script>
+
 @endsection
