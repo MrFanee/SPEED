@@ -28,6 +28,7 @@ class StockDashboardController extends Controller
         $bulan    = date('m', strtotime($tanggal));
         $tahun    = date('Y', strtotime($tanggal));
         $query    = request('query');
+        $vendor   = request('vendor');
 
         $stock = DB::table('parts as p')
             ->join(DB::raw("(
@@ -64,6 +65,8 @@ class StockDashboardController extends Controller
                 SELECT d.part_id, p.vendor_id,
                     SUM(CASE WHEN d.qty_plan > 0 THEN 1 ELSE 0 END) AS qty_plan,
                     SUM(CASE WHEN d.qty_delivery = 0 THEN 1 ELSE 0 END) AS qty_delivery,
+                    SUM(CASE WHEN d.qty_delivery > 0 THEN 1 ELSE 0 END) AS di_delay,
+                    SUM(CASE WHEN d.qty_delivery = 0 THEN 1 ELSE 0 END) AS di_closed,
                     SUM(d.qty_manifest) AS qty_manifest,
                     (
                         SUM(CASE WHEN d.qty_plan > 0 THEN 1 ELSE 0 END)
@@ -107,6 +110,8 @@ class StockDashboardController extends Controller
                 DB::raw('COALESCE(di.qty_delivery,0) as qty_delivery'),
                 DB::raw('COALESCE(di.balance,0) as balance'),
                 DB::raw('COALESCE(di.qty_delay,0) as qty_delay'),
+                DB::raw('COALESCE(di.di_delay,0) as di_delay'),
+                DB::raw('COALESCE(di.di_closed,0) as di_closed'),
                 DB::raw('COALESCE(di.qty_manifest,0) as qty_manifest'),
                 'hk.std_stock'
             )
@@ -123,6 +128,10 @@ class StockDashboardController extends Controller
             });
         }
 
+        if ($vendor) {
+            $stock->where('v.nickname', $vendor);
+        }
+
         $allStock = $stock->get();
 
         foreach ($allStock as $row) {
@@ -137,30 +146,31 @@ class StockDashboardController extends Controller
 
         $barData = [];
 
-        foreach ($allStock as $row) {
-            if ($row->qty_po <= 0) {
-                continue;
-            }
-            $vendor = $row->nickname;
+foreach ($allStock as $row) {
 
-            if (!isset($barData[$vendor])) {
-                $barData[$vendor] = [
-                    'delay' => 0,
-                    'normal' => 0
-                ];
-            }
+    $vendor = $row->nickname;
 
-            if ($row->qty_delay > 0) {
-                $barData[$vendor]['delay']++;
-            } else {
-                $barData[$vendor]['normal']++;
-            }
-        }
+    if (!isset($barData[$vendor])) {
+        $barData[$vendor] = [
+            'delay'  => 0,
+            'closed' => 0
+        ];
+    }
+
+    $barData[$vendor]['delay']  += $row->di_delay;   // qty_delivery > 0
+    $barData[$vendor]['closed'] += $row->di_closed;  // qty_delivery = 0
+}
+
+
+        $vendorList = DB::table('vendors')
+            ->select('nickname')
+            ->orderBy('nickname')
+            ->get();
 
         $stock = $allStock->filter(function ($item) {
             return $item->judgement === 'NG' || $item->qty_delay > 0 && $item->qty_po > 0;
         })->values();
 
-        return view('monitoring.stock', compact('tanggal', 'stock', 'pieData', 'barData', 'query'));
+        return view('monitoring.stock', compact('tanggal', 'stock', 'pieData', 'barData', 'query', 'vendorList'));
     }
 }

@@ -17,12 +17,12 @@
                                 <div class="d-flex align-items-center me-1">
                                     <div class="rounded-circle me-1" style="background: #00DFA2; width: 8px; height: 8px;">
                                     </div>
-                                    <span class="text-white fw-bold" style="font-size: 9px;">OK</span>
+                                    <span class="text-white fw-bold" style="font-size: 12px;">OK</span>
                                 </div>
                                 <div class="d-flex align-items-center">
                                     <div class="rounded-circle me-1" style="background: #FF5FCF; width: 8px; height: 8px;">
                                     </div>
-                                    <span class="text-white fw-bold" style="font-size: 9px;">NG</span>
+                                    <span class="text-white fw-bold" style="font-size: 12px;">NG</span>
                                 </div>
                             </div>
                         </div>
@@ -51,18 +51,18 @@
                     <div class="card-header py-1" style="background: linear-gradient(90deg, #FF3EA5 0%, #FF7ED4 100%);">
                         <div class="d-flex justify-content-between">
                             <div class="d-flex align-items-center">
-                                <span class="text-white fw-bold" style="font-size: 12px;">DELAY SUMMARY</span>
+                                <span class="text-white fw-bold" style="font-size: 12px;">DI DELAY SUMMARY</span>
                             </div>
 
                             <div class="d-flex align-items-center">
                                 <div class="d-flex align-items-center me-2">
                                     <div class="rounded-circle me-1" style="width:8px;height:8px;background:#ff3b3b;"></div>
-                                    <span class="text-white fw-bold" style="font-size:9px;">Delay</span>
+                                    <span class="text-white fw-bold" style="font-size:12px;">Delay</span>
                                 </div>
 
                                 <div class="d-flex align-items-center">
                                     <div class="rounded-circle me-1" style="width:8px;height:8px;background:#c9e933;"></div>
-                                    <span class="text-white fw-bold" style="font-size:9px;">Closed</span>
+                                    <span class="text-white fw-bold" style="font-size:12px;">Closed</span>
                                 </div>
                             </div>
                         </div>
@@ -82,9 +82,32 @@
         <div class="row">
             <div class="col-12">
                 <div class="card shadow-sm border-0" style="height: calc(100vh - 430px);">
-                    <div class="card-header py-1" style="background: linear-gradient(90deg, #2D46B9 0%, #9EDDFF 100%);">
-                        <h6 class="mb-0 text-white fw-bold" style="font-size: 12px;">DETAIL STOCK</h6>
+                    <div class="card-header py-1 d-flex justify-content-between align-items-center"
+                        style="background: linear-gradient(90deg, #2D46B9 0%, #9EDDFF 100%);">
+
+                        <h6 class="mb-0 text-white fw-bold" style="font-size: 12px;">
+                            DETAIL STOCK TIDAK MENCAPAI 2HK
+                        </h6>
+
+                        <form method="GET" action="" class="d-flex gap-1">
+                            <input type="hidden" name="tanggal" value="{{ request('tanggal') }}">
+                            <input type="hidden" name="query" value="{{ request('query') }}">
+
+                            <select name="vendor"
+                                    class="form-select form-select-sm fw-bold"
+                                    style="font-size:12px; width:120px; color: #2D46B9;"
+                                    onchange="this.form.submit()">
+                                <option value="">ALL VENDOR</option>
+                                @foreach($vendorList as $v)
+                                    <option value="{{ $v->nickname }}"
+                                        {{ request('vendor') == $v->nickname ? 'selected' : '' }}>
+                                        {{ $v->nickname }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </form>
                     </div>
+
                     <div class="card-body p-0" style="height: calc(100% - 38px);">
                         <div class="table-responsive h-100" id="autoScrollTable" style="overflow-y: auto;">
                             <table class="table table-sm table-hover mb-0" style="font-size: 11px;">
@@ -111,8 +134,7 @@
                                                 {{ $row->nickname }}
                                             </td>
                                             <td class="p-1">
-                                                <span class="badge bg-info text-dark"
-                                                    style="font-size: 8px;">{{ $row->item_code }}</span>
+                                                <span class="badge bg-info text-dark">{{ $row->item_code }}</span>
                                             </td>
                                             <td class="p-1 text-truncate" style="max-width: 200px;"
                                                 title="{{ $row->part_name }}">
@@ -259,7 +281,7 @@
 
         const normalData = [
             @foreach($barData as $vendor => $data)
-                {{ $data['normal'] }},
+                {{ $data['closed'] }},
             @endforeach
             ];
 

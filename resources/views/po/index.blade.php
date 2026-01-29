@@ -64,7 +64,7 @@
                     <thead class="text-center">
                         <tr>
                             <th>#</th>
-                            <th>Periode</th>
+                            <th>PO Release</th>
                             <th>No. PO</th>
                             <th>Purch. Group</th>
                             <th>Vendor</th>

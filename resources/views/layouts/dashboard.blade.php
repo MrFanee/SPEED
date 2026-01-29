@@ -46,7 +46,7 @@
         <img src="{{ asset('images/logo tch no bg.png') }}" alt="logo">
 
         <div class="d-flex align-items-center">
-            <h3 class="fw-bold">MONITORING 2 DAYS STOCK</h3>
+            <h3 class="fw-bold">MONITORING 2 DAYS STOCK & DI</h3>
         </div>
 
         <div>
