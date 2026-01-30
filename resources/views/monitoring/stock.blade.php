@@ -266,7 +266,7 @@
         @endforeach
 
 
-                // BAR CHART
+        // BAR CHART
         const barLabels = [
             @foreach($barData as $vendor => $data)
                 "{{ $vendor }}",
@@ -278,12 +278,12 @@
                 {{ $data['delay'] }},
             @endforeach
             ];
-
-        const normalData = [
+            
+        const pctClosedData = [
             @foreach($barData as $vendor => $data)
-                {{ $data['closed'] }},
+                {{ $data['pct_closed'] }},
             @endforeach
-            ];
+        ];
 
         const barCtx = document.getElementById('barVendorChart');
 
@@ -292,95 +292,97 @@
             data: {
                 labels: barLabels,
                 datasets: [
-                    {
-                        label: 'Delay',
-                        data: delayData,
-                        backgroundColor: '#ff3b3b',
-                        borderWidth: 0,
-                        borderRadius: 2,
-                        barPercentage: 1,
-                        categoryPercentage: 0.8
-                    },
-                    {
-                        label: 'Closed',
-                        data: normalData,
-                        backgroundColor: '#c9e933',
-                        borderWidth: 0,
-                        borderRadius: 2,
-                        barPercentage: 1,
-                        categoryPercentage: 0.8
-                    }
-                ]
+                {
+                    label: 'Delay (Item)',
+                    data: delayData,
+                    yAxisID: 'y',            
+                    backgroundColor: '#ff3b3b',
+                    borderRadius: 2,
+                    barPercentage: 0.9,
+                    categoryPercentage: 0.9
+                },
+                {
+                    label: 'Closed (%)',
+                    data: pctClosedData,
+                    yAxisID: 'y1',         
+                    backgroundColor: '#c9e933',
+                    borderRadius: 2,
+                    barPercentage: 0.9,
+                    categoryPercentage: 0.9
+                }
+            ]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                layout: {
-                    padding: {
-                        top: 15
-                    }
+            responsive: true,
+            maintainAspectRatio: false,
+           
+            plugins: {
+                legend: {
+                    position: 'top'
                 },
-                plugins: {
-                    legend: {
-                        display: false
+                datalabels: {
+                    color: '#495057',
+                    font: {
+                        size: 7,
+                        weight: 'bold'
                     },
-                    datalabels: {
-                        color: '#495057',
-                        font: {
-                            size: 7,
-                            weight: 'bold'
-                        },
-                        anchor: 'end',
-                        align: 'top',
-                        offset: 2,
-                        formatter: function (value) {
-                            return value > 0 ? value : '';
+                    anchor: 'end',
+                    align: 'end',  
+                    offset: -2,
+                    formatter: function (value, ctx) {
+                        // persen axis kanan
+                        if (ctx.dataset.yAxisID === 'y1') {
+                            return value > 0 ? value + '%' : '';
                         }
+                        // angka axis kiri
+                        return value > 0 ? value : '';
                     }
-                },
-                scales: {
-                    x: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            color: '#495057',
-                            font: {
-                                size: 8,
-                                weight: 'bold'
-                            },
-                            maxRotation: 45,
-                            minRotation: 45,
-                            padding: 1
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0,0,0,0.05)',
-                            drawBorder: false
-                        },
-                        ticks: {
-                            color: '#6c757d',
-                            font: {
-                                size: 7
-                            },
-                            precision: 0,
-                            padding: 1,
-                            callback: function (value) {
-                                return value === 0 ? '' : value;
-                            }
-                        },
-                        border: {
-                            display: false
-                        }
-                    }
-                },
-                animation: {
-                    duration: 0
                 }
             },
-            plugins: [ChartDataLabels]
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        color: '#495057',
+                        font: { size: 8, weight: 'bold' },
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'DI Delay'
+                    },
+                    ticks: {
+                        precision: 0,
+                        font: { size: 7 }
+                    }
+                },
+                y1: {
+                    beginAtZero: true,
+                    max: 100,
+                    position: 'right',
+                    grid: {
+                        drawOnChartArea: false 
+                    },
+                    title: {
+                        display: true,
+                        text: 'DI Closed (%)'
+                    },
+                    ticks: {
+                        callback: function (value) {
+                            return value + '%';
+                        },
+                        font: { size: 7 }
+                    }
+                }
+            },
+            animation: { duration: 0 }
+        },
+        plugins: [ChartDataLabels]
+
         });
     </script>
 

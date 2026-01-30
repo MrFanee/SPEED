@@ -146,21 +146,32 @@ class StockDashboardController extends Controller
 
         $barData = [];
 
-foreach ($allStock as $row) {
+        foreach ($allStock as $row) {
 
-    $vendor = $row->nickname;
+            $vendor = $row->nickname;
 
-    if (!isset($barData[$vendor])) {
-        $barData[$vendor] = [
-            'delay'  => 0,
-            'closed' => 0
-        ];
-    }
+            if (!isset($barData[$vendor])) {
+                $barData[$vendor] = [
+                    'delay'      => 0,
+                    'closed'     => 0,
+                    'total_di'   => 0,
+                    'pct_closed' => 0
+                ];
+            }
 
-    $barData[$vendor]['delay']  += $row->di_delay;   // qty_delivery > 0
-    $barData[$vendor]['closed'] += $row->di_closed;  // qty_delivery = 0
-}
+            $barData[$vendor]['delay']  += $row->di_delay;
+            $barData[$vendor]['closed'] += $row->di_closed;
+            $barData[$vendor]['total_di'] += ($row->di_delay + $row->di_closed);
+        }
 
+        foreach ($barData as $vendor => $data) {
+            if ($data['total_di'] > 0) {
+                $barData[$vendor]['pct_closed'] =
+                    round(($data['closed'] / $data['total_di']) * 100, 1);
+            } else {
+                $barData[$vendor]['pct_closed'] = 0;
+            }
+        }
 
         $vendorList = DB::table('vendors')
             ->select('nickname')
