@@ -38,7 +38,6 @@ class DIIndexController extends Controller
                 ->whereYear('delivery_date', $tahun)
                 ->max(DB::raw('MONTH(delivery_date)'));
         }
-        $kemarin = now()->subDay()->toDateString();
 
         $di = DB::table('master_di')
             ->leftJoin('po_table', 'master_di.po_id', '=', 'po_table.id')
@@ -55,8 +54,7 @@ class DIIndexController extends Controller
                 'master_di.qty_manifest'
             )
             ->whereMonth('master_di.delivery_date', $bulan)
-            ->whereYear('master_di.delivery_date', $tahun)
-            ->whereDate('master_di.delivery_date', '<=', $kemarin);
+            ->whereYear('master_di.delivery_date', $tahun);
         if (Auth::user()->role === 'vendor') {
             $di->where('po_table.vendor_id', Auth::user()->vendor_id);
         }

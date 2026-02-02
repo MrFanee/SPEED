@@ -88,7 +88,6 @@ class StockIndexController extends Controller
                 JOIN po_table p ON d.po_id = p.id
                 WHERE MONTH(d.delivery_date) = $bulan
                   AND YEAR(d.delivery_date) = $tahun
-                  AND DATE(d.delivery_date) <= '$kemarin'
                 GROUP BY d.part_id, p.vendor_id
             ) di"), function ($join) {
                 $join->on('di.part_id', '=', 'pv.part_id');

@@ -30,6 +30,10 @@ class StockDashboardController extends Controller
         $query    = request('query');
         $vendor   = request('vendor');
 
+        $lastDiDate = DB::table('master_di')
+            ->whereDate('delivery_date', '<', $tanggal)
+            ->max(DB::raw('DATE(delivery_date)'));
+
         $stock = DB::table('parts as p')
             ->join(DB::raw("(
                 SELECT DISTINCT part_id, vendor_id FROM po_table
@@ -64,7 +68,6 @@ class StockDashboardController extends Controller
             ->leftJoin(DB::raw("(
                 SELECT d.part_id, p.vendor_id,
                     SUM(CASE WHEN d.qty_plan > 0 THEN 1 ELSE 0 END) AS qty_plan,
-                    SUM(CASE WHEN d.qty_delivery = 0 THEN 1 ELSE 0 END) AS qty_delivery,
                     SUM(CASE WHEN d.qty_delivery > 0 THEN 1 ELSE 0 END) AS di_delay,
                     SUM(CASE WHEN d.qty_delivery = 0 THEN 1 ELSE 0 END) AS di_closed,
                     SUM(d.qty_manifest) AS qty_manifest,
@@ -82,9 +85,7 @@ class StockDashboardController extends Controller
                     END AS balance
                 FROM master_di d
                 JOIN po_table p ON d.po_id = p.id
-                WHERE MONTH(d.delivery_date) = $bulan
-                  AND YEAR(d.delivery_date) = $tahun
-                  AND DATE(d.delivery_date) <= '$kemarin'
+                WHERE DATE(d.delivery_date) <= '$lastDiDate'
                 GROUP BY d.part_id, p.vendor_id
             ) di"), function ($join) {
                 $join->on('di.part_id', '=', 'pv.part_id');
@@ -106,9 +107,6 @@ class StockDashboardController extends Controller
                 'ms.detail_problem',
                 DB::raw('COALESCE(po.qty_po,0) as qty_po'),
                 DB::raw('COALESCE(po.qty_outstanding,0) as qty_outstanding'),
-                DB::raw('COALESCE(di.qty_plan,0) as qty_plan'),
-                DB::raw('COALESCE(di.qty_delivery,0) as qty_delivery'),
-                DB::raw('COALESCE(di.balance,0) as balance'),
                 DB::raw('COALESCE(di.qty_delay,0) as qty_delay'),
                 DB::raw('COALESCE(di.di_delay,0) as di_delay'),
                 DB::raw('COALESCE(di.di_closed,0) as di_closed'),
@@ -146,31 +144,11 @@ class StockDashboardController extends Controller
 
         $barData = [];
 
-        foreach ($allStock as $row) {
-
-            $vendor = $row->nickname;
-
-            if (!isset($barData[$vendor])) {
-                $barData[$vendor] = [
-                    'delay'      => 0,
-                    'closed'     => 0,
-                    'total_di'   => 0,
-                    'pct_closed' => 0
-                ];
-            }
-
-            $barData[$vendor]['delay']  += $row->di_delay;
-            $barData[$vendor]['closed'] += $row->di_closed;
-            $barData[$vendor]['total_di'] += ($row->di_delay + $row->di_closed);
-        }
-
-        foreach ($barData as $vendor => $data) {
-            if ($data['total_di'] > 0) {
-                $barData[$vendor]['pct_closed'] =
-                    round(($data['closed'] / $data['total_di']) * 100, 1);
-            } else {
-                $barData[$vendor]['pct_closed'] = 0;
-            }
+        foreach ($allStock->unique('nickname') as $row) {
+            $barData[$row->nickname] = [
+                'delay'  => $row->di_delay,
+                'closed' => $row->di_closed,
+            ];
         }
 
         $vendorList = DB::table('vendors')

@@ -93,14 +93,11 @@
                             <input type="hidden" name="tanggal" value="{{ request('tanggal') }}">
                             <input type="hidden" name="query" value="{{ request('query') }}">
 
-                            <select name="vendor"
-                                    class="form-select form-select-sm fw-bold"
-                                    style="font-size:12px; width:120px; color: #2D46B9;"
-                                    onchange="this.form.submit()">
+                            <select name="vendor" class="form-select form-select-sm fw-bold"
+                                style="font-size:12px; width:120px; color: #2D46B9;" onchange="this.form.submit()">
                                 <option value="">ALL VENDOR</option>
                                 @foreach($vendorList as $v)
-                                    <option value="{{ $v->nickname }}"
-                                        {{ request('vendor') == $v->nickname ? 'selected' : '' }}>
+                                    <option value="{{ $v->nickname }}" {{ request('vendor') == $v->nickname ? 'selected' : '' }}>
                                         {{ $v->nickname }}
                                     </option>
                                 @endforeach
@@ -154,7 +151,8 @@
                                             </td>
                                             <td class="text-center p-1">{{ $row->qty_manifest }}</td>
                                             <td class="p-1 text-center">{{ $row->kategori_problem }}</td>
-                                            <td class="p-1 text-center" style="max-width: 150px;">{{ $row->detail_problem }}</td>
+                                            <td class="p-1 text-center" style="max-width: 150px;">{{ $row->detail_problem }}
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -168,7 +166,8 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
     <style>
         body {
@@ -266,7 +265,7 @@
         @endforeach
 
 
-        // BAR CHART
+        // BAR CHART (STACKED)
         const barLabels = [
             @foreach($barData as $vendor => $data)
                 "{{ $vendor }}",
@@ -277,11 +276,11 @@
             @foreach($barData as $vendor => $data)
                 {{ $data['delay'] }},
             @endforeach
-            ];
-            
-        const pctClosedData = [
+        ];
+
+        const closedData = [
             @foreach($barData as $vendor => $data)
-                {{ $data['pct_closed'] }},
+                {{ $data['closed'] }},
             @endforeach
         ];
 
@@ -292,98 +291,66 @@
             data: {
                 labels: barLabels,
                 datasets: [
-                {
-                    label: 'Delay (Item)',
-                    data: delayData,
-                    yAxisID: 'y',            
-                    backgroundColor: '#ff3b3b',
-                    borderRadius: 2,
-                    barPercentage: 0.9,
-                    categoryPercentage: 0.9
-                },
-                {
-                    label: 'Closed (%)',
-                    data: pctClosedData,
-                    yAxisID: 'y1',         
-                    backgroundColor: '#c9e933',
-                    borderRadius: 2,
-                    barPercentage: 0.9,
-                    categoryPercentage: 0.9
-                }
-            ]
+                    {
+                        label: 'DI Delay',
+                        data: delayData,
+                        backgroundColor: '#ff3b3b',
+                        borderRadius: 2,
+                        stack: 'total'
+                    },
+                    {
+                        label: 'DI Closed',
+                        data: closedData,
+                        backgroundColor: '#c9e933',
+                        borderRadius: 2,
+                        stack: 'total'
+                    }
+                ]
             },
             options: {
-            responsive: true,
-            maintainAspectRatio: false,
-           
-            plugins: {
-                legend: {
-                    position: 'top'
-                },
-                datalabels: {
-                    color: '#495057',
-                    font: {
-                        size: 7,
-                        weight: 'bold'
-                    },
-                    anchor: 'end',
-                    align: 'end',  
-                    offset: -2,
-                    formatter: function (value, ctx) {
-                        // persen axis kanan
-                        if (ctx.dataset.yAxisID === 'y1') {
-                            return value > 0 ? value + '%' : '';
-                        }
-                        // angka axis kiri
-                        return value > 0 ? value : '';
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    grid: { display: false },
-                    ticks: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    datalabels: {
                         color: '#495057',
-                        font: { size: 8, weight: 'bold' },
-                        maxRotation: 45,
-                        minRotation: 45
+                        font: { size: 9, weight: 'bold' },
+                        anchor: 'center',
+                        align: 'center',
+                        formatter: function (value) {
+                            return value > 0 ? value : '';
+                        }
                     }
                 },
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'DI Delay'
+                scales: {
+                    x: {
+                        stacked: true,
+                        grid: { display: false },
+                        ticks: {
+                            color: '#495057',
+                            font: { size: 8, weight: 'bold' },
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
                     },
-                    ticks: {
-                        precision: 0,
-                        font: { size: 7 }
-                    }
-                },
-                y1: {
-                    beginAtZero: true,
-                    max: 100,
-                    position: 'right',
-                    grid: {
-                        drawOnChartArea: false 
-                    },
-                    title: {
-                        display: true,
-                        text: 'DI Closed (%)'
-                    },
-                    ticks: {
-                        callback: function (value) {
-                            return value + '%';
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Total DI (H-1)'
                         },
-                        font: { size: 7 }
+                        ticks: {
+                            precision: 0,
+                            font: { size: 7 }
+                        }
                     }
-                }
+                },
+                animation: { duration: 0 }
             },
-            animation: { duration: 0 }
-        },
-        plugins: [ChartDataLabels]
-
+            plugins: [ChartDataLabels]
         });
+
     </script>
 
     <script>
@@ -401,26 +368,26 @@
 
             function startScrolling() {
                 if (scrollInterval) clearInterval(scrollInterval);
-                
+
                 scrollInterval = setInterval(() => {
                     if (isPaused || isAtBottom) return;
-                    
+
                     tableContainer.scrollTop += scrollSpeed;
-                    
+
                     const atBottom = tableContainer.scrollTop + tableContainer.clientHeight >= tableContainer.scrollHeight - 5;
-                    
+
                     if (atBottom) {
                         isAtBottom = true;
-                        
+
                         setTimeout(() => {
                             tableContainer.scrollTop = 0;
-                            
+
                             setTimeout(() => {
                                 isAtBottom = false;
                             }, 3000);
                         }, 2000);
                     }
-                }, 16); 
+                }, 16);
             }
 
             setTimeout(() => {

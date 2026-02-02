@@ -69,7 +69,7 @@
                             <th>PO</th>
                             <th>DI</th>
                             <th>OS DI</th>
-                            <th>%</th>
+                            {{-- <th>%</th> --}}
                             <th>Delay</th>
                             <th>H</th>
                             {{-- @if(auth()->user()->role !== 'vendor')
@@ -87,7 +87,7 @@
                                 <td>{{ $d->po_number }}</td>
                                 <td>{{ $d->qty_plan }}</td>
                                 <td>{{ $d->qty_delivery }}</td>
-                                <td>{{ $d->balance }}</td>
+                                {{-- <td>{{ $d->balance }}</td> --}}
                                 <td>{{ $d->qty_delay }}</td>
                                 <td>{{ $d->qty_manifest }}</td>
                                 {{-- @if(auth()->user()->role !== 'vendor')
