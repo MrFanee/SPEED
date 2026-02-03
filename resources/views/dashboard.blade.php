@@ -3,9 +3,18 @@
 @section('title', 'Dashboard')
 
 @section('content')
-  <div class="pagetitle">
-    <h1>Dashboard</h1>
+  <div class="pagetitle d-flex justify-content-between align-items-center">
+    <h1 class="mb-0">Dashboard</h1>
+
+    @if (auth()->user()->role !== 'vendor')
+      <a href="{{ route('monitoring.stock') }}" class="btn btn-sm text-white fw-bold"
+        style="background: linear-gradient(90deg,#4635B1,#B771E5); border:none;">
+        <i class="bi bi-graph-up-arrow me-1"></i>
+        Monitoring Dashboard
+      </a>
+    @endif
   </div>
+
 
   <section class="section dashboard">
     <div class="container-fluid py-1">

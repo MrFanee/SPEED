@@ -85,7 +85,9 @@ class StockDashboardController extends Controller
                     END AS balance
                 FROM master_di d
                 JOIN po_table p ON d.po_id = p.id
-                WHERE DATE(d.delivery_date) <= '$lastDiDate'
+                WHERE MONTH(d.delivery_date) = $bulan
+                AND YEAR(d.delivery_date) = $tahun
+                AND DATE(d.delivery_date) <= '$lastDiDate'
                 GROUP BY d.part_id, p.vendor_id
             ) di"), function ($join) {
                 $join->on('di.part_id', '=', 'pv.part_id');
@@ -142,14 +144,13 @@ class StockDashboardController extends Controller
             return ['OK' => $ok, 'NG' => $ng];
         });
 
-        $barData = [];
+        $barData = $allStock->groupBy('nickname')->map(function ($items) {
+    return [
+        'delay'  => $items->sum('di_delay'),
+        'closed' => $items->sum('di_closed'),
+    ];
+});
 
-        foreach ($allStock->unique('nickname') as $row) {
-            $barData[$row->nickname] = [
-                'delay'  => $row->di_delay,
-                'closed' => $row->di_closed,
-            ];
-        }
 
         $vendorList = DB::table('vendors')
             ->select('nickname')
