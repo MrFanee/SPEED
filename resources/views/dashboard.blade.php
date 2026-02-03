@@ -8,7 +8,7 @@
 
     @if (auth()->user()->role !== 'vendor')
       <a href="{{ route('monitoring.stock') }}" class="btn btn-sm text-white fw-bold"
-        style="background: linear-gradient(90deg,#4635B1,#B771E5); border:none;">
+        style="background: linear-gradient(90deg,#476EAE,#48B3AF); border:none;">
         <i class="bi bi-graph-up-arrow me-1"></i>
         Monitoring Dashboard
       </a>

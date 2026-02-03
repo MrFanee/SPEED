@@ -31,10 +31,14 @@ class StockIndexController extends Controller
 
         $stock = DB::table('parts as p')
             ->join(DB::raw("(
-                SELECT DISTINCT part_id, vendor_id FROM po_table
-                UNION
-                SELECT DISTINCT part_id, vendor_id FROM master_stock
-            ) pv"), function ($join) {
+                    SELECT DISTINCT part_id, vendor_id FROM po_table
+                    WHERE MONTH(delivery_date) = $bulan
+                        AND YEAR(delivery_date) = $tahun
+                    UNION
+                    SELECT DISTINCT part_id, vendor_id FROM master_stock
+                    WHERE tanggal = '$tanggal' 
+                        AND (fg > 0 OR wip > 0 OR rm > 0)
+                ) pv"), function ($join) {
                 $join->on('p.id', '=', 'pv.part_id');
             })
 
