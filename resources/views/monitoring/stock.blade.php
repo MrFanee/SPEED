@@ -80,7 +80,7 @@
 
         {{-- TABEL --}}
         <div class="row">
-            <div class="col-12">
+            <div class="col-lg-10 col-12">
                 <div class="card shadow-sm border-0" style="height: calc(100vh - 430px);">
                     <div class="card-header py-1 d-flex justify-content-between align-items-center"
                         style="background: linear-gradient(90deg, #2D46B9 0%, #9EDDFF 100%);">
@@ -161,6 +161,73 @@
                     </div>
                 </div>
             </div>
+
+            {{-- LAST UPDATE --}}
+            <div class="col-lg-2 col-12">
+                <div class="card shadow-sm border-0" style="height: calc(100vh - 430px);">
+
+                    <div class="card-header py-1 d-flex justify-content-center align-items-center"
+                        style="background: linear-gradient(90deg, #2D46B9 0%, #9EDDFF 100%);">
+                        <h6 class="mb-0 text-white fw-bold" style="font-size: 12px;">
+                            LAST UPDATE DATA
+                        </h6>
+                    </div>
+
+                    <div class="card-body p-2" id="autoScrollUpdate" style="font-size:12px; overflow-y:auto;">
+
+                        @if (auth()->user()->role !== 'vendor')
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between align-items-center border-bottom pb-1">
+                                    <span class="fw-bold">Master PO</span>
+                                    @if ($lastMasterPO)
+                                        @php $isTodayPO = \Carbon\Carbon::parse($lastMasterPO)->isToday(); @endphp
+                                        <span class="badge rounded-pill {{ $isTodayPO ? 'bg-success' : 'bg-danger' }}">
+                                            {{ \Carbon\Carbon::parse($lastMasterPO)->format('d M H:i') }}
+                                        </span>
+                                    @else
+                                        <span class="badge bg-secondary rounded-pill">No Update</span>
+                                    @endif
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center pt-1">
+                                    <span class="fw-bold">Master DI</span>
+                                    @if ($lastMasterDI)
+                                        @php $isTodayDI = \Carbon\Carbon::parse($lastMasterDI)->isToday(); @endphp
+                                        <span class="badge rounded-pill {{ $isTodayDI ? 'bg-success' : 'bg-danger' }}">
+                                            {{ \Carbon\Carbon::parse($lastMasterDI)->format('d M H:i') }}
+                                        </span>
+                                    @else
+                                        <span class="badge bg-secondary rounded-pill">No Update</span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <hr class="my-2">
+                        @endif
+
+                        {{-- LIST VENDOR --}}
+                        @foreach ($lastUpdates as $row)
+                            <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
+                                <span class="text-truncate" style="max-width: 120px;">
+                                    {{ $row->vendor }}
+                                </span>
+
+                                @if ($row->last_update)
+                                    @php $isToday = \Carbon\Carbon::parse($row->last_update)->isToday(); @endphp
+                                    <span class="badge rounded-pill {{ $isToday ? 'bg-success' : 'bg-danger' }}">
+                                        {{ \Carbon\Carbon::parse($row->last_update)->format('d M H:i') }}
+                                    </span>
+                                @else
+                                    <span class="badge bg-secondary rounded-pill">
+                                        No Update
+                                    </span>
+                                @endif
+                            </div>
+                        @endforeach
+
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>
@@ -215,11 +282,12 @@
             overflow: visible !important;
         }
 
-        #autoScrollTable::-webkit-scrollbar {
+        #autoScrollTable::-webkit-scrollbar, 
+        #autoScrollUpdate::-webkit-scrollbar {
             display: none;
         }
 
-        #autoScrollTable {
+        #autoScrollTable, #autoScrollUpdate {
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
@@ -265,24 +333,24 @@
         @endforeach
 
 
-        // BAR CHART (STACKED)
-        const barLabels = [
+            // BAR CHART (STACKED)
+            const barLabels = [
             @foreach($barData as $vendor => $data)
                 "{{ $vendor }}",
             @endforeach
-        ];
+                        ];
 
         const delayData = [
             @foreach($barData as $vendor => $data)
                 {{ $data['delay'] }},
             @endforeach
-        ];
+                        ];
 
         const closedData = [
             @foreach($barData as $vendor => $data)
                 {{ $data['closed'] }},
             @endforeach
-        ];
+                        ];
 
         const barCtx = document.getElementById('barVendorChart');
 
@@ -354,17 +422,17 @@
     </script>
 
     <script>
-        function startTableAutoScrollSimple() {
-            const tableContainer = document.getElementById('autoScrollTable');
-            if (!tableContainer) return;
+        function startAutoScroll(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
 
-            let scrollSpeed = 0.5;
+            let scrollSpeed = 0.7;
             let isPaused = false;
             let isAtBottom = false;
             let scrollInterval = null;
 
-            tableContainer.addEventListener('mouseenter', () => isPaused = true);
-            tableContainer.addEventListener('mouseleave', () => isPaused = false);
+            container.addEventListener('mouseenter', () => isPaused = true);
+            container.addEventListener('mouseleave', () => isPaused = false);
 
             function startScrolling() {
                 if (scrollInterval) clearInterval(scrollInterval);
@@ -372,15 +440,15 @@
                 scrollInterval = setInterval(() => {
                     if (isPaused || isAtBottom) return;
 
-                    tableContainer.scrollTop += scrollSpeed;
+                    container.scrollTop += scrollSpeed;
 
-                    const atBottom = tableContainer.scrollTop + tableContainer.clientHeight >= tableContainer.scrollHeight - 5;
+                    const atBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 5;
 
                     if (atBottom) {
                         isAtBottom = true;
 
                         setTimeout(() => {
-                            tableContainer.scrollTop = 0;
+                            container.scrollTop = 0;
 
                             setTimeout(() => {
                                 isAtBottom = false;
@@ -396,9 +464,13 @@
         }
 
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', startTableAutoScrollSimple);
+            document.addEventListener('DOMContentLoaded', function () {
+                startAutoScroll('autoScrollTable');   
+                startAutoScroll('autoScrollUpdate'); 
+            });
         } else {
-            startTableAutoScrollSimple();
+            startAutoScroll('autoScrollTable');
+            startAutoScroll('autoScrollUpdate');
         }
     </script>
 

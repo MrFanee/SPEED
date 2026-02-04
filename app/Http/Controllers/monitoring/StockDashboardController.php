@@ -145,11 +145,11 @@ class StockDashboardController extends Controller
         });
 
         $barData = $allStock->groupBy('nickname')->map(function ($items) {
-    return [
-        'delay'  => $items->sum('di_delay'),
-        'closed' => $items->sum('di_closed'),
-    ];
-});
+            return [
+                'delay'  => $items->sum('di_delay'),
+                'closed' => $items->sum('di_closed'),
+            ];
+        });
 
 
         $vendorList = DB::table('vendors')
@@ -161,6 +161,24 @@ class StockDashboardController extends Controller
             return $item->judgement === 'NG' || $item->qty_delay > 0 && $item->qty_po > 0;
         })->values();
 
-        return view('monitoring.stock', compact('tanggal', 'stock', 'pieData', 'barData', 'query', 'vendorList'));
+        $lastUpdates = DB::table('vendors')
+            ->leftJoin('master_stock', 'vendors.id', '=', 'master_stock.vendor_id')
+            ->select(
+                'vendors.nickname as vendor',
+                DB::raw('MAX(master_stock.vendor_updated_at) as last_update')
+            )
+            ->groupBy('vendors.id', 'vendors.nickname')
+            ->orderBy('last_update', 'desc');
+
+        if (Auth::user()->role === 'vendor') {
+            $lastUpdates->where('master_stock.vendor_id', Auth::user()->vendor_id);
+        }
+
+        $lastUpdates = $lastUpdates->get();
+
+        $lastMasterDI = DB::table('master_di')->max('updated_at');
+        $lastMasterPO = DB::table('po_table')->max('updated_at');
+
+        return view('monitoring.stock', compact('tanggal', 'stock', 'pieData', 'barData', 'query', 'vendorList', 'lastUpdates', 'lastMasterDI', 'lastMasterPO'));
     }
 }
