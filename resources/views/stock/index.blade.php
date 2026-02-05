@@ -58,11 +58,11 @@
                                 <i class="bi bi-plus-circle-dotted"></i> Tambah
                             </button>
                         </form>
-
-                        <a href="{{ route('stock.upload') }}" class="btn btn-outline-success btn-sm">
-                            <i class="bi bi-upload"></i> Upload CSV
-                        </a>
                     @endif
+
+                    <a href="{{ route('stock.upload') }}" class="btn btn-outline-success btn-sm">
+                        <i class="bi bi-upload"></i> Upload CSV
+                    </a>
                 </div>
 
 
@@ -186,6 +186,7 @@
         </div>
     </section>
 
+    {{-- tabel --}}
     @if ($isToday)
         <script>
             document.addEventListener('DOMContentLoaded', function () {
@@ -450,6 +451,7 @@
         </script>
     @endif
 
+    {{-- filter --}}
     <script>
         function toggleFilterInput(colIndex) {
             const input = document.querySelector(`.filter-input[data-col='${colIndex}']`);
@@ -488,6 +490,7 @@
         }
     </script>
 
+    {{-- search bar --}}
     <script>
         const input = document.getElementById('searchInput');
         const clearBtn = document.getElementById('clearSearch');
