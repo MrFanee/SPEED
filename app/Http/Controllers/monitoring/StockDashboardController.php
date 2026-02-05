@@ -170,7 +170,7 @@ class StockDashboardController extends Controller
             ->groupBy('vendors.id', 'vendors.nickname')
             ->orderBy('last_update', 'desc');
 
-        if (Auth::user()->role === 'vendor') {
+        if (Auth::check() && Auth::user()->role === 'vendor') {
             $lastUpdates->where('master_stock.vendor_id', Auth::user()->vendor_id);
         }
 

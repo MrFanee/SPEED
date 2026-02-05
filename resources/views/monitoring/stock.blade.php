@@ -175,35 +175,33 @@
 
                     <div class="card-body p-2" id="autoScrollUpdate" style="font-size:12px; overflow-y:auto;">
 
-                        @if (auth()->user()->role !== 'vendor')
-                            <div class="mb-2">
-                                <div class="d-flex justify-content-between align-items-center border-bottom pb-1">
-                                    <span class="fw-bold">Master PO</span>
-                                    @if ($lastMasterPO)
-                                        @php $isTodayPO = \Carbon\Carbon::parse($lastMasterPO)->isToday(); @endphp
-                                        <span class="badge rounded-pill {{ $isTodayPO ? 'bg-success' : 'bg-danger' }}">
-                                            {{ \Carbon\Carbon::parse($lastMasterPO)->format('d M H:i') }}
-                                        </span>
-                                    @else
-                                        <span class="badge bg-secondary rounded-pill">No Update</span>
-                                    @endif
-                                </div>
-
-                                <div class="d-flex justify-content-between align-items-center pt-1">
-                                    <span class="fw-bold">Master DI</span>
-                                    @if ($lastMasterDI)
-                                        @php $isTodayDI = \Carbon\Carbon::parse($lastMasterDI)->isToday(); @endphp
-                                        <span class="badge rounded-pill {{ $isTodayDI ? 'bg-success' : 'bg-danger' }}">
-                                            {{ \Carbon\Carbon::parse($lastMasterDI)->format('d M H:i') }}
-                                        </span>
-                                    @else
-                                        <span class="badge bg-secondary rounded-pill">No Update</span>
-                                    @endif
-                                </div>
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between align-items-center border-bottom pb-1">
+                                <span class="fw-bold">Master PO</span>
+                                @if ($lastMasterPO)
+                                    @php $isTodayPO = \Carbon\Carbon::parse($lastMasterPO)->isToday(); @endphp
+                                    <span class="badge rounded-pill {{ $isTodayPO ? 'bg-success' : 'bg-danger' }}">
+                                        {{ \Carbon\Carbon::parse($lastMasterPO)->format('d M H:i') }}
+                                    </span>
+                                @else
+                                    <span class="badge bg-secondary rounded-pill">No Update</span>
+                                @endif
                             </div>
 
-                            <hr class="my-2">
-                        @endif
+                            <div class="d-flex justify-content-between align-items-center pt-1">
+                                <span class="fw-bold">Master DI</span>
+                                @if ($lastMasterDI)
+                                    @php $isTodayDI = \Carbon\Carbon::parse($lastMasterDI)->isToday(); @endphp
+                                    <span class="badge rounded-pill {{ $isTodayDI ? 'bg-success' : 'bg-danger' }}">
+                                        {{ \Carbon\Carbon::parse($lastMasterDI)->format('d M H:i') }}
+                                    </span>
+                                @else
+                                    <span class="badge bg-secondary rounded-pill">No Update</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <hr class="my-2">
 
                         {{-- LIST VENDOR --}}
                         @foreach ($lastUpdates as $row)
@@ -282,12 +280,13 @@
             overflow: visible !important;
         }
 
-        #autoScrollTable::-webkit-scrollbar, 
+        #autoScrollTable::-webkit-scrollbar,
         #autoScrollUpdate::-webkit-scrollbar {
             display: none;
         }
 
-        #autoScrollTable, #autoScrollUpdate {
+        #autoScrollTable,
+        #autoScrollUpdate {
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
@@ -333,24 +332,24 @@
         @endforeach
 
 
-            // BAR CHART (STACKED)
-            const barLabels = [
+                // BAR CHART (STACKED)
+                const barLabels = [
             @foreach($barData as $vendor => $data)
                 "{{ $vendor }}",
             @endforeach
-                        ];
+                            ];
 
         const delayData = [
             @foreach($barData as $vendor => $data)
                 {{ $data['delay'] }},
             @endforeach
-                        ];
+                            ];
 
         const closedData = [
             @foreach($barData as $vendor => $data)
                 {{ $data['closed'] }},
             @endforeach
-                        ];
+                            ];
 
         const barCtx = document.getElementById('barVendorChart');
 
@@ -465,8 +464,8 @@
 
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function () {
-                startAutoScroll('autoScrollTable');   
-                startAutoScroll('autoScrollUpdate'); 
+                startAutoScroll('autoScrollTable');
+                startAutoScroll('autoScrollUpdate');
             });
         } else {
             startAutoScroll('autoScrollTable');
