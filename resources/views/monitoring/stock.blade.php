@@ -126,35 +126,36 @@
                                 </thead>
                                 <tbody>
                                     @foreach($stock as $row)
-                                                                    <tr class="{{ $row->qty_delay > 0 ? 'bg-warning bg-opacity-25' : '' }}">
-                                                                        <td class="text-center p-1 fw-bold" style="background-color: #f8f9fa;">
-                                                                            {{ $row->nickname }}
-                                                                        </td>
-                                                                        <td class="p-1">
-                                                                            <span class="badge bg-info text-dark">{{ $row->item_code }}</span>
-                                                                        </td>
-                                                                        <td class="p-1 text-truncate" style="max-width: 200px;"
-                                                                            title="{{ $row->part_name }}">
-                                                                            {{ $row->part_name }}
-                                                                        </td>
-                                                                        <td class="text-center p-1">{{ $row->rm }}</td>
-                                                                        <td class="text-center p-1">{{ $row->wip }}</td>
-                                                                        <td class="text-center p-1 fw-bold" style="color: #2c3e50;">{{ $row->fg }}</td>
-                                                                        <td class="text-center p-1">{{ $row->std_stock }}</td>
-                                                                        <td class="fw-bold text-center p-1 text-white"
-                                                                            style="background-color: {{ $row->judgement == 'NG' ? '#FF5FCF' : '#00DFA2' }};">
-                                                                            {{ $row->judgement }}
-                                                                        </td>
-                                                                        <td class="fw-bold text-center p-1" style="
-                                                                                background-color: {{ $row->qty_delay > 0 ? '#FF5FCF' : 'transparent' }};
-                                                                                color: {{ $row->qty_delay > 0 ? 'white' : '#00DFA2' }};">
-                                                                            {{ $row->qty_delay }}
-                                                                        </td>
-                                                                        <td class="text-center p-1">{{ $row->qty_manifest }}</td>
-                                                                        <td class="p-1 text-center">{{ $row->kategori_problem }}</td>
-                                                                        <td class="p-1 text-center" style="max-width: 150px;">{{ $row->detail_problem }}
-                                                                        </td>
-                                                                    </tr>
+                                        <tr class="{{ $row->qty_delay > 0 ? 'bg-warning bg-opacity-25' : '' }}">
+                                            <td class="text-center p-1 fw-bold" style="background-color: #f8f9fa;">
+                                                {{ $row->nickname }}
+                                            </td>
+                                            <td class="p-1">
+                                                <span class="badge bg-info text-dark">{{ $row->item_code }}</span>
+                                            </td>
+                                            <td class="p-1 text-truncate" style="max-width: 200px;"
+                                                title="{{ $row->part_name }}">
+                                                {{ $row->part_name }}
+                                            </td>
+                                            <td class="text-center p-1">{{ $row->rm }}</td>
+                                            <td class="text-center p-1">{{ $row->wip }}</td>
+                                            <td class="text-center p-1 fw-bold" style="color: #2c3e50;">{{ $row->fg }}</td>
+                                            <td class="text-center p-1">{{ $row->std_stock }}</td>
+                                            <td class="fw-bold text-center p-1 text-white"
+                                                style="background-color: {{ $row->judgement == 'NG' ? '#FF5FCF' : '#00DFA2' }};">
+                                                {{ $row->judgement }}
+                                            </td>
+                                            <td class="fw-bold text-center p-1"
+                                                style="
+                                                                                        background-color: {{ $row->qty_delay > 0 ? '#FF5FCF' : 'transparent' }};
+                                                                                        color: {{ $row->qty_delay > 0 ? 'white' : '#00DFA2' }};">
+                                                {{ $row->qty_delay }}
+                                            </td>
+                                            <td class="text-center p-1">{{ $row->qty_manifest }}</td>
+                                            <td class="p-1 text-center">{{ $row->kategori_problem }}</td>
+                                            <td class="p-1 text-center" style="max-width: 150px;">{{ $row->detail_problem }}
+                                            </td>
+                                        </tr>
                                     @endforeach
                                 </tbody>
                             </table>
@@ -333,24 +334,24 @@
         @endforeach
 
 
-                    // BAR CHART (STACKED)
-                    const barLabels = [
+        // BAR CHART (STACKED)
+        const barLabels = [
             @foreach($barData as $vendor => $data)
                 "{{ $vendor }}",
             @endforeach
-                                ];
+                                    ];
 
         const delayData = [
             @foreach($barData as $vendor => $data)
                 {{ $data['delay'] }},
             @endforeach
-                                ];
+                                    ];
 
         const closedData = [
             @foreach($barData as $vendor => $data)
                 {{ $data['closed'] }},
             @endforeach
-                                ];
+                                    ];
 
         const barCtx = document.getElementById('barVendorChart');
 
@@ -418,6 +419,10 @@
             },
             plugins: [ChartDataLabels]
         });
+
+        setTimeout(function () {
+            location.reload();
+        }, 300000);
 
     </script>
 
