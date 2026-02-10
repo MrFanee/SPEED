@@ -60,11 +60,16 @@
                         </form>
                     @endif
 
-                    <a href="{{ route('stock.upload') }}" class="btn btn-outline-success btn-sm">
-                        <i class="bi bi-upload"></i> Upload CSV
-                    </a>
-                </div>
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('stock.upload') }}" class="btn btn-outline-success btn-sm">
+                            <i class="bi bi-upload"></i> Upload CSV
+                        </a>
 
+                        <button type="button" id="exportExcel" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-file-earmark-excel"></i> Export Excel
+                        </button>
+                    </div>
+                </div>
 
                 <div style="max-height: 350px; overflow-y: auto; position: relative;">
                     @if(session('success'))
@@ -186,6 +191,7 @@
         </div>
     </section>
 
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
     {{-- tabel --}}
     @if ($isToday)
         <script>
@@ -507,4 +513,35 @@
             form.submit();
         });
     </script>
+
+    <script>
+        document.getElementById('exportExcel').addEventListener('click', function () {
+            const table = document.querySelector('table');
+
+            // clone biar filter input & tombol ga ikut
+            const clonedTable = table.cloneNode(true);
+
+            // hapus baris filter (baris ke-2 thead)
+            clonedTable.querySelectorAll('thead tr')[1].remove();
+
+            // ubah badge jadi text biasa
+            clonedTable.querySelectorAll('.badge').forEach(badge => {
+                badge.outerHTML = badge.textContent;
+            });
+
+            // ubah select kategori jadi text
+            clonedTable.querySelectorAll('select').forEach(sel => {
+                const text = sel.options[sel.selectedIndex]?.text || '';
+                sel.outerHTML = text;
+            });
+
+            // hilangkan contenteditable
+            clonedTable.querySelectorAll('[contenteditable]').forEach(td => {
+                td.removeAttribute('contenteditable');
+            });
+
+            const wb = XLSX.utils.table_to_book(clonedTable, { sheet: "2DaysStock" });
+            XLSX.writeFile(wb, `2DaysStock_{{ $tanggal }}.xlsx`);
+        });
+    </script> 
 @endsection
