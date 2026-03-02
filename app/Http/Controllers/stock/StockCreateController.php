@@ -30,14 +30,15 @@ class StockCreateController extends Controller
             })
             ->update([
                 'judgement' => DB::raw("
-                    CASE
-                        WHEN qty_po = 0 THEN 'NO PO'
-                        WHEN fg >= std_stock THEN 'OK'
-                        WHEN fg < std_stock THEN 'NG'
-                        ELSE '-'
-                    END
-                ")
+                CASE
+                    WHEN qty_po = 0 THEN 'NO PO'
+                    WHEN fg >= std_stock THEN 'OK'
+                    WHEN fg < std_stock THEN 'NG'
+                    ELSE '-'
+                END
+            ")
             ]);
+
         if ($already) {
             return back()->with('success', "2 Days Stock untuk tanggal $tanggal sudah ada!");
         }
@@ -49,6 +50,7 @@ class StockCreateController extends Controller
             return back()->with('success', 'Belum ada data sebelumnya untuk disalin.');
         }
 
+        // === BAGIAN 1: COPY DATA DARI HARI SEBELUMNYA ===
         $data = DB::table('master_stock')->whereDate('tanggal', $lastDate)->get();
 
         foreach ($data as $row) {
@@ -71,6 +73,7 @@ class StockCreateController extends Controller
             }
         }
 
+        // === BAGIAN 2: CEK DAN TAMBAH DATA YANG BELUM ADA (TAPI JANGAN RESET KE 0) ===
         $allParts = DB::table('po_table')
             ->select('part_id', 'vendor_id')
             ->whereMonth('delivery_date', date('m'))
@@ -94,7 +97,17 @@ class StockCreateController extends Controller
 
                 $std = DB::table('master_2hk')->where('part_id', $p->part_id)->max('std_stock');
 
-                $fg = 0;
+                // === CARI DATA DARI HARI SEBELUMNYA UNTUK MENDAPATKAN NILAI RM, WIP, FG ===
+                $lastData = DB::table('master_stock')
+                    ->where('part_id', $p->part_id)
+                    ->where('vendor_id', $p->vendor_id)
+                    ->orderBy('tanggal', 'desc')
+                    ->first();
+
+                // === GUNAKAN NILAI DARI HARI SEBELUMNYA JIKA ADA, JIKA TIDAK BARU PAKAI 0 ===
+                $fg = $lastData->fg ?? 0;
+                $wip = $lastData->wip ?? 0;
+                $rm = $lastData->rm ?? 0;
 
                 if ($po == 0) $judgement = 'NO PO';
                 elseif ($fg >= $std) $judgement = 'OK';
@@ -104,9 +117,9 @@ class StockCreateController extends Controller
                     'part_id' => $p->part_id,
                     'vendor_id' => $p->vendor_id,
                     'tanggal' => $tanggal,
-                    'fg' => 0,
-                    'wip' => 0,
-                    'rm' => 0,
+                    'fg' => $fg,      
+                    'wip' => $wip,    
+                    'rm' => $rm,       
                     'judgement' => $judgement,
                     'created_at' => now(),
                     'updated_at' => now(),

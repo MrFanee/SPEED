@@ -308,6 +308,8 @@
                 // --- cek baris NG dengan problem ga lengkap ---
                 function isTableLocked() {
                     const rows = document.querySelectorAll('tr[data-judgement]');
+                    let firstProblemRow = null;
+                    
                     for (const row of rows) {
                         const j = row.dataset.judgement;
                         if (j === 'NG') {
@@ -318,11 +320,35 @@
                             const kategoriVal = kategoriSelect?.value.trim() || '';
 
                             if (!kategoriVal || !detailVal) {
-                                showNotif('Kolom Kategori & Detail Problem wajib diisi untuk baris NG!');
-                                return row;
+                                // Catat baris pertama yang bermasalah
+                                if (!firstProblemRow) {
+                                    firstProblemRow = row;
+                                }
+                                
+                                // Kasih highlight merah tipis ke baris bermasalah
+                                if (kategoriSelect) kategoriSelect.style.border = '1px solid #dc3545';
+                                if (detailCell) detailCell.style.border = '1px solid #dc3545';
+                            } else {
+                                // Reset border jika sudah diisi
+                                const kategoriSelect = row.querySelector('select[data-field="kategori_problem"]');
+                                const detailCell = row.querySelector('[data-field="detail_problem"]');
+                                if (kategoriSelect) kategoriSelect.style.border = '';
+                                if (detailCell) detailCell.style.border = '';
                             }
+                        } else {
+                            // Reset border untuk baris non-NG
+                            const kategoriSelect = row.querySelector('select[data-field="kategori_problem"]');
+                            const detailCell = row.querySelector('[data-field="detail_problem"]');
+                            if (kategoriSelect) kategoriSelect.style.border = '';
+                            if (detailCell) detailCell.style.border = '';
                         }
                     }
+                    
+                    if (firstProblemRow) {
+                        showNotif('Kolom Kategori & Detail Problem wajib diisi untuk baris NG!');
+                        return firstProblemRow;
+                    }
+                    
                     hideNotif();
                     return null;
                 }
@@ -332,16 +358,48 @@
 
                     // focus ke cell lain saat tabel terkunci
                     cell.addEventListener('focus', function (e) {
-                        const lockedRow = isTableLocked();
+                        const lockedRowInfo = isTableLocked();
                         const field = this.dataset.field;
-                        const row = this.closest('tr');
+                        const currentRow = this.closest('tr');
+                        const currentRowId = currentRow.dataset.id;
 
-                        if (lockedRow && (row !== lockedRow || !['kategori_problem', 'detail_problem'].includes(field))) {
-                            e.preventDefault();
-                            this.blur();
-                            this.style.backgroundColor = '#f8d7da';
-                            setTimeout(() => this.style.backgroundColor = '', 400);
-                            return;
+                        // Jika tabel terkunci (ada baris NG dengan problem kosong)
+                        if (lockedRowInfo) {
+                            // lockedRowInfo adalah row yang bermasalah (NG dengan problem kosong)
+                            const problemRowId = lockedRowInfo.dataset.id;
+                            const currentField = field;
+
+                            // CEK: Apakah baris ini adalah baris yang bermasalah?
+                            const isProblemRow = (currentRowId === problemRowId);
+                            
+                            // CEK: Apakah kolom yang sedang difokus adalah kolom problem?
+                            const isProblemField = ['kategori_problem', 'detail_problem'].includes(currentField);
+
+                            // HANYA BLOKIR jika:
+                            // 1. Bukan baris problem, ATAU
+                            // 2. Baris problem tapi kolomnya BUKAN problem field
+                            if (!isProblemRow || (isProblemRow && !isProblemField)) {
+                                e.preventDefault();
+                                this.blur();
+                                
+                                // Kasih highlight merah tipis
+                                this.style.backgroundColor = '#f8d7da';
+                                this.style.border = '1px solid #dc3545';
+                                setTimeout(() => {
+                                    this.style.backgroundColor = '';
+                                    this.style.border = '';
+                                }, 400);
+                                
+                                // Arahkan user ke baris yang bermasalah
+                                const problemKategori = lockedRowInfo.querySelector('[data-field="kategori_problem"]');
+                                if (problemKategori) {
+                                    problemKategori.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    problemKategori.style.backgroundColor = '#fff3cd';
+                                    setTimeout(() => problemKategori.style.backgroundColor = '', 1000);
+                                }
+                                
+                                return;
+                            }
                         }
                     });
 

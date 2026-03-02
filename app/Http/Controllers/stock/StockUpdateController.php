@@ -16,7 +16,7 @@ class StockUpdateController extends Controller
                 ->leftJoin('master_2hk', 'parts.id', '=', 'master_2hk.part_id')
                 ->leftJoin(
                     DB::raw('(SELECT part_id, SUM(qty_po) AS qty_po 
-                         FROM po_table GROUP BY part_id) AS po_sum'),
+                     FROM po_table GROUP BY part_id) AS po_sum'),
                     'parts.id',
                     '=',
                     'po_sum.part_id'
@@ -32,24 +32,31 @@ class StockUpdateController extends Controller
             $field = $request->input('field');
             $value = $request->input('value');
 
-            // --- UPDATE FIELD ---
-            if (in_array($field, ['rm', 'wip', 'fg', 'kategori_problem', 'detail_problem'])) {
-                DB::table('master_stock')
-                ->where('id', $id)
-                ->update([
-                    $field => $value,
-                    'updated_at' => now(),
-                    'vendor_updated_at' => now()
+            if (!$field) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Field kosong'
                 ]);
             }
 
-            // --- REFRESH DATA SETELAH UPDATE ---
+            // --- UPDATE FIELD ---
+            if (in_array($field, ['rm', 'wip', 'fg', 'kategori_problem', 'detail_problem'])) {
+                DB::table('master_stock')
+                    ->where('id', $id)
+                    ->update([
+                        $field => $value,
+                        'updated_at' => now(),
+                        'vendor_updated_at' => now()
+                    ]);
+            }
+
+            // --- AMBIL DATA TERBARU UNTUK HITUNG JUDGEMENT ---
             $updatedStock = DB::table('master_stock')
                 ->leftJoin('parts', 'master_stock.part_id', '=', 'parts.id')
                 ->leftJoin('master_2hk', 'parts.id', '=', 'master_2hk.part_id')
                 ->leftJoin(
                     DB::raw('(SELECT part_id, SUM(qty_po) AS qty_po 
-                         FROM po_table GROUP BY part_id) AS po_sum'),
+                     FROM po_table GROUP BY part_id) AS po_sum'),
                     'parts.id',
                     '=',
                     'po_sum.part_id'
@@ -58,10 +65,10 @@ class StockUpdateController extends Controller
                 ->select('master_stock.*', 'master_2hk.std_stock', 'po_sum.qty_po')
                 ->first();
 
-            // --- HITUNG JUDGEMENT ---
-            $qty_po = (float)($updatedStock->qty_po ?? 0);
-            $fg     = (float)($updatedStock->fg ?? 0);
-            $std    = (float)($updatedStock->std_stock ?? 0);
+            // --- HITUNG JUDGEMENT DENGAN DATA TERBARU ---
+            $fg     = (float) ($updatedStock->fg ?? 0);
+            $qty_po = (float) ($updatedStock->qty_po ?? 0);
+            $std    = (float) ($updatedStock->std_stock ?? 0);
 
             if ($qty_po == 0) {
                 $judgement = 'NO PO';
@@ -74,18 +81,16 @@ class StockUpdateController extends Controller
             }
 
             DB::table('master_stock')
-            ->where('id', $id)
-            ->update([
-                'judgement' => $judgement,
-                'vendor_updated_at' => now()
-            ]);
+                ->where('id', $id)
+                ->update([
+                    'judgement' => $judgement,
+                    'vendor_updated_at' => now()
+                ]);
 
             return response()->json([
                 'success' => true,
                 'judgement' => $judgement,
-                'field_updated' => $field,
-                'qty_po' => $updatedStock->qty_po
-
+                'field_updated' => $field
             ]);
         } catch (\Exception $e) {
             return response()->json([
