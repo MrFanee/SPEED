@@ -65,12 +65,13 @@ class StockDashboardController extends Controller
                 $join->on('po.part_id', '=', 'pv.part_id');
                 $join->on('po.vendor_id', '=', 'pv.vendor_id');
             })
+            // Subquery di → tetap pake lastDiDate (chart)
             ->leftJoin(DB::raw("(
-                SELECT d.part_id, p.vendor_id,
-                    SUM(CASE WHEN d.qty_plan > 0 THEN 1 ELSE 0 END) AS qty_plan,
-                    SUM(CASE WHEN d.qty_delivery > 0 THEN 1 ELSE 0 END) AS di_delay,
-                    SUM(CASE WHEN d.qty_delivery = 0 THEN 1 ELSE 0 END) AS di_closed,
-                    SUM(d.qty_manifest) AS qty_manifest,
+            SELECT d.part_id, p.vendor_id,
+                SUM(CASE WHEN d.qty_plan > 0 THEN 1 ELSE 0 END) AS qty_plan,
+                SUM(CASE WHEN d.qty_delivery > 0 THEN 1 ELSE 0 END) AS di_delay,
+                SUM(CASE WHEN d.qty_delivery = 0 THEN 1 ELSE 0 END) AS di_closed,
+                SUM(d.qty_manifest) AS qty_manifest,
                     (
                         SUM(CASE WHEN d.qty_plan > 0 THEN 1 ELSE 0 END)
                         - SUM(CASE WHEN d.qty_delivery = 0 THEN 1 ELSE 0 END)
@@ -87,11 +88,25 @@ class StockDashboardController extends Controller
                 JOIN po_table p ON d.po_id = p.id
                 WHERE MONTH(d.delivery_date) = $bulan
                 AND YEAR(d.delivery_date) = $tahun
-                AND DATE(d.delivery_date) <= '$lastDiDate'
+                AND DATE(d.delivery_date) <= '$lastDiDate' 
                 GROUP BY d.part_id, p.vendor_id
             ) di"), function ($join) {
                 $join->on('di.part_id', '=', 'pv.part_id');
                 $join->on('di.vendor_id', '=', 'pv.vendor_id');
+            })
+
+            // Subquery manifest → tanpa filter lastDiDate
+            ->leftJoin(DB::raw("(
+                SELECT d.part_id, p.vendor_id,
+                    SUM(d.qty_manifest) AS qty_manifest
+                FROM master_di d
+                JOIN po_table p ON d.po_id = p.id
+                WHERE MONTH(d.delivery_date) = $bulan
+                AND YEAR(d.delivery_date) = $tahun   
+                GROUP BY d.part_id, p.vendor_id
+            ) mf"), function ($join) {
+                $join->on('mf.part_id', '=', 'pv.part_id');
+                $join->on('mf.vendor_id', '=', 'pv.vendor_id');
             })
             ->select(
                 'p.id',
@@ -112,7 +127,7 @@ class StockDashboardController extends Controller
                 DB::raw('COALESCE(di.qty_delay,0) as qty_delay'),
                 DB::raw('COALESCE(di.di_delay,0) as di_delay'),
                 DB::raw('COALESCE(di.di_closed,0) as di_closed'),
-                DB::raw('COALESCE(di.qty_manifest,0) as qty_manifest'),
+                DB::raw('COALESCE(mf.qty_manifest,0) as qty_manifest'),
                 'hk.std_stock'
             )
             ->orderBy('v.nickname', 'asc');
